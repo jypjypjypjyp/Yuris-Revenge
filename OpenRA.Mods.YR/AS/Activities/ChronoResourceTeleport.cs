@@ -10,10 +10,9 @@
 #endregion
 
 using OpenRA.Activities;
+using OpenRA.Mods.AS.Traits;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Effects;
-using OpenRA.Mods.AS.Traits;
-using OpenRA.Traits;
 using OpenRA.Mods.Common.Traits;
 
 namespace OpenRA.Mods.AS.Activities

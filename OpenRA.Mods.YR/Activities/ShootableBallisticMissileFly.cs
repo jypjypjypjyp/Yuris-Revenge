@@ -58,7 +58,7 @@ namespace OpenRA.Mods.YR.Activities
 		{
 			var pos = WPos.LerpQuadratic(initPos, targetPos, sbm.Info.LaunchAngle, ticks, length);
 			sbm.SetPosition(self, pos);
-			sbm.Facing = GetEffectiveFacing();
+			sbm.Facing = WAngle.FromFacing(GetEffectiveFacing());
 		}
 
 		public override bool Tick(Actor self)
@@ -66,7 +66,7 @@ namespace OpenRA.Mods.YR.Activities
 			var d = targetPos - self.CenterPosition;
 
 			// The next move would overshoot, so consider it close enough
-			var move = sbm.FlyStep(sbm.Facing);
+			var move = sbm.FlyStep(sbm.Facing.Facing);
 
 			// Destruct so that Explodes will be called
 			if (d.HorizontalLengthSquared < move.HorizontalLengthSquared)

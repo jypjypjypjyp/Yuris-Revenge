@@ -24,7 +24,7 @@ namespace OpenRA.Mods.AS.Traits.Render
 	{
 		public override object Create(ActorInitializer init) { return new WithIdleOverlayOnGround(init.Self, this); }
 
-		public new IEnumerable<IActorPreview> RenderPreviewSprites(ActorPreviewInitializer init, RenderSpritesInfo rs, string image, int facings, PaletteReference p)
+		public new IEnumerable<IActorPreview> RenderPreviewSprites(ActorPreviewInitializer init, string image, int facings, PaletteReference p)
 		{
 			if (!EnabledByDefault)
 				yield break;
@@ -32,12 +32,12 @@ namespace OpenRA.Mods.AS.Traits.Render
 			if (Palette != null)
 				p = init.WorldRenderer.Palette(Palette);
 
-			Func<int> facing;
+			Func<WAngle> facing;
 			if (init.Contains<DynamicFacingInit>())
-				facing = init.Get<DynamicFacingInit, Func<int>>();
+				facing = init.GetValue<DynamicFacingInit, Func<WAngle>>();
 			else
 			{
-				var f = init.Contains<FacingInit>() ? init.Get<FacingInit, int>() : 0;
+				var f = init.Contains<FacingInit>() ? init.GetValue<FacingInit, WAngle>() : WAngle.Zero;
 				facing = () => f;
 			}
 
@@ -45,7 +45,7 @@ namespace OpenRA.Mods.AS.Traits.Render
 			anim.PlayRepeating(RenderSprites.NormalizeSequence(anim, init.GetDamageState(), Sequence));
 
 			var body = init.Actor.TraitInfo<BodyOrientationInfo>();
-			Func<WRot> orientation = () => body.QuantizeOrientation(WRot.FromFacing(facing()), facings);
+			Func<WRot> orientation = () => body.QuantizeOrientation(WRot.FromYaw(facing()), facings);
 			Func<WVec> offset = () => body.LocalToWorld(Offset.Rotate(orientation()));
 			Func<int> zOffset = () =>
 			{
@@ -53,7 +53,7 @@ namespace OpenRA.Mods.AS.Traits.Render
 				return tmpOffset.Y + tmpOffset.Z + 1;
 			};
 
-			yield return new SpriteActorPreview(anim, offset, zOffset, p, rs.Scale);
+			yield return new SpriteActorPreview(anim, offset, zOffset, p);
 		}
 	}
 
@@ -75,7 +75,7 @@ namespace OpenRA.Mods.AS.Traits.Render
 				overlay.PlayRepeating(RenderSprites.NormalizeSequence(overlay, self.GetDamageState(), info.Sequence));
 
 			var anim = new AnimationWithOffset(overlay,
-				() => body.LocalToWorld(info.Offset.Rotate(body.QuantizeOrientation(self, self.Orientation)))
+				() => body.LocalToWorld(info.Offset.Rotate(body.QuantizeOrientation(self.Orientation)))
 					- new WVec(WDist.Zero, WDist.Zero, self.World.Map.DistanceAboveTerrain(self.CenterPosition)),
 				() => IsTraitDisabled,
 				p => RenderUtils.ZOffsetFromCenter(self, p, 1));

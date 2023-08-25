@@ -23,7 +23,7 @@ using Color = OpenRA.Primitives.Color;
 namespace OpenRA.Mods.YR.Traits
 {
     using GUtil = OpenRA.Graphics.Util;
-    public class EnvironmentPaletteEffectInfo : ITraitInfo
+    public class EnvironmentPaletteEffectInfo : TraitInfo
     {
         public readonly string[] ExcludePalette = { "cursor", "chrome", "colorpicker", "fog", "shroud", "effect" };
 

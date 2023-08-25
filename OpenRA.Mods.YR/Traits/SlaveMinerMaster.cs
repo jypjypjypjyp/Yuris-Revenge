@@ -145,7 +145,7 @@ namespace OpenRA.Mods.YR.Traits
                     return;
 
                 var spawnOffset = exit == null ? WVec.Zero : exit.SpawnOffset;
-                slave.Trait<IPositionable>().SetVisualPosition(slave, centerPosition + spawnOffset);
+                slave.Trait<IPositionable>().SetCenterPosition(slave, centerPosition + spawnOffset);
 
                 var location = centerPosition + spawnOffset;
 

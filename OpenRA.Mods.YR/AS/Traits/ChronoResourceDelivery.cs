@@ -9,10 +9,8 @@
  */
 #endregion
 
-using System;
-using OpenRA.Activities;
-using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.AS.Activities;
+using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
 
 namespace OpenRA.Mods.AS.Traits
@@ -102,7 +100,7 @@ namespace OpenRA.Mods.AS.Traits
 			Reset();
 		}
 
-		public void Harvested(Actor self, ResourceType resource) { }
+		public void Harvested(Actor self, string resource) { }
 		public void Docked() { }
 		public void Undocked() { }
 
@@ -128,5 +126,5 @@ namespace OpenRA.Mods.AS.Traits
 			ticksTillCheck = 0;
 			destination = null;
 		}
-	}
+    }
 }

@@ -23,8 +23,6 @@
  */
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.YR.Traits;
@@ -89,7 +87,7 @@ namespace OpenRA.Mods.YR.Activities
             return base.TryStartEnter(self, targetActor);
         }
 
-		protected override void TickInner(Actor self, Target target, bool targetIsDeadOrHiddenActor)
+		protected override void TickInner(Actor self, in Target target, bool targetIsDeadOrHiddenActor)
         {
             base.TickInner(self, target, targetIsDeadOrHiddenActor);
         }

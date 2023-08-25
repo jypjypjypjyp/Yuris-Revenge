@@ -19,7 +19,6 @@ This one itself doesn't need engine mod.
 The slave harvester's docking however, needs engine mod.
 */
 
-using System;
 using System.Collections.Generic;
 using OpenRA.Activities;
 using OpenRA.Mods.Common.Activities;
@@ -38,10 +37,7 @@ namespace OpenRA.Mods.YR.Activities
 		private readonly SlaveMinerHarvester harv;
 		private readonly SlaveMinerHarvesterInfo harvInfo;
 		private readonly Mobile mobile;
-		private readonly MobileInfo mobileInfo;
 		private readonly ResourceClaimLayer claimLayer;
-		private readonly IPathFinder pathFinder;
-		private readonly DomainIndex domainIndex;
 		private readonly GrantConditionOnDeploy deploy;
 		private readonly Transforms tranforms;
 		private CPos deployDestPosition;
@@ -53,12 +49,9 @@ namespace OpenRA.Mods.YR.Activities
 			harv = self.Trait<SlaveMinerHarvester>();
 			harvInfo = self.Info.TraitInfo<SlaveMinerHarvesterInfo>();
 			mobile = self.Trait<Mobile>();
-			mobileInfo = self.Info.TraitInfo<MobileInfo>();
 			deploy = self.Trait<GrantConditionOnDeploy>();
 			claimLayer = self.World.WorldActor.TraitOrDefault<ResourceClaimLayer>();
-			pathFinder = self.World.WorldActor.Trait<IPathFinder>();
-			domainIndex = self.World.WorldActor.Trait<DomainIndex>();
-            tranforms = self.Trait<Transforms>();
+			tranforms = self.Trait<Transforms>();
 			ChildHasPriority = false;
         }
 
@@ -106,7 +99,7 @@ namespace OpenRA.Mods.YR.Activities
 
 			state = MiningState.Moving;
 
-			//When it reached the best position, we will let it do this activity again
+			// When it reached the best position, we will let it do this activity again
 			deployDestPosition = deployPosition.Value;
 			cellRange = 2;
 			var moveActivity = mobile.MoveTo(deployPosition.Value, cellRange);
@@ -137,8 +130,8 @@ namespace OpenRA.Mods.YR.Activities
 			else
 			{
 				IsInterruptible = false;
-            
-				Activity transformsActivity = tranforms.GetTransformActivity(self);
+
+				Activity transformsActivity = tranforms.GetTransformActivity();
 				QueueChild(transformsActivity);
 
 				state = MiningState.Deploying;
@@ -150,7 +143,7 @@ namespace OpenRA.Mods.YR.Activities
 			// deploy failure.
 			if (!tranforms.CanDeploy())
 			{
-				//Wait 15 seconds and return state to Scan
+				// Wait 15 seconds and return state to Scan
 				Activity act = new Wait(15);
 				QueueChild(act);
 				state = MiningState.Scan;
@@ -234,11 +227,11 @@ namespace OpenRA.Mods.YR.Activities
 					return tile;
 
 			// Try broader search if unable to find deploy location
-			foreach (var tile in self.World.Map.FindTilesInAnnulus(harvestablePos, harvInfo.DeployScanRadius, harvInfo.LongScanRadius))
+            foreach (var tile in self.World.Map.FindTilesInAnnulus(harvestablePos, harvInfo.DeployScanRadius, harvInfo.LongScanRadius))
 				if (deploy.IsValidTerrain(tile) && mobile.CanEnterCell(tile) && self.World.CanPlaceBuilding(tile + tranforms.Info.Offset, transformActorInfo, transformBuildingInfo, self))
 					return tile;
 
-			return null;
+            return null;
 		}
 
 		/// <summary>
@@ -255,22 +248,20 @@ namespace OpenRA.Mods.YR.Activities
 			var searchRadiusSquared = searchRadius * searchRadius;
 
 			// Find any harvestable resources:
-			// var passable = (uint)mobileInfo.GetMovementClass(self.World.Map.Rules.TileSet);
-			List<CPos> path;
-			using (var search = PathSearch.Search(self.World, mobile.Locomotor, self, BlockedByActor.All,
-				loc => domainIndex.IsPassable(self.Location, loc, mobileInfo.LocomotorInfo)
-					&& harv.CanHarvestCell(self, loc) && claimLayer.CanClaimCell(self, loc))
-				.WithCustomCost(loc =>
+			var path = mobile.PathFinder.FindPathToTargetCellByPredicate(
+				self,
+				new[] { searchFromLoc, self.Location },
+				loc => mobile.CanEnterCell(loc) &&
+					harv.CanHarvestCell(self, loc) &&
+					claimLayer.CanClaimCell(self, loc),
+				BlockedByActor.Stationary,
+				loc =>
 				{
 					if ((avoidCell.HasValue && loc == avoidCell.Value) ||
 						(loc - self.Location).LengthSquared > searchRadiusSquared)
-						return int.MaxValue;
-
+						return PathGraph.PathCostForInvalidPath;
 					return 0;
-				})
-				.FromPoint(self.Location)
-				.FromPoint(searchFromLoc))
-				path = pathFinder.FindPath(search);
+				});
 
 			if (path.Count > 0)
 				return path[0];

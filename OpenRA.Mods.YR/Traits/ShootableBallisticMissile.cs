@@ -26,7 +26,7 @@ using OpenRA.Traits;
 namespace OpenRA.Mods.YR.Traits
 {
 	[Desc("This unit, when ordered to move, will fly in ballistic path then will detonate itself upon reaching target.")]
-	public class ShootableBallisticMissileInfo : ITraitInfo, IMoveInfo, IPositionableInfo, IFacingInfo
+	public class ShootableBallisticMissileInfo : TraitInfo, IMoveInfo, IPositionableInfo, IFacingInfo
 	{
 		[Desc("Projectile speed in WDist / tick, two values indicate variable velocity.")]
 		public readonly int Speed = 17;
@@ -70,17 +70,20 @@ namespace OpenRA.Mods.YR.Traits
 		readonly Actor self;
 		public Target Target { get; set; }
 
-		ConditionManager conditionManager;
 		IEnumerable<int> speedModifiers;
 
 		[Sync]
-		public int Facing { get; set; }
+		public WAngle Facing { get; set; }
+		[Sync]
+		public WAngle TurnSpeed { get; set; }
+		[Sync]
+		public WRot Orientation { get; set; }
 		[Sync]
 		public WPos CenterPosition { get; private set; }
 		public CPos TopLeft { get { return self.World.Map.CellContaining(CenterPosition); } }
 
 		bool airborne;
-		int airborneToken = ConditionManager.InvalidConditionToken;
+		int airborneToken = Actor.InvalidConditionToken;
 
 		public ShootableBallisticMissile(ActorInitializer init, ShootableBallisticMissileInfo info)
 		{
@@ -148,7 +151,7 @@ namespace OpenRA.Mods.YR.Traits
 			return SubCell.Invalid;
 		}
 
-		public void SetVisualPosition(Actor self, WPos pos) { SetPosition(self, pos); }
+		public void SetCenterPosition(Actor self, WPos pos) { SetPosition(self, pos); }
 
 		// Changes position, but not altitude
 		public void SetPosition(Actor self, CPos cell, SubCell subCell = SubCell.Any)
@@ -183,7 +186,7 @@ namespace OpenRA.Mods.YR.Traits
 			return new ShootableBallisticMissileFly(self, target);
 		}
 
-		public Activity VisualMove(Actor self, WPos fromPos, WPos toPos)
+		public Activity LocalMove(Actor self, WPos fromPos, WPos toPos)
 		{
 			return new ShootableBallisticMissileFly(self, Target.FromPos(toPos));
 		}

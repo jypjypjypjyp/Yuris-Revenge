@@ -9,8 +9,6 @@
  */
 #endregion
 
-using System;
-using OpenRA.Graphics;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Effects;
 using OpenRA.Mods.Common.Traits;
@@ -76,8 +74,8 @@ namespace OpenRA.Mods.YR.Activities
                 else
                 {
                     // If didn't disappear, then move the passenger actor to the bunker center
-                    self.QueueActivity(mobile.VisualMove(self, self.CenterPosition, bunkerActor.CenterPosition));
-                    mobile.SetVisualPosition(self, bunkerActor.CenterPosition);
+                    self.QueueActivity(mobile.LocalMove(self, self.CenterPosition, bunkerActor.CenterPosition));
+                    mobile.SetCenterPosition(self, bunkerActor.CenterPosition);
                 }
             });
         }

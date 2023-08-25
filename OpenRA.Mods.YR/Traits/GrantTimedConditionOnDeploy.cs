@@ -23,7 +23,7 @@ using Color = OpenRA.Primitives.Color;
 
 namespace OpenRA.Mods.RA2.Traits
 {
-	public class GrantTimedConditionOnDeployInfo : ITraitInfo
+	public class GrantTimedConditionOnDeployInfo : TraitInfo
 	{
 		[GrantedConditionReference]
 		[Desc("The condition granted during deploying.")]

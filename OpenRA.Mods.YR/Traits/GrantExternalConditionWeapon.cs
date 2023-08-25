@@ -35,7 +35,7 @@ namespace OpenRA.Mods.YR.Traits.Conditions
     /// <summary>
     /// This kind of weapon can grant a external condition to the victim
     /// </summary>
-    public class GrantExternalConditionWeaponInfo : ITraitInfo
+    public class GrantExternalConditionWeaponInfo : TraitInfo
     {
         [FieldLoader.Require]
         [Desc("The condition to apply. Must be included in the target actor's ExternalConditions list.")]

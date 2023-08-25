@@ -8,17 +8,15 @@
  */
 #endregion
 
-using System.Collections.Generic;
 using System.Linq;
 using OpenRA.GameRules;
+using OpenRA.Mods.AS.Activities;
+using OpenRA.Mods.Common;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Effects;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Primitives;
 using OpenRA.Traits;
-using OpenRA.Mods.Common.Warheads;
-using OpenRA.Mods.AS.Activities;
-using OpenRA.Mods.Common;
 
 namespace OpenRA.Mods.AS.Warheads
 {
@@ -71,7 +69,7 @@ namespace OpenRA.Mods.AS.Warheads
 			}
 		}
 
-		public override void DoImpact(Target target, WarheadArgs args)
+		public override void DoImpact(in Target target, WarheadArgs args)
 		{
 			var firedBy = args.SourceActor;
 
@@ -138,8 +136,8 @@ namespace OpenRA.Mods.AS.Warheads
 					return;
 				}
 
-                Actor unit = null;
-                if (targetCells.Count() > 1)
+				Actor unit = null;
+				if (targetCells.Count() > 1)
                 {
                     unit = firedBy.World.CreateActor(false, a.ToLowerInvariant(), td);
 
@@ -190,9 +188,9 @@ namespace OpenRA.Mods.AS.Warheads
                     placed = true;
                 }
 
-                if (!placed)
+				if (!placed)
 					unit.Dispose();
 			}
 		}
-	}
+    }
 }

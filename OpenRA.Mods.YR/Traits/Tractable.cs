@@ -158,7 +158,7 @@ namespace OpenRA.Mods.YR.Traits
 			var altitudeDelta = new WVec(0, 0, CalcAltitudeDelta(self, altitude, Info.CruiseAltitude));
 
 			// SetPosition(self, self.CenterPosition + step); No need for SetPosition!
-			positionable.SetVisualPosition(self, self.CenterPosition + step + altitudeDelta);
+			positionable.SetCenterPosition(self, self.CenterPosition + step + altitudeDelta);
 
 			return false;
 		}

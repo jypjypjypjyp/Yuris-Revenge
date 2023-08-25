@@ -26,7 +26,7 @@ Will work even better if the PR is merged
 namespace OpenRA.Mods.YR.Traits
 {
 	[Desc("Can be slaved to a SpawnerMaster.")]
-	public class BaseSpawnerSlaveInfo : ITraitInfo
+	public class BaseSpawnerSlaveInfo : TraitInfo
 	{
 		[GrantedConditionReference]
 		[Desc("The condition to grant to slaves when the master actor is killed.")]

@@ -16,7 +16,7 @@ using OpenRA.Primitives;
 
 namespace OpenRA.Mods.YR.Traits
 {
-	public class GrantConditionOnAttackTypeInfo : ITraitInfo
+	public class GrantConditionOnAttackTypeInfo : TraitInfo
 	{
 		[FieldLoader.Require]
 		[GrantedConditionReference]

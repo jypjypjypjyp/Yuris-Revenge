@@ -12,12 +12,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenRA.Activities;
-using OpenRA.Mods.Common.Traits;
-using OpenRA.Primitives;
-using OpenRA.Traits;
-using OpenRA.Mods.YR.Traits;
 using OpenRA.Mods.Common;
 using OpenRA.Mods.Common.Activities;
+using OpenRA.Mods.Common.Traits;
+using OpenRA.Mods.YR.Traits;
+using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Activities
 {
@@ -74,18 +73,18 @@ namespace OpenRA.Mods.YR.Activities
             QueueChild(new Wait(cargo.Info.BeforeUnloadDelay));
         }
 
-        public Pair<CPos, SubCell>? ChooseExitSubCell(Actor passenger)
+        public (CPos Cell, SubCell SubCell)? ChooseExitSubCell(Actor passenger)
 		{
 			var pos = passenger.Trait<IPositionable>();
 
 			return cargo.CurrentAdjacentCells
 				.Shuffle(self.World.SharedRandom)
-				.Select(c => Pair.New(c, pos.GetAvailableSubCell(c)))
-				.Cast<Pair<CPos, SubCell>?>()
-				.FirstOrDefault(s => s.Value.Second != SubCell.Invalid);
+				.Select(c => (c, pos.GetAvailableSubCell(c)))
+				.Cast<(CPos, SubCell SubCell)?>()
+				.FirstOrDefault(s => s.Value.SubCell != SubCell.Invalid);
 		}
 
-		IEnumerable<CPos> BlockedExitCells(Actor passenger)
+        IEnumerable<CPos> BlockedExitCells(Actor passenger)
 		{
 			var pos = passenger.Trait<IPositionable>();
 
@@ -94,7 +93,7 @@ namespace OpenRA.Mods.YR.Activities
 				.Where(c => pos.CanEnterCell(c, null, BlockedByActor.All) != pos.CanEnterCell(c, null, BlockedByActor.None));
 		}
 
-		public override bool Tick(Actor self)
+        public override bool Tick(Actor self)
 		{
             if (IsCanceling || cargo.IsEmpty(self))
                 return true;
@@ -123,9 +122,6 @@ namespace OpenRA.Mods.YR.Activities
 
                     var move = actor.Trait<IMove>();
                     var pos = actor.Trait<IPositionable>();
-
-                    //pos.SetPosition(self, exitSubCell.Value.First, exitSubCell.Value.Second);
-                    //pos.SetVisualPosition(actor, spawn);
 
                     actor.CancelActivity();
                     if (cargo.Info.WillDisappear)

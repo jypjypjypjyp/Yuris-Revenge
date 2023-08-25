@@ -34,7 +34,7 @@ namespace OpenRA.Mods.YR.Traits
     }
 
 	[Desc("This actor can transport Passenger actors.")]
-	public class BunkerCargoInfo : ITraitInfo, Requires<IOccupySpaceInfo>
+	public class BunkerCargoInfo : TraitInfo, Requires<IOccupySpaceInfo>
 	{
         [Desc("Which sequence will play when the actor is cargoed")]
         public readonly string SequenceOnCargo = null;

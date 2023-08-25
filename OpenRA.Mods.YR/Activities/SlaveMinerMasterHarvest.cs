@@ -19,10 +19,8 @@ This one itself doesn't need engine mod.
 The slave harvester's docking however, needs engine mod.
 */
 
-using System;
 using System.Collections.Generic;
 using OpenRA.Activities;
-using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Pathfinder;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.YR.Traits;
@@ -34,13 +32,11 @@ namespace OpenRA.Mods.YR.Activities
     /// This activity will allow refinery building actor to send its slave to find the resource
     /// </summary>
 	public class SlaveMinerMasterHarvest : Activity
-	{	
+	{
 		readonly SlaveMinerMaster harv;
 		readonly SlaveMinerMasterInfo harvInfo;
 		readonly ResourceClaimLayer claimLayer;
-		readonly IPathFinder pathFinder;
-		readonly DomainIndex domainIndex;
-        int lastScanRange = 1;
+		int lastScanRange = 1;
 
 		CPos? avoidCell;
 
@@ -49,9 +45,7 @@ namespace OpenRA.Mods.YR.Activities
 			harv = self.Trait<SlaveMinerMaster>();
 			harvInfo = self.Info.TraitInfo<SlaveMinerMasterInfo>();
 			claimLayer = self.World.WorldActor.TraitOrDefault<ResourceClaimLayer>();
-			pathFinder = self.World.WorldActor.Trait<IPathFinder>();
-			domainIndex = self.World.WorldActor.Trait<DomainIndex>();
-            lastScanRange = harvInfo.LongScanRadius;
+			lastScanRange = harvInfo.LongScanRadius;
 			ChildHasPriority = false;
 		}
 
@@ -81,8 +75,8 @@ namespace OpenRA.Mods.YR.Activities
 
 			// get going
 			harv.LastOrderLocation = null;
-            closestHarvestablePosition = ClosestHarvestablePos(self, lastScanRange);
-            if (closestHarvestablePosition != null)
+			closestHarvestablePosition = ClosestHarvestablePos(self, lastScanRange);
+			if (closestHarvestablePosition != null)
             {
                 state = MiningState.Undeploy;
                 harv.ForceMove(closestHarvestablePosition.Value);
@@ -93,7 +87,7 @@ namespace OpenRA.Mods.YR.Activities
                 lastScanRange *= 2; // larger search range
             }
 
-            return this;
+			return this;
 		}
 
 		public override bool Tick(Actor self)
@@ -138,35 +132,34 @@ namespace OpenRA.Mods.YR.Activities
 			var searchFromLoc = harv.LastOrderLocation ?? self.Location;
 			var searchRadiusSquared = searchRadius * searchRadius;
 
-            BaseSpawnerSlaveEntry choosenSlave = null;
-            var slaves = harv.GetSlaves();
-            if (slaves.Length > 0)
+			BaseSpawnerSlaveEntry choosenSlave = null;
+			var slaves = harv.GetSlaves();
+			if (slaves.Length > 0)
             {
                 choosenSlave = slaves[0];
 
                 var mobile = choosenSlave.Actor.Trait<Mobile>();
                 var mobileInfo = choosenSlave.Actor.Info.TraitInfo<MobileInfo>();
+
                 // Find any harvestable resources:
                 // var passable = (uint)mobileInfo.GetMovementClass(self.World.Map.Rules.TileSet);
-                List<CPos> path;
-                using (var search = PathSearch.Search(self.World, mobile.Locomotor, self, BlockedByActor.All,
-                    loc => domainIndex.IsPassable(self.Location, loc, mobileInfo.LocomotorInfo)
-                        && harv.CanHarvestCell(self, loc) && claimLayer.CanClaimCell(self, loc))
-                    .WithCustomCost(loc =>
-                    {
-                        if ((avoidCell.HasValue && loc == avoidCell.Value) ||
+                var path = mobile.PathFinder.FindPathToTargetCellByPredicate(
+					self,
+					new[] { searchFromLoc, self.Location },
+					loc => mobile.CanEnterCell(loc) &&
+						harv.CanHarvestCell(self, loc) &&
+						claimLayer.CanClaimCell(self, loc),
+					BlockedByActor.All,
+					loc =>
+					{
+						if ((avoidCell.HasValue && loc == avoidCell.Value) ||
                             (loc - self.Location).LengthSquared > searchRadiusSquared)
-                            return int.MaxValue;
-
-                        return 0;
-                    })
-                    .FromPoint(self.Location)
-                    .FromPoint(searchFromLoc))
-                    path = pathFinder.FindPath(search);
+							return PathGraph.PathCostForInvalidPath;
+						return 0;
+					});
 
                 if (path.Count > 0)
                     return path[0];
-
             }
 
 			return null;
