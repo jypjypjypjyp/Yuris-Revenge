@@ -43,16 +43,16 @@ namespace OpenRA.Mods.YR.Traits
 
         public void OnOwnerChanged(Actor self, Player oldOwner, Player newOwner)
         {
-            if(newOwner.InternalName=="Netural")
+            if (newOwner.InternalName == "Netural")
             {
                 return;
             }
 
-            if(self.Owner == oldOwner)
+            if (self.Owner == oldOwner)
             {
                 disableShround = true;
             }
-            else if(self.Owner == newOwner)
+            else if (self.Owner == newOwner)
             {
                 disableShround = false;
             }
@@ -65,7 +65,7 @@ namespace OpenRA.Mods.YR.Traits
 
         public void Tick(Actor self)
         {
-            if(powerMgr.PowerState == PowerState.Low)
+            if (powerMgr.PowerState == PowerState.Low)
             {
                 //low power
                 disableShround = false;

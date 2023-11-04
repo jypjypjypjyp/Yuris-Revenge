@@ -110,10 +110,10 @@ namespace OpenRA.Mods.YR.Traits
 			}
 		}
 
-        public void AssignSlavesToMaster(BaseSpawnerSlaveEntry[] SlaveEntries)
-        {
-            this.SlaveEntries = SlaveEntries;
-        }
+		public void AssignSlavesToMaster(BaseSpawnerSlaveEntry[] SlaveEntries)
+		{
+			this.SlaveEntries = SlaveEntries;
+		}
 
 		public virtual BaseSpawnerSlaveEntry[] CreateSlaveEntries(BaseSpawnerMasterInfo info)
 		{

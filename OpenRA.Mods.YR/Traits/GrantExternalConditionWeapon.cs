@@ -81,7 +81,7 @@ namespace OpenRA.Mods.YR.Traits.Conditions
             if (a.Info.Name != info.ArmamentName)
                 return;
 
-            switch(info.ArmamentType)
+            switch (info.ArmamentType)
             {
                 case WeaponType.Range:
                     var actors = self.World.FindActorsInCircle(self.CenterPosition, WDist.FromCells(info.ArmamentRange));

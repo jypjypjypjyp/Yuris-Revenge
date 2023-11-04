@@ -35,19 +35,19 @@ Since this inherits "Enter", you need to make several variables "protected".
 
 namespace OpenRA.Mods.YR.Activities
 {
-	class EnterCarrierMaster : Enter
-	{
-		readonly Actor master; // remember the spawner.
-		readonly CarrierMaster spawnerMaster;
+    class EnterCarrierMaster : Enter
+    {
+        readonly Actor master; // remember the spawner.
+        readonly CarrierMaster spawnerMaster;
 
-		public EnterCarrierMaster(Actor self, Actor master, CarrierMaster spawnerMaster, EnterBehaviour enterBehaviour, WDist closeEnoughDist)
-			: base(self, Target.FromActor(master))
-		{
-			this.master = master;
-			this.spawnerMaster = spawnerMaster;
-		}
+        public EnterCarrierMaster(Actor self, Actor master, CarrierMaster spawnerMaster, EnterBehaviour enterBehaviour, WDist closeEnoughDist)
+            : base(self, Target.FromActor(master))
+        {
+            this.master = master;
+            this.spawnerMaster = spawnerMaster;
+        }
 
-		protected override void OnEnterComplete(Actor self, Actor targetActor)
+        protected override void OnEnterComplete(Actor self, Actor targetActor)
         {
             // Master got killed :(
             if (master.IsDead)
@@ -72,22 +72,22 @@ namespace OpenRA.Mods.YR.Activities
             });
         }
 
-		protected override void OnFirstRun(Actor self)
+        protected override void OnFirstRun(Actor self)
         {
             base.OnFirstRun(self);
         }
 
-		protected override void OnLastRun(Actor self)
+        protected override void OnLastRun(Actor self)
         {
             base.OnLastRun(self);
         }
 
-		protected override bool TryStartEnter(Actor self, Actor targetActor)
+        protected override bool TryStartEnter(Actor self, Actor targetActor)
         {
             return base.TryStartEnter(self, targetActor);
         }
 
-		protected override void TickInner(Actor self, in Target target, bool targetIsDeadOrHiddenActor)
+        protected override void TickInner(Actor self, in Target target, bool targetIsDeadOrHiddenActor)
         {
             base.TickInner(self, target, targetIsDeadOrHiddenActor);
         }

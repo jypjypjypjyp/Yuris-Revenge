@@ -11,17 +11,11 @@
  * information, see COPYING.
  */
 #endregion
-using OpenRA.Mods.Common;
-using OpenRA.Mods.Common.Activities;
-using OpenRA.Mods.Common.Effects;
+using System;
+using System.Collections.Generic;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Primitives;
 using OpenRA.Traits;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.Traits
 {
@@ -37,9 +31,6 @@ namespace OpenRA.Mods.YR.Traits
 
         [Desc("After this many ticks, we remove the condition.")]
         public readonly int LaunchingTicks = 15;
-
-        [Desc("Pip color for the spawn count.")]
-        public readonly PipType PipType = PipType.Yellow;
 
         [Desc("Insta-repair spawners when they return?")]
         public readonly bool InstaRepair = true;
@@ -66,7 +57,7 @@ namespace OpenRA.Mods.YR.Traits
         public override object Create(ActorInitializer init) { return new MarkerMaster(init, this); }
     }
 
-    public class MarkerMaster : BaseSpawnerMaster, IPips, ITick, INotifyAttack, INotifyBecomingIdle
+    public class MarkerMaster : BaseSpawnerMaster, ITick, INotifyAttack, INotifyBecomingIdle
     {
         private WPos finishEdge;
         private WVec spawnOffset;
@@ -83,16 +74,13 @@ namespace OpenRA.Mods.YR.Traits
         public new MarkerMasterInfo Info { get; private set; }
 
         CarrierSlaveEntry[] slaveEntries;
-        ConditionManager conditionManager;
 
         Stack<int> loadedTokens = new Stack<int>();
 
         int respawnTicks = 0;
 
-        public MarkerMaster(ActorInitializer init, MarkerMasterInfo info) : base(init, info)
-        {
-            Info = info;
-        }
+        public MarkerMaster(ActorInitializer init, MarkerMasterInfo info)
+            : base(init, info) => Info = info;
 
         public override void Replenish(Actor self, BaseSpawnerSlaveEntry entry)
         {
@@ -102,7 +90,7 @@ namespace OpenRA.Mods.YR.Traits
             string attacker = entry.ActorName;
 
             Game.Sound.Play(SoundType.World, Info.MarkSound);
-            
+
             self.World.AddFrameEndTask(w =>
             {
                 var slave = w.CreateActor(attacker, new TypeDictionary()
@@ -119,7 +107,6 @@ namespace OpenRA.Mods.YR.Traits
         protected override void Created(Actor self)
         {
             base.Created(self);
-            conditionManager = self.Trait<ConditionManager>();
         }
 
         public override BaseSpawnerSlaveEntry[] CreateSlaveEntries(BaseSpawnerMasterInfo info)
@@ -142,11 +129,11 @@ namespace OpenRA.Mods.YR.Traits
             se.SpawnerSlave = slave.Trait<MarkerSlave>();
         }
 
-        void INotifyAttack.PreparingAttack(Actor self, Target target, Armament a, Barrel barrel) { }
+        void INotifyAttack.PreparingAttack(Actor self, in Target target, Armament a, Barrel barrel) { }
 
         // The rate of fire of the dummy weapon determines the launch cycle as each shot
         // invokes Attacking()
-        void INotifyAttack.Attacking(Actor self, Target target, Armament a, Barrel barrel)
+        void INotifyAttack.Attacking(Actor self, in Target target, Armament a, Barrel barrel)
         {
             if (IsTraitDisabled)
                 return;
@@ -154,14 +141,14 @@ namespace OpenRA.Mods.YR.Traits
             if (a.Info.Name != Info.SpawnerArmamentName)
                 return;
 
-			// Issue retarget order for already launched ones
-			foreach (var slave in slaveEntries)
-			{
-				if (slave.IsLaunched && slave.IsValid)
-				{
-					slave.SpawnerSlave.Attack(slave.Actor, target);
-				}
-			}
+            // Issue retarget order for already launched ones
+            foreach (var slave in slaveEntries)
+            {
+                if (slave.IsLaunched && slave.IsValid)
+                {
+                    slave.SpawnerSlave.Attack(slave.Actor, target);
+                }
+            }
 
             var slaveEntry = GetLaunchable();
             if (slaveEntry == null)
@@ -174,28 +161,30 @@ namespace OpenRA.Mods.YR.Traits
                 slaveEntry.SpawnerSlave.Reload();
             }
 
-			// Launching condition is timed, so not saving the token.
-			if (Info.LaunchingCondition != null)
-			{
-				conditionManager.GrantCondition(self, Info.LaunchingCondition/*, Info.LaunchingTicks*/);
-			}
+            // Launching condition is timed, so not saving the token.
+            if (Info.LaunchingCondition != null)
+            {
+                self.GrantCondition(Info.LaunchingCondition/*, Info.LaunchingTicks*/);
+            }
 
-            //Spawn the attackers into world
+            // Spawn the attackers into world
             SpawnIntoWorld(self, slaveEntry.Actor, self.CenterPosition);
 
             slaveEntry.SpawnerSlave.SetSpawnInfo(finishEdge, spawnOffset, targetPos);
 
             // Queue attack order, too.
+            Target target1 = target;
             self.World.AddFrameEndTask(w =>
             {
                 // The actor might had been trying to do something before entering the carrier.
                 // Cancel whatever it was trying to do.
                 slaveEntry.SpawnerSlave.Stop(slaveEntry.Actor);
-				if (!string.IsNullOrEmpty(Info.MarkSound))
-				{
-					slaveEntry.Actor.PlayVoice(Info.MarkSound);
-				}
-                slaveEntry.SpawnerSlave.Attack(slaveEntry.Actor, target);
+                if (!string.IsNullOrEmpty(Info.MarkSound))
+                {
+                    slaveEntry.Actor.PlayVoice(Info.MarkSound);
+                }
+
+                slaveEntry.SpawnerSlave.Attack(slaveEntry.Actor, target1);
             });
         }
 
@@ -211,7 +200,8 @@ namespace OpenRA.Mods.YR.Traits
                 var attackRotation = WRot.FromFacing(attackFacing);
                 var delta = new WVec(0, -1024, 0).Rotate(attackRotation);
                 target = target + new WVec(0, 0, altitude);
-                //var startEdge = target - (self.World.Map.DistanceToEdge(target, -delta) + Info.Cordon).Length * delta / 1024;
+
+                // var startEdge = target - (self.World.Map.DistanceToEdge(target, -delta) + Info.Cordon).Length * delta / 1024;
                 var finishEdge = target + (self.World.Map.DistanceToEdge(target, delta) + Info.Cordon).Length * delta / 1024;
 
                 var so = Info.SquadOffset;
@@ -220,7 +210,7 @@ namespace OpenRA.Mods.YR.Traits
 
                 this.spawnOffset = spawnOffset;
                 this.finishEdge = finishEdge;
-                this.targetPos = target;
+                targetPos = target;
 
                 var attack = slave.Trait<AttackAircraft>();
                 attack.AttackTarget(Target.FromPos(target + targetOffset), AttackSource.Default, false, true);
@@ -242,7 +232,7 @@ namespace OpenRA.Mods.YR.Traits
             foreach (var se in slaveEntries)
                 if (se.IsLaunched && se.IsValid)
                 {
-                    se.SpawnerSlave.EnterSpawner(se.Actor);//The existed slave will leave, so we need to recall them
+                    se.SpawnerSlave.EnterSpawner(se.Actor); // The existed slave will leave, so we need to recall them
                 }
         }
 
@@ -262,51 +252,31 @@ namespace OpenRA.Mods.YR.Traits
             return null;
         }
 
-        public IEnumerable<PipType> GetPips(Actor self)
-        {
-            if (IsTraitDisabled)
-                yield break;
-
-            int inside = 0;
-            foreach (var se in slaveEntries)
-                if (se.IsValid && !se.IsLaunched)
-                    inside++;
-
-            for (var i = 0; i < Info.Actors.Length; i++)
-            {
-                if (i < inside)
-                    yield return Info.PipType;
-                else
-                    yield return PipType.Transparent;
-            }
-        }
-
         public void PickupSlave(Actor self, Actor a)
         {
             CarrierSlaveEntry slaveEntry = null;
-			foreach (var se in slaveEntries)
-			{
-				if (se.Actor == a)
-				{
-					slaveEntry = se;
-					break;
-				}
-			}
+            foreach (var se in slaveEntries)
+            {
+                if (se.Actor == a)
+                {
+                    slaveEntry = se;
+                    break;
+                }
+            }
 
-			if (slaveEntry != null)
-			{
-				slaveEntry.IsLaunched = false;
+            if (slaveEntry != null)
+            {
+                slaveEntry.IsLaunched = false;
 
-				// setup rearm
-				slaveEntry.RearmTicks = Info.RearmTicks;
+                // setup rearm
+                slaveEntry.RearmTicks = Info.RearmTicks;
 
-				string spawnContainCondition;
-				if (conditionManager != null && Info.SpawnContainConditions.TryGetValue(a.Info.Name, out spawnContainCondition))
-					spawnContainTokens.GetOrAdd(a.Info.Name).Push(conditionManager.GrantCondition(self, spawnContainCondition));
+                if (self != null && Info.SpawnContainConditions.TryGetValue(a.Info.Name, out string spawnContainCondition))
+                    spawnContainTokens.GetOrAdd(a.Info.Name).Push(self.GrantCondition(spawnContainCondition));
 
-				if (conditionManager != null && !string.IsNullOrEmpty(Info.LoadedCondition))
-					loadedTokens.Push(conditionManager.GrantCondition(self, Info.LoadedCondition));
-			}
+                if (self != null && !string.IsNullOrEmpty(Info.LoadedCondition))
+                    loadedTokens.Push(self.GrantCondition(Info.LoadedCondition));
+            }
         }
 
         public void Tick(Actor self)
@@ -320,11 +290,11 @@ namespace OpenRA.Mods.YR.Traits
                 {
                     Replenish(self, slaveEntries);
 
-					// If there's something left to spawn, restart the timer.
-					if (SelectEntryToSpawn(slaveEntries) != null)
-					{
-						respawnTicks = Info.RespawnTicks;
-					}
+                    // If there's something left to spawn, restart the timer.
+                    if (SelectEntryToSpawn(slaveEntries) != null)
+                    {
+                        respawnTicks = Info.RespawnTicks;
+                    }
                 }
             }
 

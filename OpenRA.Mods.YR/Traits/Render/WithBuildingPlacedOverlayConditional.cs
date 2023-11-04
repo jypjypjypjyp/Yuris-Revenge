@@ -2,11 +2,6 @@
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Traits.Render;
 using OpenRA.Traits;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR
 {
@@ -35,15 +30,16 @@ namespace OpenRA.Mods.YR
             return new WithBuildingPlacedOverlayConditional(init.Self, this);
         }
     }
+
     public class WithBuildingPlacedOverlayConditional : ConditionalTrait<WithBuildingPlacedOverlayConditionalInfo>, INotifySold, INotifyDamageStateChanged, INotifyBuildingPlaced, INotifyTransform
     {
         readonly Animation overlay;
         bool buildComplete;
         bool visible;
-        ConditionManager conditionManager;
-        int wbpoToken = ConditionManager.InvalidConditionToken;
+        int wbpoToken = Actor.InvalidConditionToken;
 
-        public WithBuildingPlacedOverlayConditional(Actor self, WithBuildingPlacedOverlayConditionalInfo info) : base(info)
+        public WithBuildingPlacedOverlayConditional(Actor self, WithBuildingPlacedOverlayConditionalInfo info)
+            : base(info)
         {
             var rs = self.Trait<RenderSprites>();
             var body = self.Trait<BodyOrientation>();
@@ -62,8 +58,6 @@ namespace OpenRA.Mods.YR
 
         protected override void Created(Actor self)
         {
-            conditionManager = self.Trait<ConditionManager>();
-
             base.Created(self);
         }
 
@@ -90,15 +84,15 @@ namespace OpenRA.Mods.YR
         {
             visible = true;
 
-            if (wbpoToken == ConditionManager.InvalidConditionToken)
-                wbpoToken = conditionManager.GrantCondition(self, Info.PlacingCondition);
+            if (wbpoToken == Actor.InvalidConditionToken)
+                wbpoToken = self.GrantCondition(Info.PlacingCondition);
 
-            overlay.PlayThen(overlay.CurrentSequence.Name, () => 
+            overlay.PlayThen(overlay.CurrentSequence.Name, () =>
             {
                 visible = false;
 
-                if (wbpoToken != ConditionManager.InvalidConditionToken)
-                    wbpoToken = conditionManager.RevokeCondition(self, wbpoToken);
+                if (wbpoToken != Actor.InvalidConditionToken)
+                    wbpoToken = self.RevokeCondition(wbpoToken);
             });
         }
     }

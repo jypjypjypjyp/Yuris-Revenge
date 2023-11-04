@@ -17,7 +17,7 @@ namespace OpenRA.Mods.YR.WDT
 		public WDTData Read(ModData modData)
 		{
 			WDTData wdtData = new WDTData();
-			
+
 			List<MiniYamlNode> miniYaml = MiniYaml.FromStream(modData.DefaultFileSystem.Open("wdt_data.yaml"));
 			var rootNode = miniYaml.FirstOrDefault();
 

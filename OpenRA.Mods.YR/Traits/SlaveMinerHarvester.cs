@@ -31,22 +31,22 @@ namespace OpenRA.Mods.YR.Traits
 {
 	public enum MiningState
 	{
-		Scan, // Scanning ore 
+		Scan, // Scanning ore
 		Moving, // Moving to the best location
 		TryDeploy, // Try to deploy
 		Deploying, // Playing deploy animation.
 		Mining, // Slaves are mining. We get kicked sometimes to move closer to ore.
 		Packaging, // Check if there's ore field is close enough.
-		Undeploy,//Ready to transform
+		Undeploy,// Ready to transform
 	}
 
 	public class SpawnerHarvestResourceInfo : BaseSpawnerMasterInfo
-    {
-        [Desc("Which resources it can harvest. Make sure slaves can mine these too!")]
-        public readonly HashSet<string> Resources = new HashSet<string>();
-    }
+	{
+		[Desc("Which resources it can harvest. Make sure slaves can mine these too!")]
+		public readonly HashSet<string> Resources = new HashSet<string>();
+	}
 
-    [Desc("This actor is a harvester that uses its spawns to indirectly harvest resources. i.e., Slave Miner.")]
+	[Desc("This actor is a harvester that uses its spawns to indirectly harvest resources. i.e., Slave Miner.")]
 	public class SlaveMinerHarvesterInfo : SpawnerHarvestResourceInfo, Requires<IOccupySpaceInfo>, Requires<GrantConditionOnDeployInfo>
 	{
 		[VoiceReference] public readonly string HarvestVoice = "Action";
@@ -64,13 +64,13 @@ namespace OpenRA.Mods.YR.Traits
 		public readonly int DeployScanRadius = 8; // 8 * 8 * 3 should be enough candidates, seriously.
 
 		[Desc("If no resource within range at each kick, move.")]
-	    public readonly int KickScanRadius = 5;
+		public readonly int KickScanRadius = 5;
 
 		[Desc("If the SlaveMiner is idle for this long, he'll try to look for ore again at SlaveMinerShortScan range to find ore and wake up (in ticks)")]
-	    public readonly int KickDelay = 301;
+		public readonly int KickDelay = 301;
 
-        [Desc("Play this sound when the slave is freed")]
-        public readonly string FreeSound = null;
+		[Desc("Play this sound when the slave is freed")]
+		public readonly string FreeSound = null;
 
 		public override object Create(ActorInitializer init) { return new SlaveMinerHarvester(init, this); }
 	}
@@ -78,11 +78,11 @@ namespace OpenRA.Mods.YR.Traits
 	public class SlaveMinerHarvester : BaseSpawnerMaster,
 		ITick, IIssueOrder, IResolveOrder, IOrderVoice, INotifyDeployComplete, INotifyTransform
 	{
+		private const string orderID = "SlaveMinerHarvest";
 		readonly SlaveMinerHarvesterInfo info;
 		readonly Actor self;
-		readonly ResourceLayer resLayer;
+		readonly IResourceLayer resLayer;
 		readonly Mobile mobile;
-		private const string orderID = "SlaveMinerHarvest";
 
 		// Because activities don't remember states, we remember states here for them.
 		public CPos? LastOrderLocation = null;
@@ -97,7 +97,8 @@ namespace OpenRA.Mods.YR.Traits
 		int kickTicks;
 		bool allowKicks = true; // allow kicks?
 
-		public SlaveMinerHarvester(ActorInitializer init, SlaveMinerHarvesterInfo info) : base(init, info)
+		public SlaveMinerHarvester(ActorInitializer init, SlaveMinerHarvesterInfo info)
+            : base(init, info)
 		{
 			self = init.Self;
 			this.info = info;
@@ -177,10 +178,10 @@ namespace OpenRA.Mods.YR.Traits
 			}
 		}
 
-		public Order IssueOrder(Actor self, IOrderTargeter order, Target target, bool queued)
+		public Order IssueOrder(Actor self, IOrderTargeter order, in Target target, bool queued)
 		{
 			if (order.OrderID == orderID)
-				return new Order(order.OrderID, self,target, queued);
+				return new Order(order.OrderID, self, target, queued);
 			return null;
 		}
 
@@ -217,7 +218,8 @@ namespace OpenRA.Mods.YR.Traits
 
 			LastOrderLocation = ResolveHarvestLocation(self, order);
 			self.QueueActivity(new SlaveMinerHarvesterHarvest(self));
-			//self.SetTargetLine(Target.FromCell(self.World, LastOrderLocation.Value), Color.Red);
+
+			// self.SetTargetLine(Target.FromCell(self.World, LastOrderLocation.Value), Color.Red);
 
 			// Assign new targets for slaves too.
 			foreach (var se in SlaveEntries)
@@ -308,54 +310,54 @@ namespace OpenRA.Mods.YR.Traits
 			return info.Resources.Contains(resType.Info.Type);
 		}
 
-        void INotifyTransform.BeforeTransform(Actor self)
-        {
-        }
+		void INotifyTransform.BeforeTransform(Actor self)
+		{
+		}
 
-        void INotifyTransform.OnTransform(Actor self)
-        {
-        }
+		void INotifyTransform.OnTransform(Actor self)
+		{
+		}
 
-        void INotifyTransform.AfterTransform(Actor toActor)
-        {
-            //When transform complete, assign the slaves to the transform actor
-            SlaveMinerMaster refineryMaster = toActor.Trait<SlaveMinerMaster>();
-            foreach (var se in SlaveEntries)
-            {
-                se.SpawnerSlave.LinkMaster(se.Actor, toActor, refineryMaster);
-                se.SpawnerSlave.Stop(se.Actor);
-                if(!se.Actor.IsDead)
-                    se.Actor.QueueActivity(new FindAndDeliverResources(se.Actor));
-            }
-            refineryMaster.AssignSlavesToMaster(SlaveEntries);
-            toActor.QueueActivity(new SlaveMinerMasterHarvest(toActor));
-        }
+		void INotifyTransform.AfterTransform(Actor toActor)
+		{
+			// When transform complete, assign the slaves to the transform actor
+			SlaveMinerMaster refineryMaster = toActor.Trait<SlaveMinerMaster>();
+			foreach (var se in SlaveEntries)
+			{
+				se.SpawnerSlave.LinkMaster(se.Actor, toActor, refineryMaster);
+				se.SpawnerSlave.Stop(se.Actor);
+				if (!se.Actor.IsDead)
+					se.Actor.QueueActivity(new FindAndDeliverResources(se.Actor));
+			}
+			refineryMaster.AssignSlavesToMaster(SlaveEntries);
+			toActor.QueueActivity(new SlaveMinerMasterHarvest(toActor));
+		}
 
-        public override void Killed(Actor self, AttackInfo e)
-        {
-            base.Killed(self, e);
+		public override void Killed(Actor self, AttackInfo e)
+		{
+			base.Killed(self, e);
 
-            if (!string.IsNullOrEmpty(info.FreeSound))
-            {
-                Game.Sound.Play(SoundType.World, info.FreeSound, self.CenterPosition);
-            }
-        }
-    }
+			if (!string.IsNullOrEmpty(info.FreeSound))
+			{
+				Game.Sound.Play(SoundType.World, info.FreeSound, self.CenterPosition);
+			}
+		}
+	}
 
 	class SlaveMinerHarvestOrderTargeter<T> : IOrderTargeter where T : SpawnerHarvestResourceInfo
-    {
-        private string orderID;
-        public SlaveMinerHarvestOrderTargeter(string orderID)
-        {
-            this.orderID = orderID;
-        }
+	{
+		private string orderID;
+		public SlaveMinerHarvestOrderTargeter(string orderID)
+		{
+			this.orderID = orderID;
+		}
 
-        public string OrderID { get { return orderID; } }
+		public string OrderID { get { return orderID; } }
 		public int OrderPriority { get { return 10; } }
 		public bool IsQueued { get; protected set; }
 		public bool TargetOverridesSelection(TargetModifiers modifiers) { return true; }
 
-		public bool CanTarget(Actor self, Target target, List<Actor> othersAtTarget, ref TargetModifiers modifiers, ref string cursor)
+		public bool CanTarget(Actor self, in Target target, List<Actor> othersAtTarget, ref TargetModifiers modifiers, ref string cursor)
 		{
 			if (target.Type != TargetType.Terrain)
 				return false;

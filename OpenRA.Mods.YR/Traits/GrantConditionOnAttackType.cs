@@ -23,12 +23,12 @@ namespace OpenRA.Mods.YR.Traits
 		[Desc("The condition type to grant.")]
 		public readonly string Condition = null;
 
-        public readonly bool CheckTargetTypes;
+		public readonly bool CheckTargetTypes;
 
-        [Desc("Target type. Used for filtering (in)valid targets.")]
-        public readonly BitSet<TargetableType> TargetTypes;
+		[Desc("Target type. Used for filtering (in)valid targets.")]
+		public readonly BitSet<TargetableType> TargetTypes;
 
-        [Desc("Name of the armaments that grant this condition.")]
+		[Desc("Name of the armaments that grant this condition.")]
 		public readonly HashSet<string> ArmamentNames = new HashSet<string>() { "primary" };
 
 		[Desc("Shots required to apply an instance of the condition. If there are more instances of the condition granted than values listed,",
@@ -141,31 +141,31 @@ namespace OpenRA.Mods.YR.Traits
 			if (!info.ArmamentNames.Contains(a.Info.Name))
 				return;
 
-            if (info.CheckTargetTypes)
-            {
-                bool isContinue = false;
-                ITargetable[] targetables = target.Actor.Targetables;
-                if (targetables != null)
-                {
-                    foreach (var targetable in targetables)
-                    {
-                        foreach (var targetType in targetable.TargetTypes)
-                        {
-                            if (info.TargetTypes.Contains(targetType))
-                            {
-                                isContinue = true;
-                                break;
-                            }
-                        }
-                        if(isContinue)
-                        {
-                            break;
-                        }
-                    }
-                }
-                if (!isContinue)
-                    return;
-            }
+			if (info.CheckTargetTypes)
+			{
+				bool isContinue = false;
+				ITargetable[] targetables = target.Actor.Targetables;
+				if (targetables != null)
+				{
+					foreach (var targetable in targetables)
+					{
+						foreach (var targetType in targetable.TargetTypes)
+						{
+							if (info.TargetTypes.Contains(targetType))
+							{
+								isContinue = true;
+								break;
+							}
+						}
+						if (isContinue)
+						{
+							break;
+						}
+					}
+				}
+				if (!isContinue)
+					return;
+			}
 
 			if (info.RevokeOnNewTarget)
 			{

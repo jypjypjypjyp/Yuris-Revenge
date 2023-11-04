@@ -10,7 +10,6 @@
 #endregion
 
 using System.Collections.Generic;
-using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.YR.Traits;
 using OpenRA.Traits;
 
@@ -39,9 +38,14 @@ namespace OpenRA.Mods.YR.Orders
 			return true;
 		}
 
-		public bool TargetOverridesSelection(Actor self, Target target, List<Actor> actorsAt, CPos xy, TargetModifiers modifiers)
+		public bool TargetOverridesSelection(Actor self, in Target target, List<Actor> actorsAt, CPos xy, TargetModifiers modifiers)
 		{
 			return true;
+		}
+
+		public bool CanTarget(Actor self, in Target target, ref TargetModifiers modifiers, ref string cursor)
+		{
+			throw new System.NotImplementedException();
 		}
 
 		public bool IsQueued { get; protected set; }

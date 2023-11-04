@@ -21,7 +21,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
 			var localizationName = args[1];
 
 			var localizationFile = localizationName + ".yaml";
-			if(File.Exists(localizationFile))
+			if (File.Exists(localizationFile))
 			{
 				File.Delete(localizationFile);
 			}
@@ -51,7 +51,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
 				List<MiniYamlNode> nodes = new List<MiniYamlNode>();
 				MiniYamlNode node = new MiniYamlNode(localizationName, new MiniYaml(localizationName.SetFirstLetterUpper(), subNodes));
 				nodes.Add(node);
-				
+
 				MiniYaml tranlsation = new MiniYaml(null, nodes);
 				foreach (var line in tranlsation.ToLines(localizationName))
 				{

@@ -50,7 +50,7 @@ namespace OpenRA.Mods.YR.Traits
         }
     }
 
-    public class SlaveMinerMaster : BaseSpawnerMaster, INotifyTransform, 
+    public class SlaveMinerMaster : BaseSpawnerMaster, INotifyTransform,
         INotifyBuildingPlaced, ITick, IIssueOrder, IResolveOrder
     {
         /*When transformed complete, it must be mining state*/
@@ -78,8 +78,8 @@ namespace OpenRA.Mods.YR.Traits
             transforms = init.Self.Trait<Transforms>();
         }
 
-		#region Transform
-		public void AfterTransform(Actor toActor)
+        #region Transform
+        public void AfterTransform(Actor toActor)
         {
             //When transform complete, assign the slaves to this transform actor
             SlaveMinerHarvester harvesterMaster = toActor.Trait<SlaveMinerHarvester>();
@@ -111,9 +111,9 @@ namespace OpenRA.Mods.YR.Traits
         {
         }
 
-		#endregion
+        #endregion
 
-		public bool CanHarvestCell(Actor self, CPos cell)
+        public bool CanHarvestCell(Actor self, CPos cell)
         {
             // Resources only exist in the ground layer
             if (cell.Layer != 0)

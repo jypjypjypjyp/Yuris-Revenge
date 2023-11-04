@@ -17,23 +17,23 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Activities
 {
-	class EnterBunker : Enter
-	{
-		readonly BunkerPassenger bunkerPassenger;
-		Actor bunkerActor;
-		BunkerCargo bunkerCargo;
-		bool willDisappear;
+    class EnterBunker : Enter
+    {
+        readonly BunkerPassenger bunkerPassenger;
+        Actor bunkerActor;
+        BunkerCargo bunkerCargo;
+        bool willDisappear;
 
-		public EnterBunker(Actor passengerActor, Actor bunkerActor, WPos pos, bool willDisappear = true, int maxTries = 0, bool repathWhileMoving = true)
-			: base(passengerActor, Target.FromActor(bunkerActor))
-		{
-			this.bunkerActor = bunkerActor;
-			bunkerCargo = bunkerActor.Trait<BunkerCargo>();
-			bunkerPassenger = passengerActor.Trait<BunkerPassenger>();
-			this.willDisappear = willDisappear;
+        public EnterBunker(Actor passengerActor, Actor bunkerActor, WPos pos, bool willDisappear = true, int maxTries = 0, bool repathWhileMoving = true)
+            : base(passengerActor, Target.FromActor(bunkerActor))
+        {
+            this.bunkerActor = bunkerActor;
+            bunkerCargo = bunkerActor.Trait<BunkerCargo>();
+            bunkerPassenger = passengerActor.Trait<BunkerPassenger>();
+            this.willDisappear = willDisappear;
         }
 
-		protected override void OnEnterComplete(Actor self, Actor targetActor)
+        protected override void OnEnterComplete(Actor self, Actor targetActor)
         {
             self.World.AddFrameEndTask(w =>
             {
@@ -80,12 +80,12 @@ namespace OpenRA.Mods.YR.Activities
             });
         }
 
-		protected override bool TryStartEnter(Actor self, Actor targetActor)
+        protected override bool TryStartEnter(Actor self, Actor targetActor)
         {
             return bunkerCargo.Unloading || bunkerCargo.CanLoad(bunkerActor, self);
         }
 
-		protected override void OnLastRun(Actor self)
+        protected override void OnLastRun(Actor self)
         {
             bunkerPassenger.Unreserve(self);
         }

@@ -52,7 +52,7 @@ namespace OpenRA.Mods.YR.Traits
 
 		[Desc("We consider traction to be timed out after this period.")]
 		public readonly int Timeout = 20;
-	
+
 		[GrantedConditionReference]
 		[Desc("The condition to grant to self while airborne.")]
 		public readonly string AirborneCondition = null;
@@ -106,8 +106,8 @@ namespace OpenRA.Mods.YR.Traits
 
 		void ITick.Tick(Actor self)
 		{
-            if (IsTraitDisabled)
-                return;
+			if (IsTraitDisabled)
+				return;
 
 			--timeoutTicks;
 

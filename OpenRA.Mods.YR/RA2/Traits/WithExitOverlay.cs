@@ -1,6 +1,6 @@
 #region Copyright & License Information
 /*
- * Copyright 2007-2016 The OpenRA Developers (see AUTHORS)
+ * Copyright (c) The OpenRA Developers and Contributors
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
  * as published by the Free Software Foundation, either version 3 of
@@ -9,62 +9,54 @@
  */
 #endregion
 
-using System;
 using System.Linq;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Traits.Render;
 using OpenRA.Traits;
-using OpenRA.Support;
 
 namespace OpenRA.Mods.RA2.Traits
 {
 	[Desc("Renders an animation when when the actor is leaving from a production building.")]
-	public class WithExitOverlayInfo : ConditionalTraitInfo, Requires<RenderSpritesInfo>, Requires<BodyOrientationInfo>
+	public class WithExitOverlayInfo : PausableConditionalTraitInfo, Requires<RenderSpritesInfo>, Requires<BodyOrientationInfo>
 	{
 		[Desc("Sequence name to use")]
-		[SequenceReference] public readonly string Sequence = "exit-overlay";
+		[SequenceReference]
+		public readonly string Sequence = "exit-overlay";
 
 		[Desc("Position relative to body")]
 		public readonly WVec Offset = WVec.Zero;
 
 		[Desc("Custom palette name")]
-		[PaletteReference("IsPlayerPalette")] public readonly string Palette = null;
+		[PaletteReference("IsPlayerPalette")]
+		public readonly string Palette = null;
 
 		[Desc("Custom palette is a player palette BaseName")]
 		public readonly bool IsPlayerPalette = false;
 
-        public override object Create(ActorInitializer init) { return new WithExitOverlay(init.Self, this); }
+		public override object Create(ActorInitializer init) { return new WithExitOverlay(init.Self, this); }
 	}
 
-	public class WithExitOverlay : ConditionalTrait<WithExitOverlayInfo>, INotifyDamageStateChanged, INotifySold, INotifyProduction, ITick
+	public class WithExitOverlay : PausableConditionalTrait<WithExitOverlayInfo>, INotifyDamageStateChanged, INotifyProduction, ITick
 	{
 		readonly Animation overlay;
-		bool buildComplete, enable;
+		bool enable;
 		CPos exit;
 
-		public WithExitOverlay(Actor self, WithExitOverlayInfo info) : base(info)
+		public WithExitOverlay(Actor self, WithExitOverlayInfo info)
+			: base(info)
 		{
 			var rs = self.Trait<RenderSprites>();
 			var body = self.Trait<BodyOrientation>();
 
-			// Always render instantly for units
-			buildComplete = !self.Info.HasTraitInfo<BuildingInfo>();
-
-			overlay = new Animation(self.World, rs.GetImage(self));
+			overlay = new Animation(self.World, rs.GetImage(self), () => IsTraitPaused);
 			overlay.PlayRepeating(info.Sequence);
 
 			var anim = new AnimationWithOffset(overlay,
-				() => body.LocalToWorld(info.Offset.Rotate(body.QuantizeOrientation(self, self.Orientation))),
-				() => !buildComplete || !enable);
+				() => body.LocalToWorld(info.Offset.Rotate(body.QuantizeOrientation(self.Orientation))),
+				() => IsTraitDisabled || !enable);
 
 			rs.Add(anim, info.Palette, info.IsPlayerPalette);
-		}
-
-		void INotifySold.Sold(Actor self) { }
-		void INotifySold.Selling(Actor self)
-		{
-			buildComplete = false;
 		}
 
 		void INotifyDamageStateChanged.DamageStateChanged(Actor self, AttackInfo e)
@@ -80,8 +72,16 @@ namespace OpenRA.Mods.RA2.Traits
 
 		void ITick.Tick(Actor self)
 		{
+			if (IsTraitDisabled)
+				return;
+
 			if (enable)
 				enable = self.World.ActorMap.GetActorsAt(exit).Any(a => a != self);
+		}
+
+		protected override void TraitDisabled(Actor self)
+		{
+			enable = false;
 		}
 	}
 }

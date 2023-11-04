@@ -2,7 +2,7 @@
 /*
  * Modded by Cook Green of YR Mod.
  * Modded from NukeLaunch.cs but change a lot
- * 
+ *
  * Copyright 2007-2018 The OpenRA Developers (see AUTHORS)
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
@@ -11,68 +11,39 @@
  * information, see COPYING.
  */
 #endregion
+using System.Collections.Generic;
+using System.Linq;
 using OpenRA.GameRules;
-using OpenRA.Mods.Common.Effects;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Warheads;
 using OpenRA.Primitives;
 using OpenRA.Traits;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.Traits.SupportPowers
 {
     public class WeaponBrust
     {
-        private WeaponInfo weapon;
-        private int offsetX;
-        private int offsetY;
-        private int offsetZ;
+        public WeaponInfo Weapon { get; }
 
-        public WeaponInfo Weapon
-        {
-            get
-            {
-                return weapon;
-            }
-        }
-        public int OffsetX
-        {
-            get
-            {
-                return offsetX;
-            }
-        }
-        public int OffsetY
-        {
-            get
-            {
-                return offsetY;
-            }
-        }
-        public int OffsetZ
-        {
-            get
-            {
-                return offsetZ;
-            }
-        }
+        public int OffsetX { get; }
+
+        public int OffsetY { get; }
+
+        public int OffsetZ { get; }
 
         public WeaponBrust(WeaponInfo weapon, int[] positionOffset)
         {
-            this.weapon = weapon;
-            offsetX = positionOffset[0];
-            offsetY = positionOffset[1];
-            offsetZ = positionOffset[2];
+            Weapon = weapon;
+            OffsetX = positionOffset[0];
+            OffsetY = positionOffset[1];
+            OffsetZ = positionOffset[2];
         }
     }
+
     public class ParticleSupportPowerInfo : SupportPowerWithNotifyInfo, IRulesetLoaded
     {
+        // Weapon-Offset dictionary
         [Desc("What weapons will attack the target in the range?")]
-        //Weapon-Offset dictionary
         public readonly Dictionary<string, int[]> Weapons = null;
 
         [Desc("Effect Range")]
@@ -101,29 +72,33 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
             {
                 throw new YamlException("Weapons Ruleset can't be empty!");
             }
+
             WeaponInfos = new List<WeaponBrust>();
             for (int i = 0; i < Weapons.Count; i++)
             {
                 string Weapon = Weapons.ElementAt(i).Key;
-                WeaponInfo weapon;
                 var weaponToLower = (Weapon ?? string.Empty).ToLowerInvariant();
-                if (!rules.Weapons.TryGetValue(weaponToLower, out weapon))
+                if (!rules.Weapons.TryGetValue(weaponToLower, out WeaponInfo weapon))
                     throw new YamlException("Weapons Ruleset does not contain an entry '{0}'".F(weaponToLower));
 
                 WeaponInfos.Add(new WeaponBrust(weapon, Weapons.ElementAt(i).Value));
             }
+
             base.RulesetLoaded(rules, ai);
         }
+
         public override object Create(ActorInitializer init)
         {
             return new ParticleSupportPower(init.Self, this);
         }
     }
+
     public class ParticleSupportPower : SupportPowerWithNotify
     {
-        private ParticleSupportPowerInfo info;
+        private readonly ParticleSupportPowerInfo info;
 
-        public ParticleSupportPower(Actor self, ParticleSupportPowerInfo info) : base(self, info)
+        public ParticleSupportPower(Actor self, ParticleSupportPowerInfo info)
+            : base(self, info)
         {
             this.info = info;
         }
@@ -132,7 +107,8 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
         {
             base.Activate(self, order, manager);
 
-            self.World.AddFrameEndTask(w => {
+            self.World.AddFrameEndTask(w =>
+            {
                 WPos targetPos = order.Target.CenterPosition;
 
                 PlayLaunchSounds();
@@ -149,10 +125,8 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
                             break;
                         }
                     }
-                    if (environmentEffect != null)
-                    {
-                        environmentEffect.Enable(-1);
-                    }
+
+                    environmentEffect?.Enable(-1);
                 }
 
                 for (int i = 0; i < info.WeaponInfos.Count; i++)
@@ -161,21 +135,20 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
                     if (weaponInfo.Report != null && weaponInfo.Report.Any())
                         Game.Sound.Play(SoundType.World, weaponInfo.Report.Random(self.World.SharedRandom), order.Target.CenterPosition);
 
-                    //Boooooom......
+                    // Boooooom......
                     WVec offset = new WVec(
                         info.WeaponInfos[i].OffsetX,
                         info.WeaponInfos[i].OffsetY,
-                        info.WeaponInfos[i].OffsetZ
-                    );
+                        info.WeaponInfos[i].OffsetZ);
                     WPos newPos = targetPos + offset;
-                    weaponInfo.Impact(Target.FromPos(newPos), new WarheadArgs { SourceActor = self, DamageModifiers = new int[0] });
+                    weaponInfo.Impact(Target.FromPos(newPos), new WarheadArgs { SourceActor = self, DamageModifiers = System.Array.Empty<int>() });
 
                     var victimActors = w.FindActorsInCircle(targetPos, weaponInfo.Range);
-                    foreach(Actor actor in victimActors)
+                    foreach (Actor actor in victimActors)
                     {
-                        foreach(IWarhead warhead in weaponInfo.Warheads)
+                        foreach (IWarhead warhead in weaponInfo.Warheads)
                         {
-                            if(warhead is SpreadDamageWarhead)
+                            if (warhead is SpreadDamageWarhead)
                             {
                                 actor.InflictDamage(self, new Damage(((SpreadDamageWarhead)warhead).Damage));
                             }
@@ -195,9 +168,10 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
                             {
                                 continue;
                             }
+
                             foreach (var tti in ti.GetTargetTypes())
                             {
-                                if (info.ChangeTargets.Contains(tti) && aliveActor.Owner.Stances[self.Owner] == Stance.Enemy)
+                                if (info.ChangeTargets.Contains(tti) && aliveActor.Owner.RelationshipWith(self.Owner) == PlayerRelationship.Enemy)
                                 {
                                     aliveActor.ChangeOwner(self.Owner);
                                     break;

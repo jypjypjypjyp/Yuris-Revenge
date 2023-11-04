@@ -1,9 +1,6 @@
-﻿#region Copyright & License Information
+#region Copyright & License Information
 /*
- * Written by Cook Green of YR Mod
- * Follows GPLv3 License as the OpenRA engine:
- * 
- * Copyright 2007-2018 The OpenRA Developers (see AUTHORS)
+ * Copyright (c) The OpenRA Developers and Contributors
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
  * as published by the Free Software Foundation, either version 3 of
@@ -11,28 +8,24 @@
  * information, see COPYING.
  */
 #endregion
-using OpenRA.Graphics;
+
+using System;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Widgets;
 using OpenRA.Widgets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace OpenRA.Mods.YR.Widgets
+namespace OpenRA.Mods.RA2.Widgets.Logic
 {
-    public class PowerBarWidget : Widget
+	public class PowerMeterWidget : Widget
 	{
 		Widget sidebarProduction;
 		int lastMeterCheck;
-		int barHeight = 0;
-		bool bypassAnimation = false;
-		int warningFlash = 0;
+		int barHeight;
+		bool bypassAnimation;
+		int warningFlash;
 		int lastTotalPowerDisplay;
 
-		protected readonly World world;
+		protected readonly World World;
 
 		[Desc("The name of the Container Widget to tie the Y axis to")]
 		[FieldLoader.Require]
@@ -79,9 +72,9 @@ namespace OpenRA.Mods.YR.Widgets
 		public readonly string ImageCollection = "";
 
 		[ObjectCreator.UseCtor]
-		public PowerBarWidget(World world, WorldRenderer worldRenderer)
+		public PowerMeterWidget(World world)
 		{
-			this.world = world;
+			World = world;
 		}
 
 		public void CalculateMeterBarDimensions()
@@ -124,11 +117,13 @@ namespace OpenRA.Mods.YR.Widgets
 			Children.Clear();
 
 			// Create a list of new bars
-			for (int i = 0; i < numberOfBars; i++)
+			for (var i = 0; i < numberOfBars; i++)
 			{
-				var newPower = new ImageWidget();
-				newPower.ImageCollection = ImageCollection;
-				newPower.ImageName = NoPowerImage;
+				var newPower = new ImageWidget
+				{
+					ImageCollection = ImageCollection,
+					ImageName = NoPowerImage
+				};
 
 				// AddFactionSuffixLogic could be added here
 				newPower.Bounds.Y = -(i * meterDistance) + barHeight + Bounds.Y;
@@ -170,7 +165,7 @@ namespace OpenRA.Mods.YR.Widgets
 			// Number of power units represent each bar
 			var stepSize = PowerUnitsPerBar;
 
-			var powerManager = world.LocalPlayer.PlayerActor.Trait<PowerManager>();
+			var powerManager = World.LocalPlayer.PlayerActor.Trait<PowerManager>();
 			var totalPowerDisplay = Math.Max(powerManager.PowerProvided, powerManager.PowerDrained);
 
 			var totalPowerStep = decimal.Floor(totalPowerDisplay / stepSize);

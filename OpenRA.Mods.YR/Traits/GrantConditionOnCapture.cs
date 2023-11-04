@@ -58,7 +58,7 @@ namespace OpenRA.Mods.YR.Traits
 
         public void OnOwnerChanged(Actor self, Player oldOwner, Player newOwner)
         {
-            if(newOwner.InternalName == "Netural")
+            if (newOwner.InternalName == "Netural")
             {
                 return;
             }
@@ -69,7 +69,7 @@ namespace OpenRA.Mods.YR.Traits
 
                 TraitDisabled(self);
                 TraitEnabled(self);
-                
+
             }
         }
         protected override void TraitEnabled(Actor self)
@@ -102,7 +102,7 @@ namespace OpenRA.Mods.YR.Traits
 
         public void Tick(Actor self)
         {
-            if(self.IsDead)
+            if (self.IsDead)
             {
                 if (conditionToken == ConditionManager.InvalidConditionToken)
                     return;

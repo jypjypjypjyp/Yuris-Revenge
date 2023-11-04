@@ -18,15 +18,15 @@ namespace OpenRA.Mods.YR.Activities
 {
     class MarkerSlaveLeave : Activity
     {
-		private Actor slave;
-		private Actor master;
-		public MarkerSlaveLeave(Actor slave, Actor master)
+        private Actor slave;
+        private Actor master;
+        public MarkerSlaveLeave(Actor slave, Actor master)
         {
             this.master = master;
             this.slave = slave;
         }
 
-		public override bool Tick(Actor self)
+        public override bool Tick(Actor self)
         {
             if (self.IsDead)
                 return false;

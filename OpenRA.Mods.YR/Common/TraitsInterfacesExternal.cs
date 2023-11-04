@@ -16,7 +16,7 @@ namespace OpenRA.Mods.Common.Traits
 	[RequireExplicitImplementation]
 	public interface IResourceLogicLayer
 	{
-		void UpdatePosition(CPos cell, ResourceType type, int density);
+		void UpdatePosition(CPos cell, string type, int density);
 	}
 
 	[RequireExplicitImplementation]

@@ -1,12 +1,6 @@
-﻿using OpenRA;
+﻿using System.IO;
 using OpenRA.Graphics;
 using OpenRA.Primitives;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.SpriteLoaders
 {
@@ -24,11 +18,12 @@ namespace OpenRA.Mods.YR.SpriteLoaders
 			{
 				get
 				{
-					return SpriteFrameType.BGRA;
+					return SpriteFrameType.Bgra32;
 				}
 			}
 		}
-		public bool TryParseSprite(Stream s, out ISpriteFrame[] frames, out TypeDictionary metadata)
+
+		public bool TryParseSprite(Stream s, string filename, out ISpriteFrame[] frames, out TypeDictionary metadata)
 		{
 			frames = new ISpriteFrame[1];
 			metadata = new TypeDictionary();

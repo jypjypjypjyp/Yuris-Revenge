@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.Traits
 {
-    
+
     public class DetectVarietyInfo : ConditionalTraitInfo
     {
         [Desc("Specific variety classifications I can reveal.")]

@@ -20,7 +20,7 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Activities
 {
-	public class UnloadBunkerCargo : Activity
+    public class UnloadBunkerCargo : Activity
     {
         readonly Actor self;
         readonly BunkerCargo cargo;
@@ -74,27 +74,27 @@ namespace OpenRA.Mods.YR.Activities
         }
 
         public (CPos Cell, SubCell SubCell)? ChooseExitSubCell(Actor passenger)
-		{
-			var pos = passenger.Trait<IPositionable>();
+        {
+            var pos = passenger.Trait<IPositionable>();
 
-			return cargo.CurrentAdjacentCells
-				.Shuffle(self.World.SharedRandom)
-				.Select(c => (c, pos.GetAvailableSubCell(c)))
-				.Cast<(CPos, SubCell SubCell)?>()
-				.FirstOrDefault(s => s.Value.SubCell != SubCell.Invalid);
-		}
+            return cargo.CurrentAdjacentCells
+                .Shuffle(self.World.SharedRandom)
+                .Select(c => (c, pos.GetAvailableSubCell(c)))
+                .Cast<(CPos, SubCell SubCell)?>()
+                .FirstOrDefault(s => s.Value.SubCell != SubCell.Invalid);
+        }
 
         IEnumerable<CPos> BlockedExitCells(Actor passenger)
-		{
-			var pos = passenger.Trait<IPositionable>();
+        {
+            var pos = passenger.Trait<IPositionable>();
 
-			// Find the cells that are blocked by transient actors
-			return cargo.CurrentAdjacentCells
-				.Where(c => pos.CanEnterCell(c, null, BlockedByActor.All) != pos.CanEnterCell(c, null, BlockedByActor.None));
-		}
+            // Find the cells that are blocked by transient actors
+            return cargo.CurrentAdjacentCells
+                .Where(c => pos.CanEnterCell(c, null, BlockedByActor.All) != pos.CanEnterCell(c, null, BlockedByActor.None));
+        }
 
         public override bool Tick(Actor self)
-		{
+        {
             if (IsCanceling || cargo.IsEmpty(self))
                 return true;
 
@@ -146,6 +146,6 @@ namespace OpenRA.Mods.YR.Activities
             }
 
             return false;
-		}
-	}
+        }
+    }
 }

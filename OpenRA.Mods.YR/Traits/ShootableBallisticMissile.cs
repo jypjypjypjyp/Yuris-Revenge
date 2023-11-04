@@ -11,8 +11,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using OpenRA;
 using OpenRA.Activities;
 using OpenRA.Mods.Common;
 using OpenRA.Mods.Common.Traits;
@@ -25,7 +25,7 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Traits
 {
-	[Desc("This unit, when ordered to move, will fly in ballistic path then will detonate itself upon reaching target.")]
+    [Desc("This unit, when ordered to move, will fly in ballistic path then will detonate itself upon reaching target.")]
 	public class ShootableBallisticMissileInfo : TraitInfo, IMoveInfo, IPositionableInfo, IFacingInfo
 	{
 		[Desc("Projectile speed in WDist / tick, two values indicate variable velocity.")]
@@ -43,28 +43,34 @@ namespace OpenRA.Mods.YR.Traits
 		[Desc("Minimum altitude where this missile is considered airborne")]
 		public readonly int MinAirborneAltitude = 5;
 
-		public virtual object Create(ActorInitializer init) { return new ShootableBallisticMissile(init, this); }
+		public override object Create(ActorInitializer init) { return new ShootableBallisticMissile(init, this); }
 
 		[GrantedConditionReference]
 		[Desc("The condition to grant to self while airborne.")]
 		public readonly string AirborneCondition = null;
 
-		public IReadOnlyDictionary<CPos, SubCell> OccupiedCells(ActorInfo info, CPos location, SubCell subCell = SubCell.Any) { return new ReadOnlyDictionary<CPos, SubCell>(); }
+		public IReadOnlyDictionary<CPos, SubCell> OccupiedCells(ActorInfo info, CPos location, SubCell subCell = SubCell.Any)
+		{
+			return new ReadOnlyDictionary<CPos, SubCell>(new Dictionary<CPos, SubCell>());
+		}
+
 		bool IOccupySpaceInfo.SharesCell { get { return false; } }
 
 		// set by spawned logic, not this.
-		public int GetInitialFacing() { return 0; }
+		public WAngle GetInitialFacing() { return WAngle.FromFacing(0); }
 
 		public bool CanEnterCell(World world, Actor self, CPos cell, SubCell subCell = SubCell.FullCell, Actor ignoreActor = null, BlockedByActor check = BlockedByActor.All)
 		{
 			return false;
 		}
-	}
+
+		public Color GetTargetLineColor() { return Color.Red; }
+    }
 
 	public class ShootableBallisticMissile : ITick, ISync, IFacing, IPositionable, IMove,
 		INotifyCreated, INotifyAddedToWorld, INotifyRemovedFromWorld, INotifyActorDisposing, IActorPreviewInitModifier
 	{
-		static readonly Pair<CPos, SubCell>[] NoCells = { };
+		static readonly (CPos, SubCell)[] NoCells = Array.Empty<(CPos, SubCell)>();
 
 		public readonly ShootableBallisticMissileInfo Info;
 		readonly Actor self;
@@ -74,12 +80,17 @@ namespace OpenRA.Mods.YR.Traits
 
 		[Sync]
 		public WAngle Facing { get; set; }
+
+		// This kind of missile will not turn anyway. Hard-coding here.
 		[Sync]
-		public WAngle TurnSpeed { get; set; }
+		public WAngle TurnSpeed { get { return 10; } }
+
 		[Sync]
 		public WRot Orientation { get; set; }
+
 		[Sync]
 		public WPos CenterPosition { get; private set; }
+
 		public CPos TopLeft { get { return self.World.Map.CellContaining(CenterPosition); } }
 
 		bool airborne;
@@ -91,21 +102,18 @@ namespace OpenRA.Mods.YR.Traits
 			self = init.Self;
 
 			if (init.Contains<LocationInit>())
-				SetPosition(self, init.Get<LocationInit, CPos>());
+				SetPosition(self, init.GetValue<LocationInit, CPos>());
 
 			if (init.Contains<CenterPositionInit>())
-				SetPosition(self, init.Get<CenterPositionInit, WPos>());
+				SetPosition(self, init.GetValue<CenterPositionInit, WPos>());
 
 			// I need facing but initial facing doesn't matter, they are determined by the spawner's facing.
-			Facing = init.Contains<FacingInit>() ? init.Get<FacingInit, int>() : 0;
+			Facing = init.Contains<FacingInit>() ? init.GetValue<FacingInit, WAngle>() : 0;
 		}
 
-		// This kind of missile will not turn anyway. Hard-coding here.
-		public int TurnSpeed { get { return 10; } }
 
 		public void Created(Actor self)
 		{
-			conditionManager = self.TraitOrDefault<ConditionManager>();
 			speedModifiers = self.TraitsImplementing<ISpeedModifier>().ToArray().Select(sm => sm.GetSpeedModifier());
 		}
 
@@ -127,7 +135,7 @@ namespace OpenRA.Mods.YR.Traits
 			get { return Util.ApplyPercentageModifiers(Info.Speed, speedModifiers); }
 		}
 
-		public IEnumerable<Pair<CPos, SubCell>> OccupiedCells() { return NoCells; }
+		public IEnumerable<(CPos, SubCell)> OccupiedCells() { return NoCells; }
 
 		public WVec FlyStep(int facing)
 		{
@@ -180,7 +188,7 @@ namespace OpenRA.Mods.YR.Traits
 
 		#region Implement IMove
 
-		public Activity MoveIntoTarget(Actor self, Target target)
+		public Activity MoveIntoTarget(Actor self, in Target target)
 		{
 			// Seriously, you don't want to run this lol
 			return new ShootableBallisticMissileFly(self, target);
@@ -210,7 +218,7 @@ namespace OpenRA.Mods.YR.Traits
 			}
 		}
 
-		public bool CanEnterTargetNow(Actor self, Target target)
+		public bool CanEnterTargetNow(Actor self, in Target target)
 		{
 			// you can never control ballistic missiles anyway
 			return false;
@@ -234,13 +242,13 @@ namespace OpenRA.Mods.YR.Traits
 
 		public Order IssueOrder(Actor self, IOrderTargeter order, Target target, bool queued)
 		{
-            if (order.OrderID == "Enter")
-                return new Order(order.OrderID, self, queued);
+			if (order.OrderID == "Enter")
+				return new Order(order.OrderID, self, queued);
 
-            if (order.OrderID == "Move")
-                return new Order(order.OrderID, self, queued);
+			if (order.OrderID == "Move")
+				return new Order(order.OrderID, self, queued);
 
-            return null;
+			return null;
 		}
 
 		#endregion
@@ -249,19 +257,19 @@ namespace OpenRA.Mods.YR.Traits
 		{
 			self.World.RemoveFromMaps(self, this);
 			OnAirborneAltitudeLeft();
-        }
+		}
 
 		public Activity MoveTo(CPos cell, int nearEnough, Primitives.Color? targetLineColor = null)
-        {
-            return new ShootableBallisticMissileFly(self, Target.FromCell(self.World, cell));
-        }
+		{
+			return new ShootableBallisticMissileFly(self, Target.FromCell(self.World, cell));
+		}
 
 		public Activity MoveIntoWorld(Actor self, int delay = 0)
-        {
-            return null;
-        }
+		{
+			return null;
+		}
 
-        #region Airborne conditions
+		#region Airborne conditions
 
 		void OnAirborneAltitudeReached()
 		{
@@ -269,8 +277,8 @@ namespace OpenRA.Mods.YR.Traits
 				return;
 
 			airborne = true;
-			if (conditionManager != null && !string.IsNullOrEmpty(Info.AirborneCondition) && airborneToken == ConditionManager.InvalidConditionToken)
-				airborneToken = conditionManager.GrantCondition(self, Info.AirborneCondition);
+			if (self != null && !string.IsNullOrEmpty(Info.AirborneCondition) && airborneToken == Actor.InvalidConditionToken)
+				airborneToken = self.GrantCondition(Info.AirborneCondition);
 		}
 
 		void OnAirborneAltitudeLeft()
@@ -279,8 +287,8 @@ namespace OpenRA.Mods.YR.Traits
 				return;
 
 			airborne = false;
-			if (conditionManager != null && airborneToken != ConditionManager.InvalidConditionToken)
-				airborneToken = conditionManager.RevokeCondition(self, airborneToken);
+			if (self != null && airborneToken != Actor.InvalidConditionToken)
+				airborneToken = self.RevokeCondition(airborneToken);
 		}
 
 		#endregion
@@ -296,40 +304,45 @@ namespace OpenRA.Mods.YR.Traits
 		}
 
 		public bool CanExistInCell(CPos location)
-        {
-            return true;
-        }
+		{
+			return true;
+		}
 
-		Pair<CPos, SubCell>[] IOccupySpace.OccupiedCells()
-        {
+		(CPos, SubCell)[] IOccupySpace.OccupiedCells()
+		{
 			CPos location = self.World.Map.CellContaining(self.CenterPosition);
-            return new[] { Pair.New(location, SubCell.FullCell) };
-        }
+			return new[] { (location, SubCell.FullCell) };
+		}
 
-		public Activity MoveWithinRange(Target target, WDist range, WPos? initialTargetPosition = default(WPos?), Primitives.Color? targetLineColor = default(Primitives.Color?))
-        {
-            return null;
-        }
+		public Activity MoveWithinRange(in Target target, WDist range, WPos? initialTargetPosition = default, Color? targetLineColor = default)
+		{
+			return null;
+		}
 
-		public Activity MoveWithinRange(Target target, WDist minRange, WDist maxRange, WPos? initialTargetPosition = default(WPos?), Primitives.Color? targetLineColor = default(Primitives.Color?))
-        {
-            return null;
-        }
+		public Activity MoveWithinRange(in Target target, WDist minRange, WDist maxRange, WPos? initialTargetPosition = default, Color? targetLineColor = default)
+		{
+			return null;
+		}
 
-		public Activity MoveFollow(Actor self, Target target, WDist minRange, WDist maxRange, WPos? initialTargetPosition = default(WPos?), Primitives.Color? targetLineColor = default(Primitives.Color?))
-        {
-            return null;
-        }
+		public Activity MoveFollow(Actor self, in Target target, WDist minRange, WDist maxRange, WPos? initialTargetPosition = default, Color? targetLineColor = default)
+		{
+			return null;
+		}
 
-		public Activity MoveToTarget(Actor self, Target target, WPos? initialTargetPosition = default(WPos?), Primitives.Color? targetLineColor = default(Primitives.Color?))
-        {
+		public Activity MoveToTarget(Actor self, in Target target, WPos? initialTargetPosition = default, Color? targetLineColor = default)
+		{
+            if (targetLineColor is null)
+            {
+                throw new ArgumentNullException(nameof(targetLineColor));
+            }
+
             return null;
-        }
+		}
 
 		public int EstimatedMoveDuration(Actor self, WPos fromPos, WPos toPos)
-        {
-            return (toPos - fromPos).Length / Info.Speed;
-        }
+		{
+			return (toPos - fromPos).Length / Info.Speed;
+		}
 
 		public Activity ReturnToCell(Actor self)
 		{
@@ -341,14 +354,14 @@ namespace OpenRA.Mods.YR.Traits
 			return true;
 		}
 
-		public Activity MoveTo(CPos cell, int nearEnough, Actor ignoreActor, bool evaluateNearestMovableCell, Primitives.Color? targetLineColor = null)
+		public Activity MoveTo(CPos cell, int nearEnough, Actor ignoreActor, bool evaluateNearestMovableCell, Color? targetLineColor = null)
 		{
 			return new ShootableBallisticMissileFly(self, Target.FromCell(self.World, cell));
 		}
 
 		public SubCell GetAvailableSubCell(CPos location, SubCell preferredSubCell = SubCell.Any, Actor ignoreActor = null, BlockedByActor check = BlockedByActor.All)
 		{
-			return new SubCell();
+			return default;
 		}
 	}
 }

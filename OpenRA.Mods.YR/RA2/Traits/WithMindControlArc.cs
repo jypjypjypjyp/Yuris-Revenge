@@ -1,6 +1,6 @@
 #region Copyright & License Information
 /*
- * Copyright 2007-2018 The OpenRA Developers (see AUTHORS)
+ * Copyright (c) The OpenRA Developers and Contributors
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
  * as published by the Free Software Foundation, either version 3 of
@@ -9,12 +9,11 @@
  */
 #endregion
 
-using System;
 using System.Collections.Generic;
 using OpenRA.Graphics;
 using OpenRA.Mods.RA2.Graphics;
+using OpenRA.Primitives;
 using OpenRA.Traits;
-using Color = OpenRA.Primitives.Color;
 
 namespace OpenRA.Mods.RA2.Traits
 {
@@ -44,7 +43,7 @@ namespace OpenRA.Mods.RA2.Traits
 		[Desc("Equivalent to sequence ZOffset. Controls Z sorting.")]
 		public readonly int ZOffset = 0;
 
-		public virtual object Create(ActorInitializer init) { return new WithMindControlArc(init.Self, this); }
+		public override object Create(ActorInitializer init) { return new WithMindControlArc(this); }
 	}
 
 	public class WithMindControlArc : IRenderAboveShroudWhenSelected, INotifySelected, INotifyCreated
@@ -53,12 +52,12 @@ namespace OpenRA.Mods.RA2.Traits
 		MindController mindController;
 		MindControllable mindControllable;
 
-		public WithMindControlArc(Actor self, WithMindControlArcInfo info)
+		public WithMindControlArc(WithMindControlArcInfo info)
 		{
 			this.info = info;
 		}
 
-		public void Created(Actor self)
+		void INotifyCreated.Created(Actor self)
 		{
 			mindController = self.TraitOrDefault<MindController>();
 			mindControllable = self.TraitOrDefault<MindControllable>();
@@ -89,9 +88,6 @@ namespace OpenRA.Mods.RA2.Traits
 				info.ZOffset, info.Angle, color, info.Width, info.QuantizedSegments);
 		}
 
-		bool IRenderAboveShroudWhenSelected.SpatiallyPartitionable
-		{
-			get { return false; }
-		}
+		bool IRenderAboveShroudWhenSelected.SpatiallyPartitionable => false;
 	}
 }

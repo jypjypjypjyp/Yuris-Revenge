@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace OpenRA.Mods.YR.FileFormats
 {
@@ -11,7 +6,6 @@ namespace OpenRA.Mods.YR.FileFormats
 	{
 		public Pcx(Stream s)
 		{
-
 		}
 	}
 }

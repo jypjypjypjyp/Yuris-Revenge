@@ -33,30 +33,31 @@ namespace OpenRA.Mods.YR.Traits
         Free, //We are free, we are free!!! Change owner to the killer
         Idle, //Nothing happen
     }
-	public class SlaveMinerSlaveInfo : BaseSpawnerSlaveInfo, Requires<HarvesterInfo>
-	{
+    public class SlaveMinerSlaveInfo : BaseSpawnerSlaveInfo, Requires<HarvesterInfo>
+    {
         [Desc("What will happen when master was killed?")]
         public readonly SlaveState OnMasterKilled = SlaveState.Idle;
 
         [Desc("What will happen when master is changed owner?")]
         public readonly SlaveState OnMasterOwnerChanged = SlaveState.Idle;
-		public override object Create(ActorInitializer init)
-		{
-			return new SlaveMinerSlave(init, this);
-		}
-	}
+        public override object Create(ActorInitializer init)
+        {
+            return new SlaveMinerSlave(init, this);
+        }
+    }
 
-	class SlaveMinerSlave : BaseSpawnerSlave, ITick
-	{
-		SlaveMinerHarvester spawnerHarvesterMaster;
+    class SlaveMinerSlave : BaseSpawnerSlave, ITick
+    {
+        SlaveMinerHarvester spawnerHarvesterMaster;
         SlaveMinerSlaveInfo info;
 
-		public SlaveMinerSlave(ActorInitializer init, SlaveMinerSlaveInfo info) : base(init, info) {
+        public SlaveMinerSlave(ActorInitializer init, SlaveMinerSlaveInfo info) : base(init, info)
+        {
             this.info = info;
         }
 
-		public override void LinkMaster(Actor self, Actor master, BaseSpawnerMaster spawnerMaster)
-		{
+        public override void LinkMaster(Actor self, Actor master, BaseSpawnerMaster spawnerMaster)
+        {
             base.LinkMaster(self, master, spawnerMaster);
             // Link master for the harvester trait.
             try
@@ -66,11 +67,11 @@ namespace OpenRA.Mods.YR.Traits
             catch
             {
             }
-		}
+        }
 
         public override void OnMasterKilled(Actor self, Actor attacker, SpawnerSlaveDisposal disposal)
         {
-            switch(info.OnMasterKilled)
+            switch (info.OnMasterKilled)
             {
                 case SlaveState.Free:
                     self.ChangeOwner(attacker.Owner);
@@ -80,7 +81,7 @@ namespace OpenRA.Mods.YR.Traits
 
         public override void OnOwnerChanged(Actor self, Player oldOwner, Player newOwner)
         {
-            switch(info.OnMasterOwnerChanged)
+            switch (info.OnMasterOwnerChanged)
             {
                 case SlaveState.Free:
                     self.ChangeOwner(newOwner);
@@ -89,7 +90,7 @@ namespace OpenRA.Mods.YR.Traits
         }
 
         public void Tick(Actor self)
-		{
+        {
             // Compensate for bug #13879 (upstream).
             // https://github.com/OpenRA/OpenRA/issues/13879
             // Follow activity sometimes fails to cancel and the slaves get busy locked by WaitFor activity.
@@ -97,17 +98,17 @@ namespace OpenRA.Mods.YR.Traits
             {
                 return;
             }
-			if (spawnerHarvesterMaster.MiningState == MiningState.Mining 
+            if (spawnerHarvesterMaster.MiningState == MiningState.Mining
                 /*&& self.CurrentActivity is WaitFor*/)
-			{
-				self.CancelActivity();
+            {
+                self.CancelActivity();
 
-				/// No need to run this here, since it already happened.
-				/// This slave is just bugged out by Follow activity not canceling properly.
-				/// AssignTargetForSpawned(s, self.Location);
+                /// No need to run this here, since it already happened.
+                /// This slave is just bugged out by Follow activity not canceling properly.
+                /// AssignTargetForSpawned(s, self.Location);
 
-				self.QueueActivity(new FindAndDeliverResources(self));
-			}
-		}
-	}
+                self.QueueActivity(new FindAndDeliverResources(self));
+            }
+        }
+    }
 }

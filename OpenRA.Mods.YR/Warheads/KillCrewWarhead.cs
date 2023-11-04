@@ -11,21 +11,18 @@
  * information, see COPYING.
  */
 #endregion
+using System.Linq;
+using OpenRA.GameRules;
 using OpenRA.Mods.Common.Warheads;
 using OpenRA.Mods.YR.Traits;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.Warheads
 {
     public class KillCrewWarhead : SpreadDamageWarhead
     {
-        public override void DoImpact(WPos pos, Actor firedBy, IEnumerable<int> damageModifiers)
+        protected override void DoImpact(WPos pos, Actor firedBy, WarheadArgs args)
         {
-            base.DoImpact(pos, firedBy, damageModifiers);
+            base.DoImpact(pos, firedBy, args);
 
             World w = firedBy.World;
 
@@ -44,7 +41,8 @@ namespace OpenRA.Mods.YR.Warheads
             var victimActors = w.FindActorsInCircle(pos, new WDist(1));
             foreach (Actor victim in victimActors)
             {
-                if (victim.TraitsImplementing<CrewKillable>().Count() > 0)//This actor can be crew killed
+                 // This actor can be crew killed
+                if (victim.TraitsImplementing<CrewKillable>().Any())
                 {
                     if (neutralPlayer != null)
                     {

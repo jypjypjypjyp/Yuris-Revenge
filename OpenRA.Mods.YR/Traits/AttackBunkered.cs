@@ -107,7 +107,7 @@ namespace OpenRA.Mods.YR.Traits
 
 		void INotifyPassengerEntered.OnPassengerEntered(Actor self, Actor passenger)
 		{
-            BunkerPassenger bunkerPassenger = passenger.Trait<BunkerPassenger>();
+			BunkerPassenger bunkerPassenger = passenger.Trait<BunkerPassenger>();
 
 			paxFacing.Add(passenger, passenger.Trait<IFacing>());
 			paxPos.Add(passenger, passenger.Trait<IPositionable>());
@@ -148,54 +148,54 @@ namespace OpenRA.Mods.YR.Traits
 			return coords.Value.LocalToWorld(p.Offset.Rotate(bodyOrientation));
 		}
 
-        public override void DoAttack(Actor self, Target target)
-        {
-            if (!CanAttack(self, target))
-                return;
+		public override void DoAttack(Actor self, Target target)
+		{
+			if (!CanAttack(self, target))
+				return;
 
-            var pos = self.CenterPosition;
-            var targetedPosition = GetTargetPosition(pos, target);
-            var targetYaw = (targetedPosition - pos).Yaw;
+			var pos = self.CenterPosition;
+			var targetedPosition = GetTargetPosition(pos, target);
+			var targetYaw = (targetedPosition - pos).Yaw;
 
-            foreach (var a in Armaments)
-            {
-                if (a.IsTraitDisabled)
-                    continue;
+			foreach (var a in Armaments)
+			{
+				if (a.IsTraitDisabled)
+					continue;
 
-                var port = SelectFirePort(self, targetYaw);
-                if (port == null)
-                    return;
+				var port = SelectFirePort(self, targetYaw);
+				if (port == null)
+					return;
 
-                var muzzleFacing = targetYaw.Angle / 4;
-                paxFacing[a.Actor].Facing = muzzleFacing;
-                paxPos[a.Actor].SetCenterPosition(a.Actor, pos + PortOffset(self, port));
+				var muzzleFacing = targetYaw.Angle / 4;
+				paxFacing[a.Actor].Facing = muzzleFacing;
+				paxPos[a.Actor].SetCenterPosition(a.Actor, pos + PortOffset(self, port));
 
-                var barrel = a.CheckFire(a.Actor, facing, target);
-                if (barrel == null)
-                    continue;
+				var barrel = a.CheckFire(a.Actor, facing, target);
+				if (barrel == null)
+					continue;
 
-                if (a.Info.MuzzleSequence != null)
-                {
-                    // Muzzle facing is fixed once the firing starts
-                    var muzzleAnim = new Animation(self.World, paxRender[a.Actor].GetImage(a.Actor), () => muzzleFacing);
-                    var sequence = a.Info.MuzzleSequence;
+				if (a.Info.MuzzleSequence != null)
+				{
+					// Muzzle facing is fixed once the firing starts
+					var muzzleAnim = new Animation(self.World, paxRender[a.Actor].GetImage(a.Actor), () => muzzleFacing);
+					var sequence = a.Info.MuzzleSequence;
 
-                    if (a.Info.MuzzleSplitFacings > 0)
-                        sequence += Common.Util.QuantizeFacing(muzzleFacing, a.Info.MuzzleSplitFacings).ToString();
+					if (a.Info.MuzzleSplitFacings > 0)
+						sequence += Common.Util.QuantizeFacing(muzzleFacing, a.Info.MuzzleSplitFacings).ToString();
 
-                    var muzzleFlash = new AnimationWithOffset(muzzleAnim,
-                        () => PortOffset(self, port),
-                        () => false,
-                        p => RenderUtils.ZOffsetFromCenter(self, p, 1024));
+					var muzzleFlash = new AnimationWithOffset(muzzleAnim,
+						() => PortOffset(self, port),
+						() => false,
+						p => RenderUtils.ZOffsetFromCenter(self, p, 1024));
 
-                    muzzles.Add(muzzleFlash);
-                    muzzleAnim.PlayThen(sequence, () => muzzles.Remove(muzzleFlash));
-                }
+					muzzles.Add(muzzleFlash);
+					muzzleAnim.PlayThen(sequence, () => muzzles.Remove(muzzleFlash));
+				}
 
-                foreach (var npa in self.TraitsImplementing<INotifyAttack>())
-                    npa.Attacking(self, target, a, barrel);
-            }
-        }
+				foreach (var npa in self.TraitsImplementing<INotifyAttack>())
+					npa.Attacking(self, target, a, barrel);
+			}
+		}
 
 		IEnumerable<IRenderable> IRender.Render(Actor self, WorldRenderer wr)
 		{
@@ -216,10 +216,10 @@ namespace OpenRA.Mods.YR.Traits
 				m.Animation.Tick();
 		}
 
-        public IEnumerable<Primitives.Rectangle> ScreenBounds(Actor self, WorldRenderer wr)
-        {
-            // Muzzle flashes don't contribute to actor bounds
-            yield break;
-        }
-    }
+		public IEnumerable<Primitives.Rectangle> ScreenBounds(Actor self, WorldRenderer wr)
+		{
+			// Muzzle flashes don't contribute to actor bounds
+			yield break;
+		}
+	}
 }

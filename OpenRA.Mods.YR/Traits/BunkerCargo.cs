@@ -27,17 +27,17 @@ using OpenRA;
 
 namespace OpenRA.Mods.YR.Traits
 {
-    public enum BunkerState
-    {
-        NonBunkered,
-        Bunkered
-    }
+	public enum BunkerState
+	{
+		NonBunkered,
+		Bunkered
+	}
 
 	[Desc("This actor can transport Passenger actors.")]
 	public class BunkerCargoInfo : TraitInfo, Requires<IOccupySpaceInfo>
 	{
-        [Desc("Which sequence will play when the actor is cargoed")]
-        public readonly string SequenceOnCargo = null;
+		[Desc("Which sequence will play when the actor is cargoed")]
+		public readonly string SequenceOnCargo = null;
 
 		[Desc("The maximum sum of Passenger.Weight that this actor can support.")]
 		public readonly int MaxWeight = 0;
@@ -63,22 +63,22 @@ namespace OpenRA.Mods.YR.Traits
 		[Desc("Voice to play when ordered to unload the passengers.")]
 		[VoiceReference] public readonly string UnloadVoice = "Action";
 
-        [Desc("Radius to search for a load/unload location if the ordered cell is blocked.")]
-        public readonly WDist LoadRange = WDist.FromCells(5);
+		[Desc("Radius to search for a load/unload location if the ordered cell is blocked.")]
+		public readonly WDist LoadRange = WDist.FromCells(5);
 
-        [Desc("Which direction the passenger will face (relative to the transport) when unloading.")]
+		[Desc("Which direction the passenger will face (relative to the transport) when unloading.")]
 		public readonly int PassengerFacing = 128;
 
-        [Desc("Delay (in ticks) before continuing after loading a passenger.")]
-        public readonly int AfterLoadDelay = 8;
+		[Desc("Delay (in ticks) before continuing after loading a passenger.")]
+		public readonly int AfterLoadDelay = 8;
 
-        [Desc("Delay (in ticks) before unloading the first passenger.")]
-        public readonly int BeforeUnloadDelay = 8;
+		[Desc("Delay (in ticks) before unloading the first passenger.")]
+		public readonly int BeforeUnloadDelay = 8;
 
-        [Desc("Delay (in ticks) before continuing after unloading a passenger.")]
-        public readonly int AfterUnloadDelay = 25;
+		[Desc("Delay (in ticks) before continuing after unloading a passenger.")]
+		public readonly int AfterUnloadDelay = 25;
 
-        [Desc("Cursor to display when able to unload the passengers.")]
+		[Desc("Cursor to display when able to unload the passengers.")]
 		public readonly string UnloadCursor = "deploy";
 
 		[Desc("Cursor to display when unable to unload the passengers.")]
@@ -100,28 +100,28 @@ namespace OpenRA.Mods.YR.Traits
 		[GrantedConditionReference]
 		public IEnumerable<string> LinterPassengerConditions { get { return PassengerConditions.Values; } }
 
-        [Desc("Will the actor disappear when enter bunker")]
-        public readonly bool WillDisappear = true;
+		[Desc("Will the actor disappear when enter bunker")]
+		public readonly bool WillDisappear = true;
 
-        [Desc("Grant an accepter name")]
-        public readonly string GrantAccepter = null;
+		[Desc("Grant an accepter name")]
+		public readonly string GrantAccepter = null;
 
-        [Desc("Will this actor change owner to the garrisoned actor")]
-        public readonly bool ChangeOwnerWhenGarrison = false;
+		[Desc("Will this actor change owner to the garrisoned actor")]
+		public readonly bool ChangeOwnerWhenGarrison = false;
 
-        public readonly string StructureGarrisonSound = null;
+		public readonly string StructureGarrisonSound = null;
 
-        public readonly string StructureGarrisonedNotification = null;
+		public readonly string StructureGarrisonedNotification = null;
 
-        public readonly string StructureAbandonedNotification = null;
+		public readonly string StructureAbandonedNotification = null;
 
-        [Desc("Play when bunkered")]
-        public readonly string BunkeredSequence = null;
+		[Desc("Play when bunkered")]
+		public readonly string BunkeredSequence = null;
 
-        [Desc("Play when not bunkered")]
-        public readonly string BunkerNotSequence = null;
+		[Desc("Play when not bunkered")]
+		public readonly string BunkerNotSequence = null;
 
-        public object Create(ActorInitializer init) { return new BunkerCargo(init, this); }
+		public object Create(ActorInitializer init) { return new BunkerCargo(init, this); }
 	}
 
 	public class BunkerCargo : IPips, IIssueOrder, IResolveOrder, IOrderVoice, INotifyCreated, INotifyKilled,
@@ -134,8 +134,8 @@ namespace OpenRA.Mods.YR.Traits
 		readonly Dictionary<string, Stack<int>> passengerTokens = new Dictionary<string, Stack<int>>();
 		readonly Lazy<IFacing> facing;
 		readonly bool checkTerrainType;
-        WithSpriteBody wsb;
-        BunkerState bunkerState;
+		WithSpriteBody wsb;
+		BunkerState bunkerState;
 
 		int totalWeight = 0;
 		int reservedWeight = 0;
@@ -143,14 +143,14 @@ namespace OpenRA.Mods.YR.Traits
 		ConditionManager conditionManager;
 		int loadingToken = ConditionManager.InvalidConditionToken;
 		Stack<int> loadedTokens = new Stack<int>();
-        int bunkeredToken = ConditionManager.InvalidConditionToken;
+		int bunkeredToken = ConditionManager.InvalidConditionToken;
 
 		CPos currentCell;
 		public IEnumerable<CPos> CurrentAdjacentCells { get; private set; }
 		public bool Unloading { get; internal set; }
 		public IEnumerable<Actor> Passengers { get { return cargo; } }
 		public int PassengerCount { get { return cargo.Count; } }
-        private bool buildComplete = false;
+		private bool buildComplete = false;
 
 		public BunkerCargo(ActorInitializer init, BunkerCargoInfo info)
 		{
@@ -158,8 +158,8 @@ namespace OpenRA.Mods.YR.Traits
 			Info = info;
 			Unloading = false;
 			checkTerrainType = info.UnloadTerrainTypes.Count > 0;
-            wsb = self.TraitOrDefault<WithSpriteBody>();
-            bunkerState = BunkerState.NonBunkered;
+			wsb = self.TraitOrDefault<WithSpriteBody>();
+			bunkerState = BunkerState.NonBunkered;
 
 			if (init.Contains<RuntimeCargoInit>())
 			{
@@ -217,8 +217,11 @@ namespace OpenRA.Mods.YR.Traits
 
 		public IEnumerable<IOrderTargeter> Orders
 		{
-			get { yield return new DeployOrderTargeter("Unload", 10,
-				() => CanUnload() ? Info.UnloadCursor : Info.UnloadBlockedCursor); }
+			get
+			{
+				yield return new DeployOrderTargeter("Unload", 10,
+				() => CanUnload() ? Info.UnloadCursor : Info.UnloadBlockedCursor);
+			}
 		}
 
 		public Order IssueOrder(Actor self, IOrderTargeter order, Target target, bool queued)
@@ -235,18 +238,18 @@ namespace OpenRA.Mods.YR.Traits
 		}
 
 		public void ResolveOrder(Actor self, Order order)
-        {
-            if (order.OrderString == "Unload")
-            {
-                if (!order.Queued && !CanUnload())
-                    return;
+		{
+			if (order.OrderString == "Unload")
+			{
+				if (!order.Queued && !CanUnload())
+					return;
 
-                if (!order.Queued)
-                    self.CancelActivity();
+				if (!order.Queued)
+					self.CancelActivity();
 
-                self.QueueActivity(new UnloadBunkerCargo(self, Info.LoadRange));
-            }
-        }
+				self.QueueActivity(new UnloadBunkerCargo(self, Info.LoadRange));
+			}
+		}
 
 		IEnumerable<CPos> GetAdjacentCells()
 		{
@@ -290,10 +293,10 @@ namespace OpenRA.Mods.YR.Traits
 			return true;
 		}
 
-        internal int GetBunkeredNumber()
-        {
-            return cargo.Count;
-        }
+		internal int GetBunkeredNumber()
+		{
+			return cargo.Count;
+		}
 
 		internal void UnreserveSpace(Actor a)
 		{
@@ -330,44 +333,45 @@ namespace OpenRA.Mods.YR.Traits
 
 		public Actor Unload(Actor self)
 		{
-            var a = cargo.Pop();
+			var a = cargo.Pop();
 
-            if (GetBunkeredNumber() == 0)
-            {
-                if (!string.IsNullOrEmpty(Info.SequenceOnCargo))
-                {
-                    PlayBunkeringAnimationBackward(() => {
-                        ChangeState(BunkerState.NonBunkered);
-                    });
-                }
-                else
-                {
-                    ChangeState(BunkerState.NonBunkered);
-                }
-                if (Info.ChangeOwnerWhenGarrison)
-                {
+			if (GetBunkeredNumber() == 0)
+			{
+				if (!string.IsNullOrEmpty(Info.SequenceOnCargo))
+				{
+					PlayBunkeringAnimationBackward(() =>
+					{
+						ChangeState(BunkerState.NonBunkered);
+					});
+				}
+				else
+				{
+					ChangeState(BunkerState.NonBunkered);
+				}
+				if (Info.ChangeOwnerWhenGarrison)
+				{
 					Player neutralPlayer = null;
 
 					Player[] players = this.self.World.Players;
-                    for (int i = 0; i < players.Length; i++)
-                    {
-                        if (players[i].InternalName == "Neutral")
-                        {
-                            neutralPlayer = players[i];
-                            break;
-                        }
-                    }
+					for (int i = 0; i < players.Length; i++)
+					{
+						if (players[i].InternalName == "Neutral")
+						{
+							neutralPlayer = players[i];
+							break;
+						}
+					}
 
-                    this.self.ChangeOwner(neutralPlayer);
-                }
+					this.self.ChangeOwner(neutralPlayer);
+				}
 
-                if (!string.IsNullOrEmpty(Info.StructureAbandonedNotification))
-                {
+				if (!string.IsNullOrEmpty(Info.StructureAbandonedNotification))
+				{
 					Game.Sound.PlayNotification(self.World.Map.Rules, self.Owner, "Speech", Info.StructureAbandonedNotification, self.Owner.Faction.InternalName);
-                }
-            }
+				}
+			}
 
-            totalWeight -= GetWeight(a);
+			totalWeight -= GetWeight(a);
 
 			SetPassengerFacing(a);
 
@@ -434,70 +438,70 @@ namespace OpenRA.Mods.YR.Traits
 				reservedWeight -= w;
 				reserves.Remove(a);
 
-                if (loadingToken != ConditionManager.InvalidConditionToken)
-                {
-                    loadingToken = conditionManager.RevokeCondition(self, loadingToken);
-                }
+				if (loadingToken != ConditionManager.InvalidConditionToken)
+				{
+					loadingToken = conditionManager.RevokeCondition(self, loadingToken);
+				}
 			}
 
-            // If not initialized then this will be notified in the first tick
-            if (initialized)
-            {
-                foreach (var npe in self.TraitsImplementing<INotifyPassengerEntered>())
-                {
-                    npe.OnPassengerEntered(self, a);
-                }
-            }
+			// If not initialized then this will be notified in the first tick
+			if (initialized)
+			{
+				foreach (var npe in self.TraitsImplementing<INotifyPassengerEntered>())
+				{
+					npe.OnPassengerEntered(self, a);
+				}
+			}
 
 			var p = a.Trait<BunkerPassenger>();
 			p.Transport = self;
 
 			string passengerCondition;
-            if (conditionManager != null && Info.PassengerConditions.TryGetValue(a.Info.Name, out passengerCondition))
-            {
+			if (conditionManager != null && Info.PassengerConditions.TryGetValue(a.Info.Name, out passengerCondition))
+			{
 				passengerTokens.GetOrAdd(a.Info.Name).Push(conditionManager.GrantCondition(self, passengerCondition));
-            }
+			}
 
-            if (conditionManager != null && !string.IsNullOrEmpty(Info.LoadedCondition))
-            {
-                loadedTokens.Push(conditionManager.GrantCondition(self, Info.LoadedCondition));
-            }
+			if (conditionManager != null && !string.IsNullOrEmpty(Info.LoadedCondition))
+			{
+				loadedTokens.Push(conditionManager.GrantCondition(self, Info.LoadedCondition));
+			}
 		}
 
 		void INotifyKilled.Killed(Actor self, AttackInfo e)
 		{
-            if (Info.EjectOnDeath)
-            {
-                while (!IsEmpty(self) && CanUnload())
-                {
-                    var passenger = Unload(self);
-                    var cp = self.CenterPosition;
-                    var inAir = self.World.Map.DistanceAboveTerrain(cp).Length != 0;
-                    var positionable = passenger.Trait<IPositionable>();
-                    positionable.SetPosition(passenger, self.Location);
+			if (Info.EjectOnDeath)
+			{
+				while (!IsEmpty(self) && CanUnload())
+				{
+					var passenger = Unload(self);
+					var cp = self.CenterPosition;
+					var inAir = self.World.Map.DistanceAboveTerrain(cp).Length != 0;
+					var positionable = passenger.Trait<IPositionable>();
+					positionable.SetPosition(passenger, self.Location);
 
-                    if (!inAir && positionable.CanEnterCell(self.Location, self, BlockedByActor.All))
-                    {
-                        self.World.AddFrameEndTask(w => w.Add(passenger));
-                        var nbm = passenger.TraitOrDefault<INotifyBlockingMove>();
-                        if (nbm != null)
-                            nbm.OnNotifyBlockingMove(passenger, passenger);
-                    }
-                    else
-                    {
-                        passenger.Kill(e.Attacker);
-                    }
-                }
-            }
-            else
-            {
-                foreach (var c in cargo)
-                {
-                    c.Kill(e.Attacker);
-                }
-            }
-            cargo.Clear();
-        }
+					if (!inAir && positionable.CanEnterCell(self.Location, self, BlockedByActor.All))
+					{
+						self.World.AddFrameEndTask(w => w.Add(passenger));
+						var nbm = passenger.TraitOrDefault<INotifyBlockingMove>();
+						if (nbm != null)
+							nbm.OnNotifyBlockingMove(passenger, passenger);
+					}
+					else
+					{
+						passenger.Kill(e.Attacker);
+					}
+				}
+			}
+			else
+			{
+				foreach (var c in cargo)
+				{
+					c.Kill(e.Attacker);
+				}
+			}
+			cargo.Clear();
+		}
 
 		void INotifyActorDisposing.Disposing(Actor self)
 		{
@@ -513,16 +517,16 @@ namespace OpenRA.Mods.YR.Traits
 			if (!Info.EjectOnSell || cargo == null)
 				return;
 
-            while (!IsEmpty(self))
-                SpawnPassenger(Unload(self));
+			while (!IsEmpty(self))
+				SpawnPassenger(Unload(self));
 		}
 
 		void SpawnPassenger(Actor passenger)
 		{
-            if(!Info.WillDisappear)
-            {
-                return;
-            }
+			if (!Info.WillDisappear)
+			{
+				return;
+			}
 			self.World.AddFrameEndTask(w =>
 			{
 				w.Add(passenger);
@@ -573,51 +577,51 @@ namespace OpenRA.Mods.YR.Traits
 			}
 		}
 
-        public void GrantCondition(string grantBunkerCondition)
-        {
-            bunkeredToken = conditionManager.GrantCondition(self, grantBunkerCondition);
-        }
+		public void GrantCondition(string grantBunkerCondition)
+		{
+			bunkeredToken = conditionManager.GrantCondition(self, grantBunkerCondition);
+		}
 
-        public void RevokeCondition()
-        {
-            if (bunkeredToken != ConditionManager.InvalidConditionToken)
-                bunkeredToken = conditionManager.RevokeCondition(self, bunkeredToken);
-        }
+		public void RevokeCondition()
+		{
+			if (bunkeredToken != ConditionManager.InvalidConditionToken)
+				bunkeredToken = conditionManager.RevokeCondition(self, bunkeredToken);
+		}
 
-        public void ChangeState(BunkerState bunkerState)
-        {
-            if (buildComplete)
-            {
-                switch (bunkerState)
-                {
-                    case BunkerState.NonBunkered:
-                        if (!string.IsNullOrEmpty(Info.BunkerNotSequence))
-                        {
-                            wsb.PlayCustomAnimationRepeating(self, Info.BunkerNotSequence);
-                        }
-                        break;
-                    case BunkerState.Bunkered:
-                        if (!string.IsNullOrEmpty(Info.BunkeredSequence))
-                        {
-                            wsb.PlayCustomAnimationRepeating(self, Info.BunkeredSequence);
-                        }
-                        break;
-                }
-            }
-            this.bunkerState = bunkerState;
-        }
+		public void ChangeState(BunkerState bunkerState)
+		{
+			if (buildComplete)
+			{
+				switch (bunkerState)
+				{
+					case BunkerState.NonBunkered:
+						if (!string.IsNullOrEmpty(Info.BunkerNotSequence))
+						{
+							wsb.PlayCustomAnimationRepeating(self, Info.BunkerNotSequence);
+						}
+						break;
+					case BunkerState.Bunkered:
+						if (!string.IsNullOrEmpty(Info.BunkeredSequence))
+						{
+							wsb.PlayCustomAnimationRepeating(self, Info.BunkeredSequence);
+						}
+						break;
+				}
+			}
+			this.bunkerState = bunkerState;
+		}
 
-        public void PlayBunkeringAnimationBackward(Action after)
-        {
-            if (!string.IsNullOrEmpty(Info.SequenceOnCargo))
-            {
-                wsb.PlayCustomAnimationBackwards(self, Info.SequenceOnCargo, () =>
-                {
-                    wsb.CancelCustomAnimation(self);
-                    after();
-                });
-            }
-        }
+		public void PlayBunkeringAnimationBackward(Action after)
+		{
+			if (!string.IsNullOrEmpty(Info.SequenceOnCargo))
+			{
+				wsb.PlayCustomAnimationBackwards(self, Info.SequenceOnCargo, () =>
+				{
+					wsb.CancelCustomAnimation(self);
+					after();
+				});
+			}
+		}
 
 		public bool CanIssueDeployOrder(Actor self, bool queued)
 		{

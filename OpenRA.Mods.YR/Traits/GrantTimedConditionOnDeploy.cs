@@ -117,8 +117,11 @@ namespace OpenRA.Mods.RA2.Traits
 
 		IEnumerable<IOrderTargeter> IIssueOrder.Orders
 		{
-			get { yield return new DeployOrderTargeter("GrantTimedConditionOnDeploy", 5,
-				() => IsCursorBlocked() ? info.DeployBlockedCursor : info.DeployCursor); }
+			get
+			{
+				yield return new DeployOrderTargeter("GrantTimedConditionOnDeploy", 5,
+				() => IsCursorBlocked() ? info.DeployBlockedCursor : info.DeployCursor);
+			}
 		}
 
 		Order IIssueOrder.IssueOrder(Actor self, IOrderTargeter order, Target target, bool queued)
@@ -251,10 +254,10 @@ namespace OpenRA.Mods.RA2.Traits
 
 		bool ISelectionBar.DisplayWhenEmpty { get { return info.ShowSelectionBar; } }
 
-        public Primitives.Color GetColor()
-        {
-            return deployState == TimedDeployState.Charging ? info.ChargingColor : info.DischargingColor;
-        }
+		public Primitives.Color GetColor()
+		{
+			return deployState == TimedDeployState.Charging ? info.ChargingColor : info.DischargingColor;
+		}
 
 		public bool CanIssueDeployOrder(Actor self, bool queued)
 		{

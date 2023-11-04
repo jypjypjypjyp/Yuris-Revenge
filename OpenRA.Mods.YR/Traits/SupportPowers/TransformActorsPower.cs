@@ -60,7 +60,7 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
         {
             this.self = self;
             this.info = info;
-            if(!string.IsNullOrEmpty(info.ExcludeActor))
+            if (!string.IsNullOrEmpty(info.ExcludeActor))
             {
                 excludeActors = info.ExcludeActor.Split(',');
             }
@@ -93,7 +93,7 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
                                 if (!string.IsNullOrEmpty(info.EffectSequence) && !string.IsNullOrEmpty(info.EffectPalette))
                                 {
                                     string palette = null;
-                                    if(info.EffectPalette == "player")
+                                    if (info.EffectPalette == "player")
                                     {
                                         palette = "player" + self.Owner.InternalName;
                                     }

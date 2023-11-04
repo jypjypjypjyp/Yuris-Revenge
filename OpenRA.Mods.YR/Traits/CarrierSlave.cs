@@ -37,21 +37,21 @@ namespace OpenRA.Mods.YR.Traits
 
 		[Desc("We consider this is close enought to the spawner and enter it, instead of trying to reach 0 distance." +
 			"This allows the spawned unit to enter the spawner while the spawner is moving.")]
-		public readonly WDist CloseEnoughDistance = new WDist(128);	
+		public readonly WDist CloseEnoughDistance = new WDist(128);
 
 		public override object Create(ActorInitializer init) { return new CarrierSlave(init, this); }
 	}
 
 	public class CarrierSlave : BaseSpawnerSlave, INotifyBecomingIdle
-    {
-        private readonly AmmoPool[] ammoPools;
-        private CarrierMaster spawnerMaster;
-        private Actor self;
-        public CarrierSlaveInfo Info { get; private set; }
+	{
+		private readonly AmmoPool[] ammoPools;
+		private CarrierMaster spawnerMaster;
+		private Actor self;
+		public CarrierSlaveInfo Info { get; private set; }
 
 		public CarrierSlave(ActorInitializer init, CarrierSlaveInfo info) : base(init, info)
 		{
-            self = init.Self ;
+			self = init.Self;
 			Info = info;
 			ammoPools = init.Self.TraitsImplementing<AmmoPool>().ToArray();
 		}
@@ -97,12 +97,12 @@ namespace OpenRA.Mods.YR.Traits
 			EnterSpawner(self);
 		}
 
-        public void Reload()
-        {
-            foreach (var ammoPool in ammoPools)
-            {
-                ammoPool.GiveAmmo(self, ammoPool.Info.Ammo);
-            }
-        }
-    }
+		public void Reload()
+		{
+			foreach (var ammoPool in ammoPools)
+			{
+				ammoPool.GiveAmmo(self, ammoPool.Info.Ammo);
+			}
+		}
+	}
 }

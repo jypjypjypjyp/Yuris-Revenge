@@ -9,7 +9,9 @@
  */
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using OpenRA.Traits;
 
 namespace OpenRA.Mods.Common.Traits
@@ -17,7 +19,7 @@ namespace OpenRA.Mods.Common.Traits
 	class ImmobileInfo : TraitInfo, IOccupySpaceInfo
 	{
 		public readonly bool OccupiesSpace = true;
-		public object Create(ActorInitializer init) { return new Immobile(init, this); }
+		public override object Create(ActorInitializer init) { return new Immobile(init, this); }
 
 		public IReadOnlyDictionary<CPos, SubCell> OccupiedCells(ActorInfo info, CPos location, SubCell subCell = SubCell.Any)
 		{
@@ -32,9 +34,13 @@ namespace OpenRA.Mods.Common.Traits
 
 	class Immobile : IOccupySpace, ISync, INotifyAddedToWorld, INotifyRemovedFromWorld
 	{
-		[Sync] readonly CPos location;
-		[Sync] readonly WPos position;
-		readonly Pair<CPos, SubCell>[] occupied;
+		[Sync]
+		readonly CPos location;
+
+		[Sync]
+		readonly WPos position;
+
+		readonly (CPos, SubCell)[] occupied;
 
 		public Immobile(ActorInitializer init, ImmobileInfo info)
 		{
@@ -42,14 +48,14 @@ namespace OpenRA.Mods.Common.Traits
 			position = init.World.Map.CenterOfCell(location);
 
 			if (info.OccupiesSpace)
-				occupied = new[] { Pair.New(TopLeft, SubCell.FullCell) };
+				occupied = new[] { (TopLeft, SubCell.FullCell) };
 			else
-				occupied = new Pair<CPos, SubCell>[0];
+				occupied = Array.Empty<(CPos, SubCell)>();
 		}
 
 		public CPos TopLeft { get { return location; } }
 		public WPos CenterPosition { get { return position; } }
-		public Pair<CPos, SubCell>[] OccupiedCells() { return occupied; }
+		public (CPos, SubCell)[] OccupiedCells() { return occupied; }
 
 		void INotifyAddedToWorld.AddedToWorld(Actor self)
 		{

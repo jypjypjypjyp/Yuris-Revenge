@@ -12,11 +12,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenRA.Graphics;
-using OpenRA.Mods.Common.Graphics;
-using OpenRA.Mods.Common.Traits.Render;
-using OpenRA.Traits;
 using OpenRA.Mods.Common.Traits;
-using OpenRA;
+using OpenRA.Mods.Common.Traits.Render;
+using OpenRA.Orders;
+using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Traits
 {
@@ -35,36 +34,37 @@ namespace OpenRA.Mods.YR.Traits
 		[Desc("Sound to instantly play at the targeted area.")]
 		public readonly string OnFireSound = null;
 
-		[SequenceReference, Desc("Sequence to play for granting actor when activated.",
+		[SequenceReference]
+		[Desc("Sequence to play for granting actor when activated.",
 			"This requires the actor to have the WithSpriteBody trait or one of its derivatives.")]
 		public readonly string Sequence = "active";
 
 		[Desc("Cursor to display when there are no units to apply the condition in range.")]
 		public readonly string BlockedCursor = "move-blocked";
 
-        [Desc("Will this support power will cause low power?")]
-        public readonly bool LowPower = false;
+		[Desc("Will this support power will cause low power?")]
+		public readonly bool LowPower = false;
 
-        [Desc("If cause low power, when will it end?")]
-        public readonly int LowPowerDuration = 0;
+		[Desc("If cause low power, when will it end?")]
+		public readonly int LowPowerDuration = 0;
 
-        [Desc("Should this support power effect to all actors with external condition?")]
-        public readonly bool EffectToAll = false;
+		[Desc("Should this support power effect to all actors with external condition?")]
+		public readonly bool EffectToAll = false;
 
 		public override object Create(ActorInitializer init) { return new GrantExternalConditionPowerEx(init.Self, this); }
 	}
 
 	public class GrantExternalConditionPowerEx : SupportPower
-    {
-        private PowerManager powerMgr;
-        readonly GrantExternalConditionPowerExInfo info;
+	{
+		private PowerManager powerMgr;
+		readonly GrantExternalConditionPowerExInfo info;
 
 		public GrantExternalConditionPowerEx(Actor self, GrantExternalConditionPowerExInfo info)
 			: base(self, info)
 		{
 			this.info = info;
-            powerMgr = self.Owner.PlayerActor.Trait<PowerManager>();
-        }
+			powerMgr = self.Owner.PlayerActor.Trait<PowerManager>();
+		}
 
 		public override void SelectTarget(Actor self, string order, SupportPowerManager manager)
 		{
@@ -82,28 +82,28 @@ namespace OpenRA.Mods.YR.Traits
 
 			Game.Sound.Play(SoundType.World, info.OnFireSound, order.Target.CenterPosition);
 
-            IEnumerable<Actor> actors = null;
-            if (!info.EffectToAll)
-            {
-                actors = UnitsInRange(self.World.Map.CellContaining(order.Target.CenterPosition));
-            }
-            else
-            {
-                actors = self.World.Actors.Where(o => o.Owner == self.Owner);
-            }
-            foreach (var actor in actors)
-            {
-                var external = actor.TraitsImplementing<ExternalCondition>()
-                    .FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(actor, self));
+			IEnumerable<Actor> actors = null;
+			if (!info.EffectToAll)
+			{
+				actors = UnitsInRange(self.World.Map.CellContaining(order.Target.CenterPosition));
+			}
+			else
+			{
+				actors = self.World.Actors.Where(o => o.Owner == self.Owner);
+			}
+			foreach (var actor in actors)
+			{
+				var external = actor.TraitsImplementing<ExternalCondition>()
+					.FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(self));
 
-                if (external != null)
-                    external.GrantCondition(actor, self, info.Duration);
-            }
+				if (external != null)
+					external.GrantCondition(actor, self, info.Duration);
+			}
 
-            if (info.LowPower)
-            {
-                powerMgr.TriggerPowerOutage(info.LowPowerDuration);
-            }
+			if (info.LowPower)
+			{
+				powerMgr.TriggerPowerOutage(info.LowPowerDuration);
+			}
 		}
 
 		public IEnumerable<Actor> UnitsInRange(CPos xy)
@@ -120,7 +120,7 @@ namespace OpenRA.Mods.YR.Traits
 					return false;
 
 				return a.TraitsImplementing<ExternalCondition>()
-					.Any(t => t.Info.Condition == info.Condition && t.CanGrantCondition(a, Self));
+					.Any(t => t.Info.Condition == info.Condition && t.CanGrantCondition(Self));
 			});
 		}
 
@@ -131,6 +131,7 @@ namespace OpenRA.Mods.YR.Traits
 			readonly Sprite tile;
 			readonly SupportPowerManager manager;
 			readonly string order;
+			readonly float validAlpha;
 
 			public SelectConditionTarget(World world, string order, SupportPowerManager manager, GrantExternalConditionPowerEx power)
 			{
@@ -142,7 +143,9 @@ namespace OpenRA.Mods.YR.Traits
 				this.order = order;
 				this.power = power;
 				range = power.info.Range;
-				tile = world.Map.Rules.Sequences.GetSequence("overlay", "target-select").GetSprite(0);
+				var validSequence = world.Map.Rules.Sequences.GetSequence("overlay", "target-select");
+				tile = validSequence.GetSprite(0);
+				validAlpha = validSequence.GetAlpha(0);
 			}
 
 			public IEnumerable<Order> Order(World world, CPos cell, int2 worldPixel, MouseInput mi)
@@ -161,12 +164,6 @@ namespace OpenRA.Mods.YR.Traits
 
 			public IEnumerable<IRenderable> RenderAboveShroud(WorldRenderer wr, World world)
 			{
-				//var xy = wr.Viewport.ViewToWorld(Viewport.LastMousePos);
-				//foreach (var unit in power.UnitsInRange(xy))
-				//{
-				//	var bounds = unit.TraitsImplementing<IDecorationBounds>().FirstNonEmptyBounds(unit, wr);
-				//	yield return new SelectionBoxRenderable(unit, bounds, OpenRA.Primitives.Color.Red);
-				//}
 				return new List<IRenderable>();
 			}
 
@@ -176,7 +173,7 @@ namespace OpenRA.Mods.YR.Traits
 				var pal = wr.Palette(TileSet.TerrainPaletteInternalName);
 
 				foreach (var t in world.Map.FindTilesInCircle(xy, range))
-					yield return new SpriteRenderable(tile, wr.World.Map.CenterOfCell(t), WVec.Zero, -511, pal, 1f, true);
+					yield return new SpriteRenderable(tile, wr.World.Map.CenterOfCell(t), WVec.Zero, -511, pal, 1f, 1f, float3.Ones, TintModifiers.IgnoreWorldTint, true);
 			}
 
 			public string GetCursor(World world, CPos cell, int2 worldPixel, MouseInput mi)
@@ -184,16 +181,21 @@ namespace OpenRA.Mods.YR.Traits
 				return power.UnitsInRange(cell).Any() ? power.info.Cursor : power.info.BlockedCursor;
 			}
 
-            public void Deactivate()
-            {
-            }
+			public void Deactivate()
+			{
+			}
 
-            public bool HandleKeyPress(KeyInput e)
-            {
-                return true;
-            }
+			public bool HandleKeyPress(KeyInput e)
+			{
+				return true;
+			}
 
 			public IEnumerable<IRenderable> RenderAnnotations(WorldRenderer wr, World world)
+			{
+				throw new System.NotImplementedException();
+			}
+
+			public void SelectionChanged(World world, IEnumerable<Actor> selected)
 			{
 				throw new System.NotImplementedException();
 			}

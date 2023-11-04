@@ -126,5 +126,5 @@ namespace OpenRA.Mods.AS.Traits
 			ticksTillCheck = 0;
 			destination = null;
 		}
-    }
+	}
 }

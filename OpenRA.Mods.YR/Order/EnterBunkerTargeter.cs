@@ -10,43 +10,25 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using OpenRA.Mods.Common.Activities;
-using OpenRA.Mods.Common.Traits;
-using OpenRA.Traits;
-using OpenRA.Mods.YR.Traits;
 using OpenRA.Mods.Common.Orders;
+using OpenRA.Mods.YR.Traits;
+using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Orders
 {
-	public class EnterBunkerTargeter : EnterAlliedActorTargeter<BunkerCargoInfo>
-	{
-		public EnterBunkerTargeter(string order, int priority,
-			Func<Actor, TargetModifiers, bool> canTarget, Func<Actor, bool> useEnterCursor)
-			: base(order, priority, canTarget, useEnterCursor)
+    public class EnterBunkerTargeter : EnterAlliedActorTargeter<BunkerCargoInfo>
+    {
+        public EnterBunkerTargeter(string order, int priority,
+            string enterCursor, string enterBlockedCursor,
+            Func<Actor, TargetModifiers, bool> canTarget,
+            Func<Actor, bool> useEnterCursor)
+            : base(order, priority, enterCursor, enterBlockedCursor, canTarget, useEnterCursor)
         {
-
         }
 
-		public override bool CanTargetActor(Actor self, Actor target, TargetModifiers modifiers, ref string cursor)
-		{
-			//switch (mode)
-			//{
-			//	case AlternateTransportsMode.None:
-			//		break;
-			//	case AlternateTransportsMode.Force:
-			//		if (modifiers.HasModifier(TargetModifiers.ForceMove))
-			//			return false;
-			//		break;
-			//	case AlternateTransportsMode.Default:
-			//		if (!modifiers.HasModifier(TargetModifiers.ForceMove))
-			//			return false;
-			//		break;
-			//	case AlternateTransportsMode.Always:
-			//		return false;
-			//}
-
-			return base.CanTargetActor(self, target, modifiers, ref cursor);
-		}
-	}
+        public override bool CanTargetActor(Actor self, Actor target, TargetModifiers modifiers, ref string cursor)
+        {
+            return base.CanTargetActor(self, target, modifiers, ref cursor);
+        }
+    }
 }

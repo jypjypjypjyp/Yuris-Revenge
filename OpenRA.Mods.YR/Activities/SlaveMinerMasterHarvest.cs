@@ -28,9 +28,9 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Activities
 {
-    /// <summary>
-    /// This activity will allow refinery building actor to send its slave to find the resource
-    /// </summary>
+	/// <summary>
+	/// This activity will allow refinery building actor to send its slave to find the resource
+	/// </summary>
 	public class SlaveMinerMasterHarvest : Activity
 	{
 		readonly SlaveMinerMaster harv;
@@ -77,22 +77,22 @@ namespace OpenRA.Mods.YR.Activities
 			harv.LastOrderLocation = null;
 			closestHarvestablePosition = ClosestHarvestablePos(self, lastScanRange);
 			if (closestHarvestablePosition != null)
-            {
-                state = MiningState.Undeploy;
-                harv.ForceMove(closestHarvestablePosition.Value);
-            }
-            else
-            {
-                state = MiningState.Packaging;
-                lastScanRange *= 2; // larger search range
-            }
+			{
+				state = MiningState.Undeploy;
+				harv.ForceMove(closestHarvestablePosition.Value);
+			}
+			else
+			{
+				state = MiningState.Packaging;
+				lastScanRange *= 2; // larger search range
+			}
 
 			return this;
 		}
 
 		public override bool Tick(Actor self)
 		{
-            /*
+			/*
              We just need to confirm one thing: when the nearest resource is finished, 
              just find the next resource point and transform and move to that location
              */
@@ -109,11 +109,11 @@ namespace OpenRA.Mods.YR.Activities
 			switch (harv.MiningState)
 			{
 				case MiningState.Mining:
-                    QueueChild(Mining(self, out harv.MiningState));
-                    return false;
+					QueueChild(Mining(self, out harv.MiningState));
+					return false;
 				case MiningState.Packaging:
-                    QueueChild(Kick(self, out harv.MiningState));
-                    return false;
+					QueueChild(Kick(self, out harv.MiningState));
+					return false;
 			}
 
 			return true;
@@ -135,15 +135,15 @@ namespace OpenRA.Mods.YR.Activities
 			BaseSpawnerSlaveEntry choosenSlave = null;
 			var slaves = harv.GetSlaves();
 			if (slaves.Length > 0)
-            {
-                choosenSlave = slaves[0];
+			{
+				choosenSlave = slaves[0];
 
-                var mobile = choosenSlave.Actor.Trait<Mobile>();
-                var mobileInfo = choosenSlave.Actor.Info.TraitInfo<MobileInfo>();
+				var mobile = choosenSlave.Actor.Trait<Mobile>();
+				var mobileInfo = choosenSlave.Actor.Info.TraitInfo<MobileInfo>();
 
-                // Find any harvestable resources:
-                // var passable = (uint)mobileInfo.GetMovementClass(self.World.Map.Rules.TileSet);
-                var path = mobile.PathFinder.FindPathToTargetCellByPredicate(
+				// Find any harvestable resources:
+				// var passable = (uint)mobileInfo.GetMovementClass(self.World.Map.Rules.TileSet);
+				var path = mobile.PathFinder.FindPathToTargetCellByPredicate(
 					self,
 					new[] { searchFromLoc, self.Location },
 					loc => mobile.CanEnterCell(loc) &&
@@ -153,14 +153,14 @@ namespace OpenRA.Mods.YR.Activities
 					loc =>
 					{
 						if ((avoidCell.HasValue && loc == avoidCell.Value) ||
-                            (loc - self.Location).LengthSquared > searchRadiusSquared)
+							(loc - self.Location).LengthSquared > searchRadiusSquared)
 							return PathGraph.PathCostForInvalidPath;
 						return 0;
 					});
 
-                if (path.Count > 0)
-                    return path[0];
-            }
+				if (path.Count > 0)
+					return path[0];
+			}
 
 			return null;
 		}

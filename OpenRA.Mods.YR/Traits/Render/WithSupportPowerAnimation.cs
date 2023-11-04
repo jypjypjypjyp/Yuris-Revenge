@@ -1,12 +1,8 @@
-﻿using OpenRA.Mods.Common.Traits;
+﻿using System.Collections.Generic;
+using System.Linq;
+using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Traits.Render;
 using OpenRA.Mods.YR.Traits.SupportPowers;
-using OpenRA.Traits;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.Traits.Render
 {
@@ -35,9 +31,9 @@ namespace OpenRA.Mods.YR.Traits.Render
         private SupportPowerManager supportPowerManager;
         private IEnumerable<SupportPowerInstance> powers;
         private string key;
-        private ConditionManager conditionManager;
-        private int conditionToken = ConditionManager.InvalidConditionToken;
-        public WithSupportPowerAnimation(ActorInitializer init, WithSupportPowerAnimationInfo info) : base(info)
+        private int conditionToken = Actor.InvalidConditionToken;
+        public WithSupportPowerAnimation(ActorInitializer init, WithSupportPowerAnimationInfo info)
+            : base(info)
         {
             this.info = info;
             self = init.Self;
@@ -48,17 +44,16 @@ namespace OpenRA.Mods.YR.Traits.Render
         protected override void Created(Actor self)
         {
             base.Created(self);
-            conditionManager = self.Trait<ConditionManager>();
             wsb = self.TraitsImplementing<WithSpriteBody>().Single(w => w.Info.Name == info.Body);
         }
 
         public void Charged(Actor self, string key)
         {
-            conditionToken = conditionManager.GrantCondition(self, info.Condition);
+            conditionToken = self.GrantCondition(info.Condition);
             this.key = key;
             if (key == info.OrderName)
             {
-                wsb.PlayCustomAnimation(self, info.ChargedSequence, () => 
+                wsb.PlayCustomAnimation(self, info.ChargedSequence, () =>
                 {
                     wsb.PlayCustomAnimationRepeating(self, info.ActiveSequence);
                 });
@@ -71,7 +66,7 @@ namespace OpenRA.Mods.YR.Traits.Render
             {
                 self.World.AddFrameEndTask(w =>
                 {
-                    conditionToken = conditionManager.RevokeCondition(self, conditionToken);
+                    conditionToken = self.RevokeCondition(conditionToken);
                 });
             });
         }

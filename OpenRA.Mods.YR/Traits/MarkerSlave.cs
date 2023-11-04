@@ -76,7 +76,7 @@ namespace OpenRA.Mods.YR.Traits
             // Proceed with enter, if already at it.
             if (self.CurrentActivity is EnterCarrierMaster)
                 return;
-            
+
             self.CancelActivity();
 
             self.QueueActivity(new Fly(self, Target.FromPos(targetPos + spawnOffset)));

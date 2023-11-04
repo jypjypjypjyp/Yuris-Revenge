@@ -1,12 +1,7 @@
-﻿using OpenRA.Mods.Common.Effects;
+﻿using System.Linq;
+using OpenRA.Mods.Common.Effects;
 using OpenRA.Mods.Common.Traits;
-using OpenRA.Mods.Common.Traits.Render;
 using OpenRA.Traits;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.Traits
 {
@@ -31,14 +26,12 @@ namespace OpenRA.Mods.YR.Traits
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public class ExploreMapSupportPower : SupportPower
     {
         private ExploreMapSupportPowerInfo info;
         private Shroud.SourceType type = Shroud.SourceType.Visibility;
-        public ExploreMapSupportPower(Actor self, ExploreMapSupportPowerInfo info) : base(self, info)
+        public ExploreMapSupportPower(Actor self, ExploreMapSupportPowerInfo info)
+            : base(self, info)
         {
             this.info = info;
         }
@@ -49,19 +42,20 @@ namespace OpenRA.Mods.YR.Traits
 
             self.World.AddFrameEndTask(w =>
             {
-                Shroud shround = self.Owner.Shroud;
+                Shroud shroud = self.Owner.Shroud;
                 WPos destPosition = order.Target.CenterPosition;
                 var cells = Shroud.ProjectedCellsInRange(self.World.Map, self.World.Map.CellContaining(destPosition), WDist.FromCells(info.Radius));
                 try
                 {
-                    shround.AddSource(this, type, cells.ToArray());
+                    shroud.AddSource(this, type, cells.ToArray());
                 }
                 catch
                 {
-                    shround.RemoveSource(this);
-                    shround.AddSource(this, type, cells.ToArray());
+                    shroud.RemoveSource(this);
+                    shroud.AddSource(this, type, cells.ToArray());
                 }
-                shround.ExploreProjectedCells(self.World, cells);
+
+                shroud.ExploreProjectedCells(cells);
 
                 if (!string.IsNullOrEmpty(info.Sequence))
                 {
@@ -74,6 +68,7 @@ namespace OpenRA.Mods.YR.Traits
                     {
                         palette = info.Platte;
                     }
+
                     self.World.Add(new SpriteEffect(destPosition, self.World, info.Image, info.Sequence, palette));
                 }
             });

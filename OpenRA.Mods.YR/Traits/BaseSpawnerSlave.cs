@@ -141,11 +141,11 @@ namespace OpenRA.Mods.YR.Traits
 			}
 		}
 
-        // DUMMY FUNCTION to suppress masterDeadToken assigned but unused warning (== error for Travis).
-        //void OnNewMaster(Actor self, Actor master)
-        //{
-        //    conditionManager.RevokeCondition(self, masterDeadToken);
-        //}
+		// DUMMY FUNCTION to suppress masterDeadToken assigned but unused warning (== error for Travis).
+		//void OnNewMaster(Actor self, Actor master)
+		//{
+		//    conditionManager.RevokeCondition(self, masterDeadToken);
+		//}
 
 		public virtual void OnMasterKilled(Actor self, Actor attacker, SpawnerSlaveDisposal disposal)
 		{
@@ -163,7 +163,7 @@ namespace OpenRA.Mods.YR.Traits
 					self.ChangeOwner(attacker.Owner);
 					break;
 				case SpawnerSlaveDisposal.DoNothing:
-					// fall through
+				// fall through
 				default:
 					break;
 			}
@@ -182,7 +182,7 @@ namespace OpenRA.Mods.YR.Traits
 					self.ChangeOwner(newOwner);
 					break;
 				case SpawnerSlaveDisposal.DoNothing:
-					// fall through
+				// fall through
 				default:
 					break;
 			}

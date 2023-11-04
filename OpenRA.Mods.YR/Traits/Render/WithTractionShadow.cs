@@ -14,13 +14,11 @@
 
 //// Works without base engine modification.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenRA.Graphics;
-using OpenRA.Traits;
 using OpenRA.Mods.Common.Traits;
-using OpenRA.Primitives;
+using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Traits.Render
 {
@@ -59,7 +57,7 @@ namespace OpenRA.Mods.YR.Traits.Render
 			// Contrails shouldn't cast shadows
 			var height = self.World.Map.DistanceAboveTerrain(self.CenterPosition).Length;
 			var shadowSprites = r.Where(s => !s.IsDecoration)
-				.Select(a => a.WithPalette(wr.Palette(info.Palette))
+				.Select(a => ((IPalettedRenderable)a).WithPalette(wr.Palette(info.Palette))
 					.OffsetBy(info.Offset - new WVec(0, 0, height))
 					.WithZOffset(a.ZOffset + (height + info.ZOffset))
 					.AsDecoration());
@@ -67,9 +65,9 @@ namespace OpenRA.Mods.YR.Traits.Render
 			return shadowSprites.Concat(r);
 		}
 
-        public IEnumerable<Primitives.Rectangle> ModifyScreenBounds(Actor self, WorldRenderer wr, IEnumerable<Primitives.Rectangle> r)
-        {
-            return r;
-        }
-    }
+		public IEnumerable<Primitives.Rectangle> ModifyScreenBounds(Actor self, WorldRenderer wr, IEnumerable<Primitives.Rectangle> r)
+		{
+			return r;
+		}
+	}
 }

@@ -78,7 +78,7 @@ namespace OpenRA.Mods.YR.Traits
 			if (!string.IsNullOrEmpty(Info.LoadedCondition) &&
 				loadedConditionToken == ConditionManager.InvalidConditionToken)
 			{
-				loadedConditionToken = conditionManager.GrantCondition(self, 
+				loadedConditionToken = conditionManager.GrantCondition(self,
 					Info.LoadedCondition);
 			}
 		}

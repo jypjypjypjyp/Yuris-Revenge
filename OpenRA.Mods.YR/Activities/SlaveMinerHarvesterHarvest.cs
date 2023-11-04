@@ -29,9 +29,9 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Activities
 {
-    /// <summary>
-    /// Harvester Master Vehicle can find the resource
-    /// </summary>
+	/// <summary>
+	/// Harvester Master Vehicle can find the resource
+	/// </summary>
 	public class SlaveMinerHarvesterHarvest : Activity
 	{
 		private readonly SlaveMinerHarvester harv;
@@ -53,7 +53,7 @@ namespace OpenRA.Mods.YR.Activities
 			claimLayer = self.World.WorldActor.TraitOrDefault<ResourceClaimLayer>();
 			tranforms = self.Trait<Transforms>();
 			ChildHasPriority = false;
-        }
+		}
 
 		public SlaveMinerHarvesterHarvest(Actor self, CPos avoidCell)
 			: this(self)
@@ -218,20 +218,20 @@ namespace OpenRA.Mods.YR.Activities
 		// Find a nearest Transformable position from harvestablePos
 		CPos? CalcTransformPosition(Actor self, CPos harvestablePos)
 		{
-            var transformActorInfo = self.World.Map.Rules.Actors[tranforms.Info.IntoActor];
-            var transformBuildingInfo = transformActorInfo.TraitInfoOrDefault<BuildingInfo>();
+			var transformActorInfo = self.World.Map.Rules.Actors[tranforms.Info.IntoActor];
+			var transformBuildingInfo = transformActorInfo.TraitInfoOrDefault<BuildingInfo>();
 
-            // FindTilesInAnnulus gives sorted cells by distance :) Nice.
-            foreach (var tile in self.World.Map.FindTilesInAnnulus(harvestablePos, 0, harvInfo.DeployScanRadius))
+			// FindTilesInAnnulus gives sorted cells by distance :) Nice.
+			foreach (var tile in self.World.Map.FindTilesInAnnulus(harvestablePos, 0, harvInfo.DeployScanRadius))
 				if (deploy.IsValidTerrain(tile) && mobile.CanEnterCell(tile) && self.World.CanPlaceBuilding(tile + tranforms.Info.Offset, transformActorInfo, transformBuildingInfo, self))
 					return tile;
 
 			// Try broader search if unable to find deploy location
-            foreach (var tile in self.World.Map.FindTilesInAnnulus(harvestablePos, harvInfo.DeployScanRadius, harvInfo.LongScanRadius))
+			foreach (var tile in self.World.Map.FindTilesInAnnulus(harvestablePos, harvInfo.DeployScanRadius, harvInfo.LongScanRadius))
 				if (deploy.IsValidTerrain(tile) && mobile.CanEnterCell(tile) && self.World.CanPlaceBuilding(tile + tranforms.Info.Offset, transformActorInfo, transformBuildingInfo, self))
 					return tile;
 
-            return null;
+			return null;
 		}
 
 		/// <summary>

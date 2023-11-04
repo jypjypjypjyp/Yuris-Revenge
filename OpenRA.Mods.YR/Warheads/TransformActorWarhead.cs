@@ -12,13 +12,9 @@
  */
 #endregion
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenRA.GameRules;
 using OpenRA.Mods.Common;
-using OpenRA.Mods.Common.Effects;
 using OpenRA.Mods.Common.Traits.Render;
 using OpenRA.Mods.Common.Warheads;
 using OpenRA.Primitives;
@@ -33,13 +29,13 @@ namespace OpenRA.Mods.YR.Warheads
         [Desc("Which sequence did you wish to play when tranforming an actor?")]
         public readonly string Sequence = null;
         public readonly string ExcludeActor = null;
-        public readonly int Facing = 128;
+        public readonly WAngle Facing = WAngle.FromFacing(128);
         [Desc("Types of damage that this warhead causes. Leave empty for no damage types.")]
         public readonly BitSet<DamageType> DamageTypes = default(BitSet<DamageType>);
         private Actor actor;
         private TypeDictionary typeDic;
         private string[] excludeActors;
-        public override void DoImpact(Target target, WarheadArgs args)
+        protected override void DoImpact(Target target, WarheadArgs args)
         {
             var firedBy = args.SourceActor;
 
@@ -49,8 +45,9 @@ namespace OpenRA.Mods.YR.Warheads
             }
             else
             {
-                excludeActors = new string[0];
+                excludeActors = Array.Empty<string>();
             }
+
             World w = firedBy.World;
             WPos targetPos = target.CenterPosition;
             var victimActors = w.FindActorsInCircle(targetPos, new WDist(1));
