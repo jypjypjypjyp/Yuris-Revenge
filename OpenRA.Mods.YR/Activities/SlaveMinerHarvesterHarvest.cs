@@ -41,7 +41,7 @@ namespace OpenRA.Mods.YR.Activities
         private readonly GrantConditionOnDeploy deploy;
         private readonly Transforms tranforms;
         private CPos deployDestPosition;
-        private CPos? avoidCell;
+        private readonly CPos? avoidCell;
         private int cellRange;
 
         public SlaveMinerHarvesterHarvest(Actor self)
@@ -61,7 +61,7 @@ namespace OpenRA.Mods.YR.Activities
             this.avoidCell = avoidCell;
         }
 
-        void ScanAndMove(Actor self, out MiningState state)
+        private void ScanAndMove(Actor self, out MiningState state)
         {
             var closestHarvestablePosition = ClosestHarvestablePos(self, harvInfo.LongScanRadius);
 
@@ -216,7 +216,7 @@ namespace OpenRA.Mods.YR.Activities
         }
 
         // Find a nearest Transformable position from harvestablePos
-        CPos? CalcTransformPosition(Actor self, CPos harvestablePos)
+        private CPos? CalcTransformPosition(Actor self, CPos harvestablePos)
         {
             var transformActorInfo = self.World.Map.Rules.Actors[tranforms.Info.IntoActor];
             var transformBuildingInfo = transformActorInfo.TraitInfoOrDefault<BuildingInfo>();
@@ -238,7 +238,7 @@ namespace OpenRA.Mods.YR.Activities
         /// Using LastOrderLocation and self.Location as starting points,
         /// perform A* search to find the nearest accessible and harvestable cell.
         /// </summary>
-        CPos? ClosestHarvestablePos(Actor self, int searchRadius)
+        private CPos? ClosestHarvestablePos(Actor self, int searchRadius)
         {
             if (harv.CanHarvestCell(self, self.Location) && claimLayer.CanClaimCell(self, self.Location))
                 return self.Location;

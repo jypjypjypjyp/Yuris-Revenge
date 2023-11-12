@@ -21,12 +21,12 @@ namespace OpenRA.Mods.YR.Activities
 {
     public class ShootableBallisticMissileFly : Activity
     {
-        readonly ShootableBallisticMissile sbm;
-        readonly WPos initPos;
-        readonly WPos targetPos;
-        int length;
-        int ticks;
-        int facing;
+        private readonly ShootableBallisticMissile sbm;
+        private readonly WPos initPos;
+        private readonly WPos targetPos;
+        private readonly int length;
+        private int ticks;
+        private readonly int facing;
 
         public ShootableBallisticMissileFly(Actor self, Target t, ShootableBallisticMissile sbm = null)
         {
@@ -41,7 +41,7 @@ namespace OpenRA.Mods.YR.Activities
             facing = (targetPos - initPos).Yaw.Facing;
         }
 
-        int GetEffectiveFacing()
+        private int GetEffectiveFacing()
         {
             var at = (float)ticks / (length - 1);
             var attitude = sbm.Info.LaunchAngle.Tan() * (1 - 2 * at) / (4 * 1024);

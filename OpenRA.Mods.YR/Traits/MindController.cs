@@ -36,13 +36,7 @@ namespace OpenRA.Mods.RA2.Traits
         public readonly string ControllingCondition;
 
         [Desc("The sound played when the unit is mindcontrolled.")]
-        public readonly string[] Sounds = { };
-
-        [Desc("PipType to use for indicating mindcontrolled units.")]
-        public readonly PipType PipType = PipType.Green;
-
-        [Desc("PipType to use for indicating unused mindcontrol slots.")]
-        public readonly PipType PipTypeEmpty = PipType.Transparent;
+        public readonly string[] Sounds = Array.Empty<string>();
 
         public readonly bool Overload = false;
 
@@ -51,14 +45,12 @@ namespace OpenRA.Mods.RA2.Traits
         public override object Create(ActorInitializer init) { return new MindController(init.Self, this); }
     }
 
-    public class MindController : PausableConditionalTrait<MindControllerInfo>, INotifyAttack, IPips, INotifyKilled, INotifyActorDisposing, INotifyCreated, ITick
+    public class MindController : PausableConditionalTrait<MindControllerInfo>, INotifyAttack, INotifyKilled, INotifyActorDisposing, INotifyCreated, ITick
     {
-        readonly MindControllerInfo info;
-        readonly List<Actor> slaves = new List<Actor>();
-        int mindControlOverloadConditionToken = ConditionManager.InvalidConditionToken;
-
-        Stack<int> controllingTokens = new Stack<int>();
-        ConditionManager conditionManager;
+        private readonly MindControllerInfo info;
+        private readonly List<Actor> slaves = new List<Actor>();
+        private int mindControlOverloadConditionToken = Actor.InvalidConditionToken;
+        private readonly Stack<int> controllingTokens = new Stack<int>();
 
         public IEnumerable<Actor> Slaves { get { return slaves; } }
 
@@ -68,56 +60,28 @@ namespace OpenRA.Mods.RA2.Traits
             this.info = info;
         }
 
-        protected override void Created(Actor self)
-        {
-            conditionManager = self.TraitOrDefault<ConditionManager>();
-        }
+        protected override void Created(Actor self) { }
 
-        void StackControllingCondition(Actor self, string condition)
+        private void StackControllingCondition(Actor self, string condition)
         {
-            if (conditionManager == null)
+            if (self == null)
                 return;
 
             if (string.IsNullOrEmpty(condition))
                 return;
 
-            controllingTokens.Push(conditionManager.GrantCondition(self, condition));
+            controllingTokens.Push(self.GrantCondition(condition));
         }
 
-        void UnstackControllingCondition(Actor self, string condition)
+        private void UnstackControllingCondition(Actor self, string condition)
         {
-            if (conditionManager == null)
+            if (self == null)
                 return;
 
             if (string.IsNullOrEmpty(condition))
                 return;
 
-            conditionManager.RevokeCondition(self, controllingTokens.Pop());
-        }
-
-        public IEnumerable<PipType> GetPips(Actor self)
-        {
-            if (info.Capacity > 0)
-            {
-                for (int i = slaves.Count(); i > 0; i--)
-                    yield return info.PipType;
-
-                for (int i = info.Capacity - slaves.Count(); i > 0; i--)
-                    yield return info.PipTypeEmpty;
-            }
-            else if (slaves.Count() >= -info.Capacity)
-            {
-                for (int i = -info.Capacity; i > 0; i--)
-                    yield return info.PipType;
-            }
-            else
-            {
-                for (int i = slaves.Count(); i > 0; i--)
-                    yield return info.PipType;
-
-                for (int i = -info.Capacity - slaves.Count(); i > 0; i--)
-                    yield return info.PipTypeEmpty;
-            }
+            self.RevokeCondition(controllingTokens.Pop());
         }
 
         public void UnlinkSlave(Actor self, Actor slave)
@@ -129,9 +93,9 @@ namespace OpenRA.Mods.RA2.Traits
             }
         }
 
-        public void PreparingAttack(Actor self, Target target, Armament a, Barrel barrel) { }
+        public void PreparingAttack(Actor self, in Target target, Armament a, Barrel barrel) { }
 
-        public void Attacking(Actor self, Target target, Armament a, Barrel barrel)
+        public void Attacking(Actor self, in Target target, Armament a, Barrel barrel)
         {
             if (IsTraitDisabled || IsTraitPaused)
                 return;
@@ -142,7 +106,7 @@ namespace OpenRA.Mods.RA2.Traits
             if (target.Actor == null || !target.IsValidFor(self))
                 return;
 
-            if (self.Owner.Stances[target.Actor.Owner] == Stance.Ally)
+            if (self.Owner.RelationshipWith(target.Actor.Owner) == PlayerRelationship.Ally)
                 return;
 
             var mindControllable = target.Actor.TraitOrDefault<MindControllable>();
@@ -157,7 +121,7 @@ namespace OpenRA.Mods.RA2.Traits
             if (mindControllable.IsTraitDisabled || mindControllable.IsTraitPaused)
                 return;
 
-            if (info.Capacity > 0 && !info.DiscardOldest && slaves.Count() >= info.Capacity && !info.Overload)
+            if (info.Capacity > 0 && !info.DiscardOldest && slaves.Count >= info.Capacity && !info.Overload)
                 return;
 
             slaves.Add(target.Actor);
@@ -167,15 +131,14 @@ namespace OpenRA.Mods.RA2.Traits
             if (info.Sounds.Any())
                 Game.Sound.Play(SoundType.World, info.Sounds.Random(self.World.SharedRandom), self.CenterPosition);
 
-            if (info.Capacity > 0 && info.DiscardOldest && slaves.Count() > info.Capacity)
+            if (info.Capacity > 0 && info.DiscardOldest && slaves.Count > info.Capacity)
                 slaves[0].Trait<MindControllable>().RevokeMindControl(slaves[0]);
 
-
-            if (info.Capacity > 0 && info.Overload && slaves.Count() > info.Capacity && mindControlOverloadConditionToken == ConditionManager.InvalidConditionToken)
-                mindControlOverloadConditionToken = conditionManager.GrantCondition(self, info.OverloadCondition); // Overload!
+            if (info.Capacity > 0 && info.Overload && slaves.Count > info.Capacity && mindControlOverloadConditionToken == Actor.InvalidConditionToken)
+                mindControlOverloadConditionToken = self.GrantCondition(info.OverloadCondition); // Overload!
         }
 
-        void ReleaseSlaves(Actor self)
+        private void ReleaseSlaves(Actor self)
         {
             foreach (var s in slaves)
             {
@@ -207,13 +170,13 @@ namespace OpenRA.Mods.RA2.Traits
 
         public void Tick(Actor self)
         {
-            if (info.Capacity > 0 && info.Overload && slaves.Count() > info.Capacity && mindControlOverloadConditionToken == ConditionManager.InvalidConditionToken)
+            if (info.Capacity > 0 && info.Overload && slaves.Count > info.Capacity && mindControlOverloadConditionToken == Actor.InvalidConditionToken)
             {
-                mindControlOverloadConditionToken = conditionManager.GrantCondition(self, info.OverloadCondition); // Overload!
+                mindControlOverloadConditionToken = self.GrantCondition(info.OverloadCondition); // Overload!
             }
-            else if (info.Capacity > 0 && info.Overload && slaves.Count() <= info.Capacity && mindControlOverloadConditionToken != ConditionManager.InvalidConditionToken)
+            else if (info.Capacity > 0 && info.Overload && slaves.Count <= info.Capacity && mindControlOverloadConditionToken != Actor.InvalidConditionToken)
             {
-                mindControlOverloadConditionToken = conditionManager.RevokeCondition(self, mindControlOverloadConditionToken);// Safe
+                mindControlOverloadConditionToken = self.RevokeCondition(mindControlOverloadConditionToken);// Safe
             }
         }
     }

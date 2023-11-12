@@ -56,8 +56,8 @@ namespace OpenRA.Mods.YR.Traits
 
     public class GrantExternalConditionPowerEx : SupportPower
     {
-        private PowerManager powerMgr;
-        readonly GrantExternalConditionPowerExInfo info;
+        private readonly PowerManager powerMgr;
+        private readonly GrantExternalConditionPowerExInfo info;
 
         public GrantExternalConditionPowerEx(Actor self, GrantExternalConditionPowerExInfo info)
             : base(self, info)
@@ -91,13 +91,13 @@ namespace OpenRA.Mods.YR.Traits
             {
                 actors = self.World.Actors.Where(o => o.Owner == self.Owner);
             }
+
             foreach (var actor in actors)
             {
                 var external = actor.TraitsImplementing<ExternalCondition>()
                     .FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(self));
 
-                if (external != null)
-                    external.GrantCondition(actor, self, info.Duration);
+                external?.GrantCondition(actor, self, info.Duration);
             }
 
             if (info.LowPower)
@@ -124,14 +124,14 @@ namespace OpenRA.Mods.YR.Traits
             });
         }
 
-        class SelectConditionTarget : IOrderGenerator
+        private class SelectConditionTarget : IOrderGenerator
         {
-            readonly GrantExternalConditionPowerEx power;
-            readonly int range;
-            readonly Sprite tile;
-            readonly SupportPowerManager manager;
-            readonly string order;
-            readonly float validAlpha;
+            private readonly GrantExternalConditionPowerEx power;
+            private readonly int range;
+            private readonly Sprite tile;
+            private readonly SupportPowerManager manager;
+            private readonly string order;
+            private readonly float validAlpha;
 
             public SelectConditionTarget(World world, string order, SupportPowerManager manager, GrantExternalConditionPowerEx power)
             {

@@ -29,6 +29,7 @@ namespace OpenRA.Mods.YR.Traits
 
     public class DetectVariety : ConditionalTrait<DetectVarietyInfo>
     {
-        public DetectVariety(DetectVarietyInfo info) : base(info) { }
+        public DetectVariety(DetectVarietyInfo info)
+            : base(info) { }
     }
 }

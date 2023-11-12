@@ -70,13 +70,13 @@ namespace OpenRA.Mods.YR.Traits
     public class ShootableBallisticMissile : ITick, ISync, IFacing, IPositionable, IMove,
         INotifyCreated, INotifyAddedToWorld, INotifyRemovedFromWorld, INotifyActorDisposing, IActorPreviewInitModifier
     {
-        static readonly (CPos, SubCell)[] NoCells = Array.Empty<(CPos, SubCell)>();
+        private readonly (CPos, SubCell)[] NoCells = Array.Empty<(CPos, SubCell)>();
 
         public readonly ShootableBallisticMissileInfo Info;
-        readonly Actor self;
+        private readonly Actor self;
         public Target Target { get; set; }
 
-        IEnumerable<int> speedModifiers;
+        private IEnumerable<int> speedModifiers;
 
         [Sync]
         public WAngle Facing { get; set; }
@@ -93,8 +93,8 @@ namespace OpenRA.Mods.YR.Traits
 
         public CPos TopLeft { get { return self.World.Map.CellContaining(CenterPosition); } }
 
-        bool airborne;
-        int airborneToken = Actor.InvalidConditionToken;
+        private bool airborne;
+        private int airborneToken = Actor.InvalidConditionToken;
 
         public ShootableBallisticMissile(ActorInitializer init, ShootableBallisticMissileInfo info)
         {
@@ -110,7 +110,6 @@ namespace OpenRA.Mods.YR.Traits
             // I need facing but initial facing doesn't matter, they are determined by the spawner's facing.
             Facing = init.Contains<FacingInit>() ? init.GetValue<FacingInit, WAngle>() : 0;
         }
-
 
         public void Created(Actor self)
         {
@@ -271,7 +270,7 @@ namespace OpenRA.Mods.YR.Traits
 
         #region Airborne conditions
 
-        void OnAirborneAltitudeReached()
+        private void OnAirborneAltitudeReached()
         {
             if (airborne)
                 return;
@@ -281,7 +280,7 @@ namespace OpenRA.Mods.YR.Traits
                 airborneToken = self.GrantCondition(Info.AirborneCondition);
         }
 
-        void OnAirborneAltitudeLeft()
+        private void OnAirborneAltitudeLeft()
         {
             if (!airborne)
                 return;

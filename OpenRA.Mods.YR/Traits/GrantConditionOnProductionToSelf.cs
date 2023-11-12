@@ -40,18 +40,15 @@ namespace OpenRA.Mods.YR.Traits
     public class GrantConditionOnProductionToSelf : ConditionalTrait<GrantConditionOnProductionToSelfInfo>, INotifyProduction, ITick
     {
         private int delay = -1;
-        private ConditionManager conditionManager;
-        private GrantConditionOnProductionToSelfInfo info;
-        private int conditionToken = ConditionManager.InvalidConditionToken;
-        public GrantConditionOnProductionToSelf(ActorInitializer init, GrantConditionOnProductionToSelfInfo info) : base(info)
+        private readonly GrantConditionOnProductionToSelfInfo info;
+        private int conditionToken = Actor.InvalidConditionToken;
+        public GrantConditionOnProductionToSelf(ActorInitializer init, GrantConditionOnProductionToSelfInfo info)
+            : base(info)
         {
             this.info = info;
         }
 
-        protected override void Created(Actor self)
-        {
-            conditionManager = self.Trait<ConditionManager>();
-        }
+        protected override void Created(Actor self) { }
 
         void ITick.Tick(Actor self)
         {
@@ -59,11 +56,11 @@ namespace OpenRA.Mods.YR.Traits
             {
                 if (delay == 0)
                 {
-                    if (conditionToken != ConditionManager.InvalidConditionToken)
+                    if (conditionToken != Actor.InvalidConditionToken)
                     {
                         self.World.AddFrameEndTask(w =>
                         {
-                            conditionToken = conditionManager.RevokeCondition(self, conditionToken);
+                            conditionToken = self.RevokeCondition(conditionToken);
                         });
                     }
 
@@ -80,7 +77,7 @@ namespace OpenRA.Mods.YR.Traits
         {
             if (info.UnitNames.Contains(other.Info.Name))
             {
-                conditionToken = conditionManager.GrantCondition(self, info.Condition);
+                conditionToken = self.GrantCondition(info.Condition);
                 delay = info.ConditionDelay;
             }
         }

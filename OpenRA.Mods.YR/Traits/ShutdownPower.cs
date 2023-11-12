@@ -14,10 +14,11 @@ namespace OpenRA.Mods.YR.Traits
 
     public class ShutdownPower : ConditionalTrait<ShutdownPowerInfo>, ITick, INotifyOwnerChanged
     {
-        private Actor self;
-        private ShutdownPowerInfo info;
+        private readonly Actor self;
+        private readonly ShutdownPowerInfo info;
         private PowerManager powerMgr;
-        public ShutdownPower(ActorInitializer init, ShutdownPowerInfo info) : base(info)
+        public ShutdownPower(ActorInitializer init, ShutdownPowerInfo info)
+            : base(info)
         {
             self = init.Self;
             this.info = info;

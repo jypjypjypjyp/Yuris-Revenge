@@ -64,13 +64,13 @@ namespace OpenRA.Mods.RA2.Projectiles
 
     public class RadBeam : IProjectile
     {
-        readonly ProjectileArgs args;
-        readonly RadBeamInfo info;
-        readonly Animation hitanim;
-        int ticks = 0;
-        bool doneDamage;
-        bool animationComplete;
-        WPos target;
+        private readonly ProjectileArgs args;
+        private readonly RadBeamInfo info;
+        private readonly Animation hitanim;
+        private int ticks = 0;
+        private bool doneDamage;
+        private bool animationComplete;
+        private WPos target;
 
         public RadBeam(ProjectileArgs args, RadBeamInfo info)
         {
@@ -99,8 +99,7 @@ namespace OpenRA.Mods.RA2.Projectiles
                 doneDamage = true;
             }
 
-            if (hitanim != null)
-                hitanim.Tick();
+            hitanim?.Tick();
 
             if (++ticks >= info.BeamDuration && animationComplete)
                 world.AddFrameEndTask(w => w.Remove(this));

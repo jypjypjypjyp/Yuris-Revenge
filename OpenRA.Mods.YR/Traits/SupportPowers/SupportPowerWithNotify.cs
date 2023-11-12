@@ -22,7 +22,8 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
 
     public class SupportPowerWithNotify : SupportPower
     {
-        public SupportPowerWithNotify(Actor self, SupportPowerInfo info) : base(self, info)
+        public SupportPowerWithNotify(Actor self, SupportPowerInfo info)
+            : base(self, info)
         {
         }
 

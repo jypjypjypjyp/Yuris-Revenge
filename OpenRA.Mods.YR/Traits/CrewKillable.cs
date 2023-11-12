@@ -28,7 +28,8 @@ namespace OpenRA.Mods.YR.Traits
 
     public class CrewKillable : PausableConditionalTrait<CrewKillableInfo>
     {
-        public CrewKillable(CrewKillableInfo info) : base(info)
+        public CrewKillable(CrewKillableInfo info)
+            : base(info)
         {
         }
     }

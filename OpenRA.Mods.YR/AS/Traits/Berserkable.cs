@@ -21,12 +21,12 @@ namespace OpenRA.Mods.AS.Traits
         public override object Create(ActorInitializer init) { return new Berserkable(init.Self, this); }
     }
 
-    class Berserkable : ConditionalTrait<BerserkableInfo>, INotifyIdle
+    internal class Berserkable : ConditionalTrait<BerserkableInfo>, INotifyIdle
     {
         public Berserkable(Actor self, BerserkableInfo info)
             : base(info) { }
 
-        void Blink(Actor self)
+        private  void Blink(Actor self)
         {
             self.World.IssueOrder(new Order("Stop", self, false));
             self.World.AddFrameEndTask(w => { w.Remove(self); self.Generation++; w.Add(self); });
@@ -44,7 +44,7 @@ namespace OpenRA.Mods.AS.Traits
             Blink(self);
         }
 
-        WDist GetScanRange(Actor self, AttackBase[] atbs)
+        private  WDist GetScanRange(Actor self, AttackBase[] atbs)
         {
             WDist range = WDist.Zero;
 

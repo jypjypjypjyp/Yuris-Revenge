@@ -48,9 +48,9 @@ namespace OpenRA.Mods.RA2.Traits
 
     public class WithMindControlArc : IRenderAboveShroudWhenSelected, INotifySelected, INotifyCreated
     {
-        readonly WithMindControlArcInfo info;
-        MindController mindController;
-        MindControllable mindControllable;
+        private readonly WithMindControlArcInfo info;
+        private MindController mindController;
+        private MindControllable mindControllable;
 
         public WithMindControlArc(WithMindControlArcInfo info)
         {

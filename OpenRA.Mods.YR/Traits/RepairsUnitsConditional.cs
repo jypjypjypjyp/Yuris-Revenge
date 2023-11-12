@@ -14,18 +14,16 @@ namespace OpenRA.Mods.YR.Traits
 
     public class RepairsUnitsConditional : RepairsUnits, INotifyResupply
     {
-        private RepairsUnitsConditionalInfo info;
-        private int conditionToken = ConditionManager.InvalidConditionToken;
-        private ConditionManager conditionManager;
-        public RepairsUnitsConditional(ActorInitializer init, RepairsUnitsConditionalInfo info) : base(info)
+        private readonly RepairsUnitsConditionalInfo info;
+        private int conditionToken = Actor.InvalidConditionToken;
+        public RepairsUnitsConditional(ActorInitializer init, RepairsUnitsConditionalInfo info)
+            : base(info)
         {
             this.info = info;
         }
 
         protected override void Created(Actor self)
         {
-            conditionManager = self.Trait<ConditionManager>();
-
             base.Created(self);
         }
 
@@ -37,16 +35,16 @@ namespace OpenRA.Mods.YR.Traits
         {
             if (types.HasFlag(ResupplyType.Repair))
             {
-                if (conditionToken == ConditionManager.InvalidConditionToken)
+                if (conditionToken == Actor.InvalidConditionToken)
                 {
-                    conditionToken = conditionManager.GrantCondition(host, info.RepairingCondition);
+                    conditionToken = host.GrantCondition(info.RepairingCondition);
                 }
             }
             else if (types.HasFlag(ResupplyType.None))
             {
-                if (conditionToken != ConditionManager.InvalidConditionToken)
+                if (conditionToken != Actor.InvalidConditionToken)
                 {
-                    conditionToken = conditionManager.RevokeCondition(host, conditionToken);
+                    conditionToken = host.RevokeCondition(conditionToken);
                 }
             }
         }

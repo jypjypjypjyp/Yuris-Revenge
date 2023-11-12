@@ -33,6 +33,7 @@ namespace OpenRA.Mods.YR.Traits
         Free, // We are free, we are free!!! Change owner to the killer
         Idle, // Nothing happen
     }
+
     public class SlaveMinerSlaveInfo : BaseSpawnerSlaveInfo, Requires<HarvesterInfo>
     {
         [Desc("What will happen when master was killed?")]
@@ -46,12 +47,13 @@ namespace OpenRA.Mods.YR.Traits
         }
     }
 
-    class SlaveMinerSlave : BaseSpawnerSlave, ITick
+    internal class SlaveMinerSlave : BaseSpawnerSlave, ITick
     {
-        SlaveMinerHarvester spawnerHarvesterMaster;
-        SlaveMinerSlaveInfo info;
+        private SlaveMinerHarvester spawnerHarvesterMaster;
+        private readonly SlaveMinerSlaveInfo info;
 
-        public SlaveMinerSlave(ActorInitializer init, SlaveMinerSlaveInfo info) : base(init, info)
+        public SlaveMinerSlave(ActorInitializer init, SlaveMinerSlaveInfo info)
+            : base(init, info)
         {
             this.info = info;
         }
@@ -98,6 +100,7 @@ namespace OpenRA.Mods.YR.Traits
             {
                 return;
             }
+
             if (spawnerHarvesterMaster.MiningState == MiningState.Mining
                 /*&& self.CurrentActivity is WaitFor*/)
             {

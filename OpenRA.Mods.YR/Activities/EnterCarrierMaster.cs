@@ -35,10 +35,10 @@ Since this inherits "Enter", you need to make several variables "protected".
 
 namespace OpenRA.Mods.YR.Activities
 {
-    class EnterCarrierMaster : Enter
+    internal class EnterCarrierMaster : Enter
     {
-        readonly Actor master; // remember the spawner.
-        readonly CarrierMaster spawnerMaster;
+        private readonly Actor master; // remember the spawner.
+        private readonly CarrierMaster spawnerMaster;
 
         public EnterCarrierMaster(Actor self, Actor master, CarrierMaster spawnerMaster, EnterBehaviour enterBehaviour, WDist closeEnoughDist)
             : base(self, Target.FromActor(master))

@@ -50,24 +50,25 @@ namespace OpenRA.Mods.YR.Traits
         INotifyBuildingPlaced, ITick, IIssueOrder, IResolveOrder
     {
         /*When transformed complete, it must be mining state*/
+        private const string orderID = "SlaveMinerMasterHarvest";
         public MiningState MiningState = MiningState.Mining;
         public CPos? LastOrderLocation = null;
-        private SlaveMinerMasterInfo info;
-        private readonly ResourceLayer resLayer;
+        private readonly SlaveMinerMasterInfo info;
+        private readonly IResourceLayer resLayer;
         private int respawnTicks = 0;
         private int kickTicks;
-        private bool allowKicks = true; // allow kicks?
-        private Transforms transforms;
+        private readonly bool allowKicks = true; // allow kicks?
+        private readonly Transforms transforms;
         private bool force = false;
         private CPos? forceMovePos = null;
-        private const string orderID = "SlaveMinerMasterHarvest";
 
         public IEnumerable<IOrderTargeter> Orders
         {
             get { yield return new SlaveMinerHarvestOrderTargeter<SlaveMinerMasterInfo>(orderID); }
         }
 
-        public SlaveMinerMaster(ActorInitializer init, SlaveMinerMasterInfo info) : base(init, info)
+        public SlaveMinerMaster(ActorInitializer init, SlaveMinerMasterInfo info)
+            : base(init, info)
         {
             this.info = info;
             resLayer = init.Self.World.WorldActor.Trait<ResourceLayer>();
@@ -86,6 +87,7 @@ namespace OpenRA.Mods.YR.Traits
                 if (!se.Actor.IsDead)
                     se.Actor.QueueActivity(new Follow(se.Actor, Target.FromActor(toActor), WDist.FromCells(1), WDist.FromCells(3), null));
             }
+
             harvesterMaster.AssignSlavesToMaster(SlaveEntries);
             if (force)
             {
@@ -120,7 +122,7 @@ namespace OpenRA.Mods.YR.Traits
                 return false;
 
             // Can the harvester collect this kind of resource?
-            return info.Resources.Contains(resType.Info.Type);
+            return info.Resources.Contains(resType);
         }
 
         private void Launch(Actor master, BaseSpawnerSlaveEntry slaveEntry, CPos targetLocation)
@@ -165,6 +167,7 @@ namespace OpenRA.Mods.YR.Traits
             forceMovePos = pos;
             transforms.DeployTransform(false);
         }
+
         public override void OnSlaveKilled(Actor self, Actor slave)
         {
             // Set clock so that regen happens.
@@ -199,7 +202,7 @@ namespace OpenRA.Mods.YR.Traits
             }
         }
 
-        public Order IssueOrder(Actor self, IOrderTargeter order, Target target, bool queued)
+        public Order IssueOrder(Actor self, IOrderTargeter order, in Target target, bool queued)
         {
             if (order.OrderID == orderID)
                 return new Order(order.OrderID, self, target, queued);

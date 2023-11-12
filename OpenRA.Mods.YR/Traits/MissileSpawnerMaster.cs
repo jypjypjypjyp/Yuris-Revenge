@@ -35,9 +35,6 @@ namespace OpenRA.Mods.YR.Traits
         [Desc("After this many ticks, we remove the condition.")]
         public readonly int LaunchingTicks = 15;
 
-        [Desc("Pip color for the spawn count.")]
-        public readonly PipType PipType = PipType.Yellow;
-
         [GrantedConditionReference]
         [Desc("The condition to grant to self while spawned units are loaded.",
             "Condition can stack with multiple spawns.")]
@@ -53,18 +50,18 @@ namespace OpenRA.Mods.YR.Traits
         public override object Create(ActorInitializer init) { return new MissileSpawnerMaster(init, this); }
     }
 
-    public class MissileSpawnerMaster : BaseSpawnerMaster, IPips, ITick, INotifyAttack
+    public class MissileSpawnerMaster : BaseSpawnerMaster, ITick, INotifyAttack
     {
         public new MissileSpawnerMasterInfo Info { get; private set; }
 
-        ConditionManager conditionManager;
-        int loadedConditionToken = ConditionManager.InvalidConditionToken;
+        private int loadedConditionToken = Actor.InvalidConditionToken;
 
         //// Stack<int> loadedTokens = new Stack<int>();
 
-        int respawnTicks = 0;
+        private int respawnTicks = 0;
 
-        public MissileSpawnerMaster(ActorInitializer init, MissileSpawnerMasterInfo info) : base(init, info)
+        public MissileSpawnerMaster(ActorInitializer init, MissileSpawnerMasterInfo info)
+            : base(init, info)
         {
             Info = info;
         }
@@ -72,13 +69,11 @@ namespace OpenRA.Mods.YR.Traits
         protected override void Created(Actor self)
         {
             base.Created(self);
-            conditionManager = self.Trait<ConditionManager>();
 
             if (!string.IsNullOrEmpty(Info.LoadedCondition) &&
-                loadedConditionToken == ConditionManager.InvalidConditionToken)
+                loadedConditionToken == Actor.InvalidConditionToken)
             {
-                loadedConditionToken = conditionManager.GrantCondition(self,
-                    Info.LoadedCondition);
+                loadedConditionToken = self.GrantCondition(Info.LoadedCondition);
             }
         }
 
@@ -88,11 +83,11 @@ namespace OpenRA.Mods.YR.Traits
             return;
         }
 
-        void INotifyAttack.PreparingAttack(Actor self, Target target, Armament a, Barrel barrel) { }
+        void INotifyAttack.PreparingAttack(Actor self, in Target target, Armament a, Barrel barrel) { }
 
         // The rate of fire of the dummy weapon determines the launch cycle as each shot
         // invokes Attacking()
-        void INotifyAttack.Attacking(Actor self, Target target, Armament a, Barrel barrel)
+        void INotifyAttack.Attacking(Actor self, in Target target, Armament a, Barrel barrel)
         {
             if (IsTraitDisabled)
                 return;
@@ -129,32 +124,13 @@ namespace OpenRA.Mods.YR.Traits
                 respawnTicks = Info.RespawnTicks;
         }
 
-        BaseSpawnerSlaveEntry GetLaunchable()
+        private BaseSpawnerSlaveEntry GetLaunchable()
         {
             foreach (var se in SlaveEntries)
                 if (se.IsValid)
                     return se;
 
             return null;
-        }
-
-        public IEnumerable<PipType> GetPips(Actor self)
-        {
-            if (IsTraitDisabled)
-                yield break;
-
-            int inside = 0;
-            foreach (var se in SlaveEntries)
-                if (se.IsValid)
-                    inside++;
-
-            for (var i = 0; i < Info.Actors.Length; i++)
-            {
-                if (i < inside)
-                    yield return Info.PipType;
-                else
-                    yield return PipType.Transparent;
-            }
         }
 
         public void Tick(Actor self)
@@ -169,9 +145,9 @@ namespace OpenRA.Mods.YR.Traits
                     Replenish(self, SlaveEntries);
 
                     if (!string.IsNullOrEmpty(Info.LoadedCondition) &&
-                        loadedConditionToken == ConditionManager.InvalidConditionToken)
+                        loadedConditionToken == Actor.InvalidConditionToken)
                     {
-                        loadedConditionToken = conditionManager.GrantCondition(self, Info.LoadedCondition);
+                        loadedConditionToken = self.GrantCondition(Info.LoadedCondition);
                     }
 
                     // If there's something left to spawn, restart the timer.
@@ -180,9 +156,9 @@ namespace OpenRA.Mods.YR.Traits
                 }
                 else
                 {
-                    if (loadedConditionToken != ConditionManager.InvalidConditionToken)
+                    if (loadedConditionToken != Actor.InvalidConditionToken)
                     {
-                        loadedConditionToken = conditionManager.RevokeCondition(self, loadedConditionToken);
+                        loadedConditionToken = self.RevokeCondition(loadedConditionToken);
                     }
                 }
             }

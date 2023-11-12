@@ -25,7 +25,8 @@ namespace OpenRA.Mods.YR.Traits.Render
     [Desc("Clones the actor sprite with another palette below it.")]
     public class WithTractionShadowInfo : ConditionalTraitInfo
     {
-        [PaletteReference] public readonly string Palette = "shadow";
+        [PaletteReference]
+        public readonly string Palette = "shadow";
 
         [Desc("Shadow position offset relative to actor position (ground level).")]
         public readonly WVec Offset = WVec.Zero;
@@ -38,7 +39,7 @@ namespace OpenRA.Mods.YR.Traits.Render
 
     public class WithTractingShadow : ConditionalTrait<WithTractionShadowInfo>, IRenderModifier
     {
-        readonly WithTractionShadowInfo info;
+        private readonly WithTractionShadowInfo info;
 
         public WithTractingShadow(WithTractionShadowInfo info)
             : base(info)

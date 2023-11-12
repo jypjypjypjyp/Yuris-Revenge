@@ -24,9 +24,8 @@ namespace OpenRA.Mods.YR.Activities
 {
     public class TractionFallToEarth : Activity
     {
-        readonly Tractable tractable;
-
-        int fallSpeed = 0;
+        private readonly Tractable tractable;
+        private int fallSpeed = 0;
 
         public TractionFallToEarth(Actor self, Tractable tractable)
         {
@@ -34,13 +33,10 @@ namespace OpenRA.Mods.YR.Activities
             this.tractable = tractable;
         }
 
-        void OnGroundLevel(Actor self)
+        private void OnGroundLevel(Actor self)
         {
-            if (tractable.Info.ExplosionWeapon != null)
-            {
-                // Use .FromPos since this actor is killed. Cannot use Target.FromActor
-                tractable.Info.ExplosionWeapon.Impact(Target.FromPos(self.CenterPosition), new GameRules.WarheadArgs() { SourceActor = self, DamageModifiers = new int[0] });
-            }
+            // Use .FromPos since this actor is killed. Cannot use Target.FromActor
+            tractable.Info.ExplosionWeapon?.Impact(Target.FromPos(self.CenterPosition), new GameRules.WarheadArgs() { SourceActor = self, DamageModifiers = System.Array.Empty<int>() });
 
             tractable.RevokeTractingCondition(self);
 

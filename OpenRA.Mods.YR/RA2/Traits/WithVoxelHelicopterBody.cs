@@ -49,11 +49,11 @@ namespace OpenRA.Mods.RA2.Traits
 
     public class WithVoxelHelicopterBody : ConditionalTrait<WithVoxelHelicopterBodyInfo>, IAutoMouseBounds, ITick, IActorPreviewInitModifier
     {
-        readonly WithVoxelHelicopterBodyInfo info;
-        readonly RenderVoxels rv;
-        readonly ModelAnimation modelAnimation;
-        readonly uint frames;
-        uint tick, frame;
+        private readonly WithVoxelHelicopterBodyInfo info;
+        private readonly RenderVoxels rv;
+        private readonly ModelAnimation modelAnimation;
+        private readonly uint frames;
+        private uint tick, frame;
 
         public WithVoxelHelicopterBody(Actor self, WithVoxelHelicopterBodyInfo info)
             : base(info)

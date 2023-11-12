@@ -17,12 +17,12 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Activities
 {
-    class EnterBunker : Enter
+    internal class EnterBunker : Enter
     {
-        readonly BunkerPassenger bunkerPassenger;
-        Actor bunkerActor;
-        BunkerCargo bunkerCargo;
-        bool willDisappear;
+        private readonly BunkerPassenger bunkerPassenger;
+        private readonly Actor bunkerActor;
+        private readonly BunkerCargo bunkerCargo;
+        private readonly bool willDisappear;
 
         public EnterBunker(Actor passengerActor, Actor bunkerActor, WPos pos, bool willDisappear = true, int maxTries = 0, bool repathWhileMoving = true)
             : base(passengerActor, Target.FromActor(bunkerActor))

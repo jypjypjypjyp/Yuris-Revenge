@@ -29,26 +29,24 @@ namespace OpenRA.Mods.YR.Traits
             return new GrantConditionOnCapture(init, this);
         }
     }
+
     public class GrantConditionOnCapture : ConditionalTrait<GrantConditionOnCaptureInfo>, INotifyOwnerChanged, ITick
     {
         private int conditionToken;
-        ConditionManager conditionManager;
-        private GrantConditionOnCaptureInfo info;
+        private readonly GrantConditionOnCaptureInfo info;
         private Player thisPlayer;
         private Player oldPlayer;
-        private string thisFactionName;
+        private readonly string thisFactionName;
 
-        public GrantConditionOnCapture(ActorInitializer init, GrantConditionOnCaptureInfo info) : base(info)
+        public GrantConditionOnCapture(ActorInitializer init, GrantConditionOnCaptureInfo info)
+            : base(info)
         {
             this.info = info;
-            thisFactionName = init.Contains<FactionInit>() ? init.Get<FactionInit, string>() : init.Self.Owner.Faction.InternalName;
+            thisFactionName = init.Contains<FactionInit>() ? init.GetValue<FactionInit, string>() : init.Self.Owner.Faction.InternalName;
         }
-
 
         protected override void Created(Actor self)
         {
-            conditionManager = self.Trait<ConditionManager>();
-
             base.Created(self);
         }
 
@@ -58,6 +56,7 @@ namespace OpenRA.Mods.YR.Traits
             {
                 return;
             }
+
             if (thisPlayer != newOwner)
             {
                 thisPlayer = newOwner;
@@ -68,23 +67,24 @@ namespace OpenRA.Mods.YR.Traits
 
             }
         }
+
         protected override void TraitEnabled(Actor self)
         {
-            if (conditionToken == ConditionManager.InvalidConditionToken)
+            if (conditionToken == Actor.InvalidConditionToken)
             {
                 // Grant condition to all actors belong to this faction
                 World w = self.World;
                 var actorsBelongToThisFaction = w.Actors.Where(o => o.Owner == thisPlayer);
                 foreach (var actor in actorsBelongToThisFaction)
                 {
-                    conditionToken = conditionManager.GrantCondition(actor, info.GrantCaptureCondition);
+                    conditionToken = actor.GrantCondition(info.GrantCaptureCondition);
                 }
             }
         }
 
         protected override void TraitDisabled(Actor self)
         {
-            if (conditionToken == ConditionManager.InvalidConditionToken)
+            if (conditionToken == Actor.InvalidConditionToken)
                 return;
 
             // Disable condition to all actors belong to old faction
@@ -92,7 +92,7 @@ namespace OpenRA.Mods.YR.Traits
             var actorsBelongToOldFaction = w.Actors.Where(o => o.Owner == oldPlayer);
             foreach (var actor in actorsBelongToOldFaction)
             {
-                conditionToken = conditionManager.RevokeCondition(actor, conditionToken);
+                conditionToken = actor.RevokeCondition(conditionToken);
             }
         }
 
@@ -100,7 +100,7 @@ namespace OpenRA.Mods.YR.Traits
         {
             if (self.IsDead)
             {
-                if (conditionToken == ConditionManager.InvalidConditionToken)
+                if (conditionToken == Actor.InvalidConditionToken)
                     return;
 
                 // Disable condition to all actors belong to this faction when the actor is dead
@@ -108,7 +108,7 @@ namespace OpenRA.Mods.YR.Traits
                 var actors = w.Actors.Where(o => o.Owner == thisPlayer);
                 foreach (var actor in actors)
                 {
-                    conditionToken = conditionManager.RevokeCondition(actor, conditionToken);
+                    conditionToken = actor.RevokeCondition(conditionToken);
                 }
             }
         }

@@ -33,6 +33,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
                 Console.WriteLine("Invalid localization file!");
                 return;
             }
+
             var rulesLocalizationNode = nodes[0].Value.Nodes[0].Value.Nodes.Where(o => o.Key == "Rules").FirstOrDefault();
             var chromeLayoutsLocalizationNode = nodes[0].Value.Nodes[0].Value.Nodes.Where(o => o.Key == "ChromeLayouts").FirstOrDefault();
             var worldRulesLocalizationNode = nodes[0].Value.Nodes[0].Value.Nodes.Where(o => o.Key == "World").FirstOrDefault();
@@ -63,6 +64,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
                 {
                     Directory.Delete(newModFullPath, true);
                 }
+
                 Directory.CreateDirectory(newModFullPath);
 
                 foreach (var fileSystemInfo in di.EnumerateFileSystemInfos())
@@ -213,10 +215,12 @@ namespace OpenRA.Mods.YR.UtilityCommands
                                         {
                                             Directory.CreateDirectory(newFileDir);
                                         }
+
                                         if (!File.Exists(newFilePath))
                                         {
                                             File.Copy(filePath, newFilePath);
                                         }
+
                                         string relativePath = ConvertToRelativeCurrentPath(newFilePath, newModFullPath);
                                         subYamlNode.Key = string.Format("{0}|{1}", newModID, relativePath);
 
@@ -317,6 +321,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
                                         {
                                             File.Copy(normalFont, targetNormalFontFile);
                                         }
+
                                         sNode.Value.Value = string.Format("{0}|{1}", newModID, Path.GetFileName(normalFont));
                                     }
                                     else if (subYamlNode.Key == "TinyBold" ||
@@ -330,6 +335,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
                                         {
                                             File.Copy(boldFont, targetBoldFontFile);
                                         }
+
                                         sNode.Value.Value = string.Format("{0}|{1}", newModID, Path.GetFileName(boldFont));
                                     }
                                 }
@@ -402,10 +408,12 @@ namespace OpenRA.Mods.YR.UtilityCommands
                                                 {
                                                     path = contentFilePathTemp;
                                                 }
+
                                                 contentFilePathes[idx] = "^" + ReplacePathWithNewModID(path, modID, newModID);
                                                 builder.Append(contentFilePathes[idx] + ",");
                                                 idx++;
                                             }
+
                                             sn.Value.Value = builder.ToString();
                                         }
                                     }
@@ -428,6 +436,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
                         }
                     }
                 }
+
                 modYamlNodes.WriteToFile(newModYaml);
 
                 // Modify all maps
@@ -455,6 +464,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
                                     break;
                                 }
                             }
+
                             mapYamlFile.WriteToFile(mapYamlPath);
                         }
                     }
@@ -497,6 +507,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
                             }
                         }
                     }
+
                     ruleYamlFile.WriteToFile(ruleFilePath);
                 }
 

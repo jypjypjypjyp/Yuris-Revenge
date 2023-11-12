@@ -16,12 +16,12 @@ namespace OpenRA.Mods.RA2.Graphics
 {
     public struct ArcRenderable : IRenderable, IFinalizedRenderable
     {
-        readonly Color color;
-        readonly WPos a, b;
-        readonly WAngle angle;
-        readonly int zOffset;
-        readonly WDist width;
-        readonly int segments;
+        private readonly Color color;
+        private readonly WPos a, b;
+        private readonly WAngle angle;
+        private readonly int zOffset;
+        private readonly WDist width;
+        private readonly int segments;
 
         public ArcRenderable(WPos a, WPos b, int zOffset, WAngle angle, Color color, WDist width, int segments)
         {

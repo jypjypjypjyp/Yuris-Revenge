@@ -28,8 +28,8 @@ namespace OpenRA.Mods.YR.Traits
 
     public class ExploreMapSupportPower : SupportPower
     {
-        private ExploreMapSupportPowerInfo info;
-        private Shroud.SourceType type = Shroud.SourceType.Visibility;
+        private readonly ExploreMapSupportPowerInfo info;
+        private readonly Shroud.SourceType type = Shroud.SourceType.Visibility;
         public ExploreMapSupportPower(Actor self, ExploreMapSupportPowerInfo info)
             : base(self, info)
         {

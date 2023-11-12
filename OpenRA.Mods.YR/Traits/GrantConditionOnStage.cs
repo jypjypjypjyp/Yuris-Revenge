@@ -29,17 +29,18 @@ namespace OpenRA.Mods.YR.Traits
             return new GrantConditionOnStage(init, this);
         }
     }
+
     public class GrantConditionOnStage : ConditionalTrait<GrantConditionOnStageInfo>, ITick
     {
-        private string currentCondition;
-        private Dictionary<string, int> conditions;
+        private readonly string currentCondition;
+        private readonly Dictionary<string, int> conditions;
         private int delay = -1;
-        private ConditionManager conditionManager;
-        private int currentConditionToken = ConditionManager.InvalidConditionToken;
+        private int currentConditionToken = Actor.InvalidConditionToken;
         private int currentConditionIndex;
-        public GrantConditionOnStage(ActorInitializer init, GrantConditionOnStageInfo info) : base(info)
+        public GrantConditionOnStage(ActorInitializer init, GrantConditionOnStageInfo info)
+            : base(info)
         {
-            this.conditions = info.Conditions;
+            conditions = info.Conditions;
             currentCondition = conditions.ElementAt(0).Key;
             delay = conditions.ElementAt(0).Value;
             currentConditionIndex = 0;
@@ -47,8 +48,7 @@ namespace OpenRA.Mods.YR.Traits
 
         protected override void Created(Actor self)
         {
-            conditionManager = self.Trait<ConditionManager>();
-            currentConditionToken = conditionManager.GrantCondition(self, currentCondition);
+            currentConditionToken = self.GrantCondition(currentCondition);
         }
 
         public void Tick(Actor self)
@@ -65,8 +65,9 @@ namespace OpenRA.Mods.YR.Traits
                     {
                         currentConditionIndex++;
                     }
-                    currentConditionToken = conditionManager.RevokeCondition(self, currentConditionToken);
-                    currentConditionToken = conditionManager.GrantCondition(self, conditions.ElementAt(currentConditionIndex).Key);
+
+                    currentConditionToken = self.RevokeCondition(currentConditionToken);
+                    currentConditionToken = self.GrantCondition(conditions.ElementAt(currentConditionIndex).Key);
 
                     delay = conditions.ElementAt(currentConditionIndex).Value;
                 }

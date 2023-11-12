@@ -16,14 +16,14 @@ namespace OpenRA.Mods.RA2.Graphics
 {
     public struct RadBeamRenderable : IRenderable, IFinalizedRenderable
     {
-        readonly WPos pos;
-        readonly int zOffset;
-        readonly WVec sourceToTarget;
-        readonly WDist width;
-        readonly Color color;
-        readonly WDist amplitude;
-        readonly WDist wavelength;
-        readonly int quantizationCount;
+        private readonly WPos pos;
+        private readonly int zOffset;
+        private readonly WVec sourceToTarget;
+        private readonly WDist width;
+        private readonly Color color;
+        private readonly WDist amplitude;
+        private readonly WDist wavelength;
+        private readonly int quantizationCount;
 
         public RadBeamRenderable(WPos pos, int zOffset, WVec sourceToTarget, WDist width, Color color, WDist amplitude, WDist wavelength, int quantizationCount)
         {
@@ -38,7 +38,7 @@ namespace OpenRA.Mods.RA2.Graphics
         }
 
         public WPos Pos => pos;
-        public PaletteReference Palette => null;
+        public  PaletteReference Palette => null;
         public int ZOffset => zOffset;
         public bool IsDecoration => true;
 

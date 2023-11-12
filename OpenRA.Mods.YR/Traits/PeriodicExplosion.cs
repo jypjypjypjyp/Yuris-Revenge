@@ -23,7 +23,8 @@ namespace OpenRA.Mods.RA2.Traits
         + "Reload/BurstDelays are used as explosion intervals.")]
     public class PeriodicExplosionInfo : ConditionalTraitInfo, IRulesetLoaded
     {
-        [WeaponReference, FieldLoader.Require]
+        [WeaponReference]
+        [FieldLoader.Require]
         [Desc("Weapon to be used for explosion.")]
         public readonly string Weapon = null;
 
@@ -41,27 +42,24 @@ namespace OpenRA.Mods.RA2.Traits
 
         void IRulesetLoaded<ActorInfo>.RulesetLoaded(Ruleset rules, ActorInfo info)
         {
-            WeaponInfo weaponInfo;
 
             var weaponToLower = Weapon.ToLowerInvariant();
-            if (!rules.Weapons.TryGetValue(weaponToLower, out weaponInfo))
+            if (!rules.Weapons.TryGetValue(weaponToLower, out WeaponInfo weaponInfo))
                 throw new YamlException("Weapons Ruleset does not contain an entry '{0}'".F(weaponToLower));
 
             WeaponInfo = weaponInfo;
         }
     }
 
-    class PeriodicExplosion : ConditionalTrait<PeriodicExplosionInfo>, ITick, INotifyCreated
+    internal class PeriodicExplosion : ConditionalTrait<PeriodicExplosionInfo>, ITick, INotifyCreated
     {
-        readonly PeriodicExplosionInfo info;
-        readonly WeaponInfo weapon;
-        readonly BodyOrientation body;
-
-        int fireDelay;
-        int burst;
-        AmmoPool ammoPool;
-
-        List<Pair<int, Action>> delayedActions = new List<Pair<int, Action>>();
+        private readonly PeriodicExplosionInfo info;
+        private readonly WeaponInfo weapon;
+        private readonly BodyOrientation body;
+        private int fireDelay;
+        private int burst;
+        private AmmoPool ammoPool;
+        private readonly List<(int, Action)> delayedActions = new List<(int, Action)>();
 
         public PeriodicExplosion(Actor self, PeriodicExplosionInfo info)
             : base(info)
@@ -83,12 +81,12 @@ namespace OpenRA.Mods.RA2.Traits
             for (var i = 0; i < delayedActions.Count; i++)
             {
                 var x = delayedActions[i];
-                if (--x.First <= 0)
-                    x.Second();
+                if (--x.Item1 <= 0)
+                    x.Item2();
                 delayedActions[i] = x;
             }
 
-            delayedActions.RemoveAll(a => a.First <= 0);
+            delayedActions.RemoveAll(a => a.Item1 <= 0);
 
             if (IsTraitDisabled)
                 return;
@@ -99,7 +97,7 @@ namespace OpenRA.Mods.RA2.Traits
                     return;
 
                 var localoffset = body != null
-                    ? body.LocalToWorld(info.LocalOffset.Rotate(body.QuantizeOrientation(self, self.Orientation)))
+                    ? body.LocalToWorld(info.LocalOffset.Rotate(body.QuantizeOrientation(self.Orientation)))
                     : info.LocalOffset;
 
                 var args = new WarheadArgs()
@@ -152,7 +150,7 @@ namespace OpenRA.Mods.RA2.Traits
         protected void ScheduleDelayedAction(int t, Action a)
         {
             if (t > 0)
-                delayedActions.Add(Pair.New(t, a));
+                delayedActions.Add((t, a));
             else
                 a();
         }

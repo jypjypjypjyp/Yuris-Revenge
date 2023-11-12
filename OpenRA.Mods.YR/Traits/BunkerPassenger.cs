@@ -36,7 +36,8 @@ namespace OpenRA.Mods.YR.Traits
         [Desc("Range from self for looking for an alternate transport (default: 5.5 cells).")]
         public readonly WDist AlternateTransportScanRange = WDist.FromCells(11) / 2;
 
-        [VoiceReference] public readonly string Voice = "Action";
+        [VoiceReference]
+        public readonly string Voice = "Action";
 
         [Desc("Whose actors can accept this actor?")]
         public readonly string[] Accepter = null;
@@ -58,7 +59,7 @@ namespace OpenRA.Mods.YR.Traits
     public class BunkerPassenger : ConditionalTrait<BunkerPassengerInfo>, IIssueOrder, IResolveOrder, IOrderVoice, INotifyRemovedFromWorld
     {
         public readonly BunkerPassengerInfo info;
-        private Actor self;
+        private readonly Actor self;
         private int bunkeredCondToken;
         public BunkerPassenger(ActorInitializer init, BunkerPassengerInfo info)
             : base(info)
@@ -112,7 +113,7 @@ namespace OpenRA.Mods.YR.Traits
             return null;
         }
 
-        bool IsCorrectCargoType(Actor target, TargetModifiers modifiers)
+        private bool IsCorrectCargoType(Actor target, TargetModifiers modifiers)
         {
             var ci = target.Info.TraitInfo<BunkerCargoInfo>();
 
@@ -137,12 +138,12 @@ namespace OpenRA.Mods.YR.Traits
             return ci.Types.Contains(Info.CargoType);
         }
 
-        bool CanEnter(BunkerCargo cargo)
+        private bool CanEnter(BunkerCargo cargo)
         {
             return cargo != null && cargo.HasSpace(Info.Weight);
         }
 
-        bool CanEnter(Actor target)
+        private bool CanEnter(Actor target)
         {
             return CanEnter(target.TraitOrDefault<BunkerCargo>());
         }

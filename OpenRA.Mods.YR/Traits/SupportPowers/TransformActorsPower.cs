@@ -44,6 +44,7 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
             return new TransformActorsPower(init.Self, this);
         }
     }
+
     /// <summary>
     /// Transform the victim actors to other actors
     /// </summary>
@@ -51,10 +52,11 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
     {
         private int delay = -1;
         private List<TypeDictionary> dics;
-        private TransformActorsPowerInfo info;
-        private Actor self;
-        private string[] excludeActors;
-        public TransformActorsPower(Actor self, TransformActorsPowerInfo info) : base(self, info)
+        private readonly TransformActorsPowerInfo info;
+        private readonly Actor self;
+        private readonly string[] excludeActors;
+        public TransformActorsPower(Actor self, TransformActorsPowerInfo info)
+            : base(self, info)
         {
             this.self = self;
             this.info = info;
@@ -98,8 +100,10 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
                                     {
                                         palette = info.EffectPalette;
                                     }
+
                                     w.Add(new SpriteEffect(victimPos, w, victimActor.Info.Name, info.EffectSequence, palette));
                                 }
+
                                 CPos pos = victimActor.World.Map.CellContaining(victimActor.CenterPosition);
                                 dics.Add(new TypeDictionary
                                 {
@@ -111,6 +115,7 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
                                 victimActor.Kill(self);
                             }
                         }
+
                         delay = 105;
                     }
                 });
@@ -129,6 +134,7 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
                         {
                             w.CreateActor(info.Actor, dic);
                         }
+
                         delay = -1;
                     });
                 }

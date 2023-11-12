@@ -50,51 +50,46 @@ namespace OpenRA.Mods.YR.Traits
         [Desc("Should all instances be revoked instead of only one?")]
         public readonly bool RevokeAll = false;
 
-        public object Create(ActorInitializer init) { return new GrantConditionOnAttackType(init, this); }
+        public override object Create(ActorInitializer init) { return new GrantConditionOnAttackType(init, this); }
     }
 
     public class GrantConditionOnAttackType : INotifyCreated, ITick, INotifyAttack
     {
-        readonly GrantConditionOnAttackTypeInfo info;
-        readonly Stack<int> tokens = new Stack<int>();
-
-        int cooldown = 0;
-        int shotsFired = 0;
-        ConditionManager manager;
+        private readonly GrantConditionOnAttackTypeInfo info;
+        private readonly Stack<int> tokens = new Stack<int>();
+        private int cooldown = 0;
+        private int shotsFired = 0;
 
         // Only tracked when RevokeOnNewTarget is true.
-        Target lastTarget = Target.Invalid;
+        private Target lastTarget = Target.Invalid;
 
         public GrantConditionOnAttackType(ActorInitializer init, GrantConditionOnAttackTypeInfo info)
         {
             this.info = info;
         }
 
-        void INotifyCreated.Created(Actor self)
-        {
-            manager = self.TraitOrDefault<ConditionManager>();
-        }
+        void INotifyCreated.Created(Actor self) { }
 
-        void GrantInstance(Actor self, string cond)
+        private void GrantInstance(Actor self, string cond)
         {
-            if (manager == null || string.IsNullOrEmpty(cond))
+            if (self == null || string.IsNullOrEmpty(cond))
                 return;
 
-            tokens.Push(manager.GrantCondition(self, cond));
+            tokens.Push(self.GrantCondition(cond));
         }
 
-        void RevokeInstance(Actor self, bool revokeAll)
+        private void RevokeInstance(Actor self, bool revokeAll)
         {
             shotsFired = 0;
 
-            if (manager == null || tokens.Count == 0)
+            if (self == null || tokens.Count == 0)
                 return;
 
             if (!revokeAll)
-                manager.RevokeCondition(self, tokens.Pop());
+                self.RevokeCondition(tokens.Pop());
             else
                 while (tokens.Count > 0)
-                    manager.RevokeCondition(self, tokens.Pop());
+                    self.RevokeCondition(tokens.Pop());
         }
 
         void ITick.Tick(Actor self)
@@ -106,7 +101,7 @@ namespace OpenRA.Mods.YR.Traits
             }
         }
 
-        bool TargetChanged(Target lastTarget, Target target)
+        private  bool TargetChanged(Target lastTarget, Target target)
         {
             // Invalidate reveal changing the target.
             if (lastTarget.Type == TargetType.FrozenActor && target.Type == TargetType.Actor)
@@ -136,7 +131,7 @@ namespace OpenRA.Mods.YR.Traits
             return false;
         }
 
-        void INotifyAttack.Attacking(Actor self, Target target, Armament a, Barrel barrel)
+        void INotifyAttack.Attacking(Actor self, in Target target, Armament a, Barrel barrel)
         {
             if (!info.ArmamentNames.Contains(a.Info.Name))
                 return;
@@ -157,12 +152,14 @@ namespace OpenRA.Mods.YR.Traits
                                 break;
                             }
                         }
+
                         if (isContinue)
                         {
                             break;
                         }
                     }
                 }
+
                 if (!isContinue)
                     return;
             }
@@ -196,6 +193,6 @@ namespace OpenRA.Mods.YR.Traits
             }
         }
 
-        void INotifyAttack.PreparingAttack(Actor self, Target target, Armament a, Barrel barrel) { }
+        void INotifyAttack.PreparingAttack(Actor self, in Target target, Armament a, Barrel barrel) { }
     }
 }

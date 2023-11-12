@@ -45,10 +45,11 @@ namespace OpenRA.Mods.YR.Traits
     {
         private readonly AmmoPool[] ammoPools;
         private CarrierMaster spawnerMaster;
-        private Actor self;
+        private readonly Actor self;
         public CarrierSlaveInfo Info { get; private set; }
 
-        public CarrierSlave(ActorInitializer init, CarrierSlaveInfo info) : base(init, info)
+        public CarrierSlave(ActorInitializer init, CarrierSlaveInfo info)
+            : base(init, info)
         {
             self = init.Self;
             Info = info;

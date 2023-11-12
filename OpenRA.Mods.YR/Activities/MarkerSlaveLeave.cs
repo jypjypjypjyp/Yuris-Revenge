@@ -16,10 +16,10 @@ using OpenRA.Mods.YR.Traits;
 
 namespace OpenRA.Mods.YR.Activities
 {
-    class MarkerSlaveLeave : Activity
+    internal class MarkerSlaveLeave : Activity
     {
-        private Actor slave;
-        private Actor master;
+        private readonly Actor slave;
+        private readonly Actor master;
         public MarkerSlaveLeave(Actor slave, Actor master)
         {
             this.master = master;

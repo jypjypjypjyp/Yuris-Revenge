@@ -21,6 +21,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
             {
                 File.Delete(localizationFile);
             }
+
             using (StreamWriter writer = new StreamWriter(File.Create(localizationName + ".yaml")))
             {
                 List<MiniYamlNode> subNodes = new List<MiniYamlNode>();
@@ -42,6 +43,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
                         }
                     }
                 }
+
                 subNodes.Add(new MiniYamlNode("Rules", new MiniYaml(null, ruleNodes)));
 
                 List<MiniYamlNode> nodes = new List<MiniYamlNode>();

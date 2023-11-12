@@ -27,21 +27,23 @@ namespace OpenRA.Mods.YR.Traits
             return new SelfRotationCraft(init, this);
         }
     }
+
     /// <summary>
     /// This kind of craft can rotate itself
     /// </summary>
     public class SelfRotationCraft : ConditionalTrait<SelfRotationCraftInfo>, ITick
     {
-        private SelfRotationCraftInfo info;
-        private Actor actor;
+        private readonly SelfRotationCraftInfo info;
+        private readonly Actor actor;
         private int cycleFacing;
         private int rotFacing;
         private int originalFacing;
         private Aircraft plane;
-        public SelfRotationCraft(ActorInitializer init, SelfRotationCraftInfo info) : base(info)
+        public SelfRotationCraft(ActorInitializer init, SelfRotationCraftInfo info)
+            : base(info)
         {
             this.info = info;
-            this.actor = init.Self;
+            actor = init.Self;
 
             GetCycleFacing(actor);
         }

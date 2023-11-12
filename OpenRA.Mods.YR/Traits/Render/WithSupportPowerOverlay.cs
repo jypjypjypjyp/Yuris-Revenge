@@ -31,18 +31,20 @@ namespace OpenRA.Mods.YR.Traits.Render
             return new WithSupportPowerOverlay(init.Self, this);
         }
     }
+
     public class WithSupportPowerOverlay : ConditionalTrait<WithSupportPowerOverlayInfo>, INotifySupportPowerCharged, INotifySupportPowerActived
     {
-        private WithSupportPowerOverlayInfo info;
-        private Actor self;
-        private SupportPowerManager supportPowerManager;
-        private IEnumerable<SupportPowerInstance> powers;
+        private readonly WithSupportPowerOverlayInfo info;
+        private readonly Actor self;
+        private readonly SupportPowerManager supportPowerManager;
+        private readonly IEnumerable<SupportPowerInstance> powers;
         private string key;
-        private int conditionToken = Actor.InvalidConditionToken;
-        private Animation overlay;
-        bool buildComplete;
-        bool visible;
-        public WithSupportPowerOverlay(Actor self, WithSupportPowerOverlayInfo info) : base(info)
+        private readonly int conditionToken = Actor.InvalidConditionToken;
+        private readonly Animation overlay;
+        private readonly bool buildComplete;
+        private bool visible;
+        public WithSupportPowerOverlay(Actor self, WithSupportPowerOverlayInfo info)
+            : base(info)
         {
             this.info = info;
             this.self = self;

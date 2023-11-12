@@ -17,10 +17,10 @@ using System.Linq;
 using OpenRA.Graphics;
 using OpenRA.Traits;
 using Color = OpenRA.Primitives.Color;
+using GUtil = OpenRA.Graphics.Util;
 
 namespace OpenRA.Mods.YR.Traits
 {
-    using GUtil = OpenRA.Graphics.Util;
     public class EnvironmentPaletteEffectInfo : TraitInfo
     {
         public readonly string[] ExcludePalette = { "cursor", "chrome", "colorpicker", "fog", "shroud", "effect" };
@@ -35,12 +35,12 @@ namespace OpenRA.Mods.YR.Traits
         [Desc("Set this when using multiple independent flash effects.")]
         public readonly string Type = null;
 
-        public object Create(ActorInitializer init) { return new EnvironmentPaletteEffect(this); }
+        public override object Create(ActorInitializer init) { return new EnvironmentPaletteEffect(this); }
     }
 
     public class EnvironmentPaletteEffect : IPaletteModifier, ITick
     {
-        private EnvironmentPaletteEffectInfo info;
+        private readonly EnvironmentPaletteEffectInfo info;
         private int remainingFrames;
         public EnvironmentPaletteEffectInfo Info
         {
@@ -68,6 +68,7 @@ namespace OpenRA.Mods.YR.Traits
             if (remainingFrames > 0)
                 remainingFrames--;
         }
+
         public void AdjustPalette(IReadOnlyDictionary<string, MutablePalette> palettes)
         {
             if (remainingFrames == 0)
@@ -79,6 +80,7 @@ namespace OpenRA.Mods.YR.Traits
                 {
                     continue;
                 }
+
                 for (var x = 0; x < Palette.Size; x++)
                 {
                     var orig = pal.Value.GetColor(x);

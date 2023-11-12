@@ -33,12 +33,11 @@ namespace OpenRA.Mods.YR.Activities
     /// </summary>
     public class SlaveMinerMasterHarvest : Activity
     {
-        readonly SlaveMinerMaster harv;
-        readonly SlaveMinerMasterInfo harvInfo;
-        readonly ResourceClaimLayer claimLayer;
-        int lastScanRange = 1;
-
-        CPos? avoidCell;
+        private readonly SlaveMinerMaster harv;
+        private readonly SlaveMinerMasterInfo harvInfo;
+        private readonly ResourceClaimLayer claimLayer;
+        private int lastScanRange = 1;
+        private readonly CPos? avoidCell;
 
         public SlaveMinerMasterHarvest(Actor self)
         {
@@ -55,7 +54,7 @@ namespace OpenRA.Mods.YR.Activities
             this.avoidCell = avoidCell;
         }
 
-        Activity Mining(Actor self, out MiningState state)
+        private Activity Mining(Actor self, out MiningState state)
         {
             // Let the harvester become idle so it can shoot enemies.
             // Tick in SpawnerHarvester trait will kick activity back to KickTick.
@@ -63,7 +62,7 @@ namespace OpenRA.Mods.YR.Activities
             return ChildActivity;
         }
 
-        Activity Kick(Actor self, out MiningState state)
+        private Activity Kick(Actor self, out MiningState state)
         {
             var closestHarvestablePosition = ClosestHarvestablePos(self, harvInfo.KickScanRadius);
             if (closestHarvestablePosition.HasValue)
@@ -123,7 +122,7 @@ namespace OpenRA.Mods.YR.Activities
         /// Using LastOrderLocation and self.Location as starting points,
         /// perform A* search to find the nearest accessible and harvestable cell.
         /// </summary>
-        CPos? ClosestHarvestablePos(Actor self, int searchRadius)
+        private CPos? ClosestHarvestablePos(Actor self, int searchRadius)
         {
             if (harv.CanHarvestCell(self, self.Location) && claimLayer.CanClaimCell(self, self.Location))
                 return self.Location;

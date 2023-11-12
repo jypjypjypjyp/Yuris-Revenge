@@ -61,15 +61,16 @@ namespace OpenRA.Mods.YR.Traits
             return new Variety(init, this);
         }
     }
+
     public class Variety : ConditionalTrait<VarietyInfo>, IRenderModifier, INotifyAttack, ITick, INotifyDamage,
         IVisibilityModifier, INotifyCreated, INotifyHarvesterAction, INotifyCenterPositionChanged
     {
         [Sync]
         private int remainingTime;
-        private VarietyInfo info;
+        private readonly VarietyInfo info;
         private int variedToken = Actor.InvalidConditionToken;
         private Actor varietiedActor;
-        private Actor self;
+        private readonly Actor self;
         private CPos? lastPos; // Last position
         private bool wasVaried; // Vary last time
         private bool firstTick = true; // Run this trait firstly
@@ -163,6 +164,7 @@ namespace OpenRA.Mods.YR.Traits
                     world.Add(varietiedActor);
                 }));
             }
+
             return varietiedActor.Render(wr);
         }
 
@@ -226,6 +228,7 @@ namespace OpenRA.Mods.YR.Traits
             if (Info.UnvarietyOn.HasFlag(type))
                 Unvariety();
         }
+
         public void Unvariety() { Unvariety(Info.VarietyDelay); }
 
         public void Unvariety(int time)
@@ -234,6 +237,7 @@ namespace OpenRA.Mods.YR.Traits
             {
                 varietiedActor.Kill(self);
             }
+
             remainingTime = Math.Max(remainingTime, time);
         }
 

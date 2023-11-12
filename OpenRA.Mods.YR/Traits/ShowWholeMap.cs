@@ -24,13 +24,15 @@ namespace OpenRA.Mods.YR.Traits
             return new ShowWholeMap(init, this);
         }
     }
+
     public class ShowWholeMap : ConditionalTrait<ShowWholeMapInfo>, INotifyOwnerChanged, ITick, INotifySold, INotifyKilled
     {
         private PowerManager powerMgr;
-        private ShowWholeMapInfo info;
-        private Actor self;
+        private readonly ShowWholeMapInfo info;
+        private readonly Actor self;
         private bool disableShround;
-        public ShowWholeMap(ActorInitializer init, ShowWholeMapInfo info) : base(info)
+        public ShowWholeMap(ActorInitializer init, ShowWholeMapInfo info)
+            : base(info)
         {
             self = init.Self;
             this.info = info;
@@ -75,6 +77,7 @@ namespace OpenRA.Mods.YR.Traits
             {
                 disableShround = false;
             }
+
             UpdateShroundState(disableShround);
         }
 
@@ -111,6 +114,7 @@ namespace OpenRA.Mods.YR.Traits
                 {
                     disableShround = true;
                 }
+
                 UpdateShroundState(disableShround);
             }
             else
@@ -122,7 +126,7 @@ namespace OpenRA.Mods.YR.Traits
 
         private void UpdateShroundState(bool disableShround)
         {
-            this.self.Owner.Shroud.Disabled = disableShround;
+            self.Owner.Shroud.Disabled = disableShround;
             if (self.World.LocalPlayer == self.Owner)
                 self.World.RenderPlayer = disableShround ? null : self.Owner;
         }

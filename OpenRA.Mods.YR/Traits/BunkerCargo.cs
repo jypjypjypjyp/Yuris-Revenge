@@ -47,7 +47,7 @@ namespace OpenRA.Mods.YR.Traits
         public readonly HashSet<string> Types = new HashSet<string>();
 
         [Desc("A list of actor types that are initially spawned into this actor.")]
-        public readonly string[] InitialUnits = { };
+        public readonly string[] InitialUnits = Array.Empty<string>();
 
         [Desc("When this actor is sold should all of its passengers be unloaded?")]
         public readonly bool EjectOnSell = true;
@@ -59,7 +59,8 @@ namespace OpenRA.Mods.YR.Traits
         public readonly HashSet<string> UnloadTerrainTypes = new HashSet<string>();
 
         [Desc("Voice to play when ordered to unload the passengers.")]
-        [VoiceReference] public readonly string UnloadVoice = "Action";
+        [VoiceReference]
+        public readonly string UnloadVoice = "Action";
 
         [Desc("Radius to search for a load/unload location if the ordered cell is blocked.")]
         public readonly WDist LoadRange = WDist.FromCells(5);
@@ -122,33 +123,30 @@ namespace OpenRA.Mods.YR.Traits
         public override object Create(ActorInitializer init) { return new BunkerCargo(init, this); }
     }
 
-    public class BunkerCargo : IPips, IIssueOrder, IResolveOrder, IOrderVoice, INotifyCreated, INotifyKilled,
+    public class BunkerCargo : IIssueOrder, IResolveOrder, IOrderVoice, INotifyCreated, INotifyKilled,
         INotifyOwnerChanged, INotifyAddedToWorld, ITick, INotifySold, INotifyActorDisposing, IIssueDeployOrder
     {
         public readonly BunkerCargoInfo Info;
-        readonly Actor self;
-        readonly Stack<Actor> cargo = new Stack<Actor>();
-        readonly HashSet<Actor> reserves = new HashSet<Actor>();
-        readonly Dictionary<string, Stack<int>> passengerTokens = new Dictionary<string, Stack<int>>();
-        readonly Lazy<IFacing> facing;
-        readonly bool checkTerrainType;
-        WithSpriteBody wsb;
-        BunkerState bunkerState;
-
-        int totalWeight = 0;
-        int reservedWeight = 0;
-        Aircraft aircraft;
-        ConditionManager conditionManager;
-        int loadingToken = ConditionManager.InvalidConditionToken;
-        Stack<int> loadedTokens = new Stack<int>();
-        int bunkeredToken = ConditionManager.InvalidConditionToken;
-
-        CPos currentCell;
+        private readonly Actor self;
+        private readonly Stack<Actor> cargo = new Stack<Actor>();
+        private readonly HashSet<Actor> reserves = new HashSet<Actor>();
+        private readonly Dictionary<string, Stack<int>> passengerTokens = new Dictionary<string, Stack<int>>();
+        private readonly Lazy<IFacing> facing;
+        private readonly bool checkTerrainType;
+        private readonly WithSpriteBody wsb;
+        private BunkerState bunkerState;
+        private int totalWeight = 0;
+        private int reservedWeight = 0;
+        private Aircraft aircraft;
+        private int loadingToken = Actor.InvalidConditionToken;
+        private readonly Stack<int> loadedTokens = new Stack<int>();
+        private int bunkeredToken = Actor.InvalidConditionToken;
+        private CPos currentCell;
         public IEnumerable<CPos> CurrentAdjacentCells { get; private set; }
         public bool Unloading { get; internal set; }
         public IEnumerable<Actor> Passengers { get { return cargo; } }
         public int PassengerCount { get { return cargo.Count; } }
-        private bool buildComplete = false;
+        private readonly bool buildComplete = false;
 
         public BunkerCargo(ActorInitializer init, BunkerCargoInfo info)
         {
@@ -159,14 +157,14 @@ namespace OpenRA.Mods.YR.Traits
             wsb = self.TraitOrDefault<WithSpriteBody>();
             bunkerState = BunkerState.NonBunkered;
 
-            if (init.Contains<RuntimeCargoInit>())
+            if (init.Contains<RuntimeCargoInit>(info))
             {
-                cargo = new Stack<Actor>(init.Get<RuntimeCargoInit, Actor[]>());
+                cargo = new Stack<Actor>(init.GetValue<RuntimeCargoInit, Actor[]>(info));
                 totalWeight = cargo.Sum(c => GetWeight(c));
             }
-            else if (init.Contains<CargoInit>())
+            else if (init.Contains<CargoInit>(info))
             {
-                foreach (var u in init.Get<CargoInit, string[]>())
+                foreach (var u in init.GetValue<CargoInit, string[]>(info))
                 {
                     var unit = self.World.CreateActor(false, u.ToLowerInvariant(),
                         new TypeDictionary { new OwnerInit(self.Owner) });
@@ -195,23 +193,21 @@ namespace OpenRA.Mods.YR.Traits
         void INotifyCreated.Created(Actor self)
         {
             aircraft = self.TraitOrDefault<Aircraft>();
-            conditionManager = self.TraitOrDefault<ConditionManager>();
 
-            if (conditionManager != null && cargo.Any())
+            if (self != null && cargo.Any())
             {
                 foreach (var c in cargo)
                 {
-                    string passengerCondition;
-                    if (Info.PassengerConditions.TryGetValue(c.Info.Name, out passengerCondition))
-                        passengerTokens.GetOrAdd(c.Info.Name).Push(conditionManager.GrantCondition(self, passengerCondition));
+                    if (Info.PassengerConditions.TryGetValue(c.Info.Name, out string passengerCondition))
+                        passengerTokens.GetOrAdd(c.Info.Name).Push(self.GrantCondition(passengerCondition));
                 }
 
                 if (!string.IsNullOrEmpty(Info.LoadedCondition))
-                    loadedTokens.Push(conditionManager.GrantCondition(self, Info.LoadedCondition));
+                    loadedTokens.Push(self.GrantCondition(Info.LoadedCondition));
             }
         }
 
-        static int GetWeight(Actor a) { return a.Info.TraitInfo<PassengerInfo>().Weight; }
+        private  int GetWeight(Actor a) { return a.Info.TraitInfo<PassengerInfo>().Weight; }
 
         public IEnumerable<IOrderTargeter> Orders
         {
@@ -222,7 +218,7 @@ namespace OpenRA.Mods.YR.Traits
             }
         }
 
-        public Order IssueOrder(Actor self, IOrderTargeter order, Target target, bool queued)
+        public Order IssueOrder(Actor self, IOrderTargeter order, in Target target, bool queued)
         {
             if (order.OrderID == "Unload")
                 return new Order(order.OrderID, self, queued);
@@ -249,7 +245,7 @@ namespace OpenRA.Mods.YR.Traits
             }
         }
 
-        IEnumerable<CPos> GetAdjacentCells()
+        private IEnumerable<CPos> GetAdjacentCells()
         {
             return Util.AdjacentCells(self.World, Target.FromActor(self)).Where(c => self.Location != c);
         }
@@ -282,8 +278,8 @@ namespace OpenRA.Mods.YR.Traits
             if (!HasSpace(w))
                 return false;
 
-            if (conditionManager != null && loadingToken == ConditionManager.InvalidConditionToken && !string.IsNullOrEmpty(Info.LoadingCondition))
-                loadingToken = conditionManager.GrantCondition(self, Info.LoadingCondition);
+            if (self != null && loadingToken == Actor.InvalidConditionToken && !string.IsNullOrEmpty(Info.LoadingCondition))
+                loadingToken = self.GrantCondition(Info.LoadingCondition);
 
             reserves.Add(a);
             reservedWeight += w;
@@ -304,8 +300,8 @@ namespace OpenRA.Mods.YR.Traits
             reservedWeight -= GetWeight(a);
             reserves.Remove(a);
 
-            if (loadingToken != ConditionManager.InvalidConditionToken)
-                loadingToken = conditionManager.RevokeCondition(self, loadingToken);
+            if (loadingToken != Actor.InvalidConditionToken)
+                loadingToken = self.RevokeCondition(loadingToken);
         }
 
         public string CursorForOrder(Actor self, Order order)
@@ -346,6 +342,7 @@ namespace OpenRA.Mods.YR.Traits
                 {
                     ChangeState(BunkerState.NonBunkered);
                 }
+
                 if (Info.ChangeOwnerWhenGarrison)
                 {
                     Player neutralPlayer = null;
@@ -379,51 +376,23 @@ namespace OpenRA.Mods.YR.Traits
             var p = a.Trait<BunkerPassenger>();
             p.Transport = null;
 
-            Stack<int> passengerToken;
-            if (passengerTokens.TryGetValue(a.Info.Name, out passengerToken) && passengerToken.Any())
-                conditionManager.RevokeCondition(self, passengerToken.Pop());
+            if (passengerTokens.TryGetValue(a.Info.Name, out Stack<int> passengerToken) && passengerToken.Any())
+                self.RevokeCondition(passengerToken.Pop());
 
             if (loadedTokens.Any())
-                conditionManager.RevokeCondition(self, loadedTokens.Pop());
+                self.RevokeCondition(loadedTokens.Pop());
 
             return a;
         }
 
-        void SetPassengerFacing(Actor passenger)
+        private void SetPassengerFacing(Actor passenger)
         {
             if (facing.Value == null)
                 return;
 
             var passengerFacing = passenger.TraitOrDefault<IFacing>();
             if (passengerFacing != null)
-                passengerFacing.Facing = facing.Value.Facing + Info.PassengerFacing;
-
-            foreach (var t in passenger.TraitsImplementing<Turreted>())
-                t.TurretFacing = facing.Value.Facing + Info.PassengerFacing;
-        }
-
-        public IEnumerable<PipType> GetPips(Actor self)
-        {
-            var numPips = Info.PipCount;
-
-            for (var i = 0; i < numPips; i++)
-                yield return GetPipAt(i);
-        }
-
-        PipType GetPipAt(int i)
-        {
-            var n = i * Info.MaxWeight / Info.PipCount;
-
-            foreach (var c in cargo)
-            {
-                var pi = c.Info.TraitInfo<PassengerInfo>();
-                if (n < pi.Weight)
-                    return pi.PipType;
-                else
-                    n -= pi.Weight;
-            }
-
-            return PipType.Transparent;
+                passengerFacing.Facing = facing.Value.Facing + WAngle.FromFacing(Info.PassengerFacing);
         }
 
         public void Load(Actor self, Actor a)
@@ -436,9 +405,9 @@ namespace OpenRA.Mods.YR.Traits
                 reservedWeight -= w;
                 reserves.Remove(a);
 
-                if (loadingToken != ConditionManager.InvalidConditionToken)
+                if (loadingToken != Actor.InvalidConditionToken)
                 {
-                    loadingToken = conditionManager.RevokeCondition(self, loadingToken);
+                    loadingToken = self.RevokeCondition(loadingToken);
                 }
             }
 
@@ -454,15 +423,14 @@ namespace OpenRA.Mods.YR.Traits
             var p = a.Trait<BunkerPassenger>();
             p.Transport = self;
 
-            string passengerCondition;
-            if (conditionManager != null && Info.PassengerConditions.TryGetValue(a.Info.Name, out passengerCondition))
+            if (self != null && Info.PassengerConditions.TryGetValue(a.Info.Name, out string passengerCondition))
             {
-                passengerTokens.GetOrAdd(a.Info.Name).Push(conditionManager.GrantCondition(self, passengerCondition));
+                passengerTokens.GetOrAdd(a.Info.Name).Push(self.GrantCondition(passengerCondition));
             }
 
-            if (conditionManager != null && !string.IsNullOrEmpty(Info.LoadedCondition))
+            if (self != null && !string.IsNullOrEmpty(Info.LoadedCondition))
             {
-                loadedTokens.Push(conditionManager.GrantCondition(self, Info.LoadedCondition));
+                loadedTokens.Push(self.GrantCondition(Info.LoadedCondition));
             }
         }
 
@@ -482,8 +450,7 @@ namespace OpenRA.Mods.YR.Traits
                     {
                         self.World.AddFrameEndTask(w => w.Add(passenger));
                         var nbm = passenger.TraitOrDefault<INotifyBlockingMove>();
-                        if (nbm != null)
-                            nbm.OnNotifyBlockingMove(passenger, passenger);
+                        nbm?.OnNotifyBlockingMove(passenger, passenger);
                     }
                     else
                     {
@@ -498,6 +465,7 @@ namespace OpenRA.Mods.YR.Traits
                     c.Kill(e.Attacker);
                 }
             }
+
             cargo.Clear();
         }
 
@@ -519,12 +487,13 @@ namespace OpenRA.Mods.YR.Traits
                 SpawnPassenger(Unload(self));
         }
 
-        void SpawnPassenger(Actor passenger)
+        private void SpawnPassenger(Actor passenger)
         {
             if (!Info.WillDisappear)
             {
                 return;
             }
+
             self.World.AddFrameEndTask(w =>
             {
                 w.Add(passenger);
@@ -550,7 +519,7 @@ namespace OpenRA.Mods.YR.Traits
             CurrentAdjacentCells = GetAdjacentCells();
         }
 
-        bool initialized;
+        private bool initialized;
         void ITick.Tick(Actor self)
         {
             // Notify initial cargo load
@@ -577,13 +546,13 @@ namespace OpenRA.Mods.YR.Traits
 
         public void GrantCondition(string grantBunkerCondition)
         {
-            bunkeredToken = conditionManager.GrantCondition(self, grantBunkerCondition);
+            bunkeredToken = self.GrantCondition(grantBunkerCondition);
         }
 
         public void RevokeCondition()
         {
-            if (bunkeredToken != ConditionManager.InvalidConditionToken)
-                bunkeredToken = conditionManager.RevokeCondition(self, bunkeredToken);
+            if (bunkeredToken != Actor.InvalidConditionToken)
+                bunkeredToken = self.RevokeCondition(bunkeredToken);
         }
 
         public void ChangeState(BunkerState bunkerState)
@@ -597,15 +566,18 @@ namespace OpenRA.Mods.YR.Traits
                         {
                             wsb.PlayCustomAnimationRepeating(self, Info.BunkerNotSequence);
                         }
+
                         break;
                     case BunkerState.Bunkered:
                         if (!string.IsNullOrEmpty(Info.BunkeredSequence))
                         {
                             wsb.PlayCustomAnimationRepeating(self, Info.BunkeredSequence);
                         }
+
                         break;
                 }
             }
+
             this.bunkerState = bunkerState;
         }
 

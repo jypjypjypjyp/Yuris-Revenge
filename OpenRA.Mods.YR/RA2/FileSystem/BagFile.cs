@@ -22,13 +22,13 @@ namespace OpenRA.Mods.Cnc.FileSystem
 {
     public class AudioBagLoader : IPackageLoader
     {
-        sealed class BagFile : IReadOnlyPackage
+        private sealed class BagFile : IReadOnlyPackage
         {
             public string Name { get; private set; }
             public IEnumerable<string> Contents => index.Keys;
 
-            readonly Stream s;
-            readonly Dictionary<string, IdxEntry> index;
+            private readonly Stream s;
+            private readonly Dictionary<string, IdxEntry> index;
 
             public BagFile(Stream s, List<IdxEntry> entries, string filename)
             {
@@ -42,8 +42,7 @@ namespace OpenRA.Mods.Cnc.FileSystem
 
             public Stream GetStream(string filename)
             {
-                IdxEntry entry;
-                if (!index.TryGetValue(filename, out entry))
+                if (!index.TryGetValue(filename, out IdxEntry entry))
                     return null;
 
                 var waveHeaderMemoryStream = new MemoryStream();

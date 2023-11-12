@@ -62,22 +62,21 @@ namespace OpenRA.Mods.YR.Traits
         private WPos finishEdge;
         private WVec spawnOffset;
         private WPos targetPos;
-        class CarrierSlaveEntry : BaseSpawnerSlaveEntry
+
+        private class CarrierSlaveEntry : BaseSpawnerSlaveEntry
         {
             public int RearmTicks = 0;
             public bool IsLaunched = false;
             public new MarkerSlave SpawnerSlave;
         }
 
-        readonly Dictionary<string, Stack<int>> spawnContainTokens = new Dictionary<string, Stack<int>>();
+        private readonly Dictionary<string, Stack<int>> spawnContainTokens = new Dictionary<string, Stack<int>>();
 
         public new MarkerMasterInfo Info { get; private set; }
 
-        CarrierSlaveEntry[] slaveEntries;
-
-        Stack<int> loadedTokens = new Stack<int>();
-
-        int respawnTicks = 0;
+        private CarrierSlaveEntry[] slaveEntries;
+        private readonly Stack<int> loadedTokens = new Stack<int>();
+        private int respawnTicks = 0;
 
         public MarkerMaster(ActorInitializer init, MarkerMasterInfo info)
             : base(init, info) => Info = info;
@@ -226,7 +225,7 @@ namespace OpenRA.Mods.YR.Traits
             Recall(self);
         }
 
-        void Recall(Actor self)
+        private void Recall(Actor self)
         {
             // Tell launched slaves to come back and enter me.
             foreach (var se in slaveEntries)
@@ -243,7 +242,7 @@ namespace OpenRA.Mods.YR.Traits
                 respawnTicks = Info.RespawnTicks;
         }
 
-        CarrierSlaveEntry GetLaunchable()
+        private CarrierSlaveEntry GetLaunchable()
         {
             foreach (var se in slaveEntries)
                 if (se.RearmTicks <= 0 && !se.IsLaunched && se.IsValid)

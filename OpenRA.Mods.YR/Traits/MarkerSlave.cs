@@ -39,11 +39,11 @@ namespace OpenRA.Mods.YR.Traits
         private WPos finishEdge;
         private WVec spawnOffset;
         private WPos targetPos;
-        private Actor self;
+        private readonly Actor self;
+        private MarkerMaster spawnerMaster;
 
-        MarkerMaster spawnerMaster;
-
-        public MarkerSlave(ActorInitializer init, MarkerSlaveInfo info) : base(init, info)
+        public MarkerSlave(ActorInitializer init, MarkerSlaveInfo info)
+            : base(init, info)
         {
             self = init.Self;
             Info = info;

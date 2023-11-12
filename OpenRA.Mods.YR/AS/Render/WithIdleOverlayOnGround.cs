@@ -59,7 +59,7 @@ namespace OpenRA.Mods.AS.Traits.Render
 
     public class WithIdleOverlayOnGround : PausableConditionalTrait<WithIdleOverlayOnGroundInfo>, INotifyDamageStateChanged
     {
-        readonly Animation overlay;
+        private readonly Animation overlay;
 
         public WithIdleOverlayOnGround(Actor self, WithIdleOverlayOnGroundInfo info)
             : base(info)

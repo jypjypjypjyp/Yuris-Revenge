@@ -39,14 +39,14 @@ namespace OpenRA.Mods.YR.Traits
 
     public class GrantConditionWhenCashflow : ConditionalTrait<GrantConditionWhenCashflowInfo>, INotifyOwnerChanged, ITick
     {
-        private int lowCashConditionToken = ConditionManager.InvalidConditionToken;
-        private int normalCashConditionToken = ConditionManager.InvalidConditionToken;
-        private Actor self;
-        private GrantConditionWhenCashflowInfo info;
+        private int lowCashConditionToken = Actor.InvalidConditionToken;
+        private int normalCashConditionToken = Actor.InvalidConditionToken;
+        private readonly Actor self;
+        private readonly GrantConditionWhenCashflowInfo info;
         private PlayerResources resources;
-        private ConditionManager conditionManager;
 
-        public GrantConditionWhenCashflow(ActorInitializer init, GrantConditionWhenCashflowInfo info) : base(info)
+        public GrantConditionWhenCashflow(ActorInitializer init, GrantConditionWhenCashflowInfo info)
+            : base(info)
         {
             self = init.Self;
             this.info = info;
@@ -54,7 +54,6 @@ namespace OpenRA.Mods.YR.Traits
 
         protected override void Created(Actor self)
         {
-            conditionManager = self.Trait<ConditionManager>();
             resources = self.Owner.PlayerActor.Trait<PlayerResources>();
             CheckCashCondition();
         }
@@ -73,24 +72,26 @@ namespace OpenRA.Mods.YR.Traits
         {
             if (resources.Cash <= info.CashAmount)
             {
-                if (lowCashConditionToken == ConditionManager.InvalidConditionToken)
+                if (lowCashConditionToken == Actor.InvalidConditionToken)
                 {
-                    lowCashConditionToken = conditionManager.GrantCondition(self, info.LowCashCondition);
+                    lowCashConditionToken = self.GrantCondition(info.LowCashCondition);
                 }
-                if (normalCashConditionToken != ConditionManager.InvalidConditionToken)
+
+                if (normalCashConditionToken != Actor.InvalidConditionToken)
                 {
-                    normalCashConditionToken = conditionManager.RevokeCondition(self, normalCashConditionToken);
+                    normalCashConditionToken = self.RevokeCondition(normalCashConditionToken);
                 }
             }
             else
             {
-                if (lowCashConditionToken != ConditionManager.InvalidConditionToken)
+                if (lowCashConditionToken != Actor.InvalidConditionToken)
                 {
-                    lowCashConditionToken = conditionManager.RevokeCondition(self, lowCashConditionToken);
+                    lowCashConditionToken = self.RevokeCondition(lowCashConditionToken);
                 }
-                if (normalCashConditionToken == ConditionManager.InvalidConditionToken)
+
+                if (normalCashConditionToken == Actor.InvalidConditionToken)
                 {
-                    normalCashConditionToken = conditionManager.GrantCondition(self, info.NormalCashCondition);
+                    normalCashConditionToken = self.GrantCondition(info.NormalCashCondition);
                 }
             }
         }

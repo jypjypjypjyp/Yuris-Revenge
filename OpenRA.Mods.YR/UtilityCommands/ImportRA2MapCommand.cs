@@ -58,44 +58,44 @@ namespace OpenRA.Mods.RA2.UtilityCommands
             { 0x3A, "tracktunnel04" },
 
 			// Bridges
-			{ 0x4A, "lobrdg_b" }, // lobrdg01
-			{ 0x4B, "lobrdg_b" }, // lobrdg02
-			{ 0x4C, "lobrdg_b" }, // lobrdg03
-			{ 0x4D, "lobrdg_b" }, // lobrdg04
-			{ 0x4E, "lobrdg_b" }, // lobrdg05
-			{ 0x4F, "lobrdg_b" }, // lobrdg06
-			{ 0x50, "lobrdg_b" }, // lobrdg07
-			{ 0x51, "lobrdg_b" }, // lobrdg08
-			{ 0x52, "lobrdg_b" }, // lobrdg09
-			{ 0x53, "lobrdg_a" }, // lobrdg10
-			{ 0x54, "lobrdg_a" }, // lobrdg11
-			{ 0x55, "lobrdg_a" }, // lobrdg12
-			{ 0x56, "lobrdg_a" }, // lobrdg13
-			{ 0x57, "lobrdg_a" }, // lobrdg14
-			{ 0x58, "lobrdg_a" }, // lobrdg15
-			{ 0x59, "lobrdg_a" }, // lobrdg16
-			{ 0x5A, "lobrdg_a" }, // lobrdg17
-			{ 0x5B, "lobrdg_a" }, // lobrdg18
-			{ 0x5C, "lobrdg_r_se" }, // lobrdg19
-			{ 0x5D, "lobrdg_r_se" }, // lobrdg20
-			{ 0x5E, "lobrdg_r_nw" }, // lobrdg21
-			{ 0x5F, "lobrdg_r_nw" }, // lobrdg22
-			{ 0x60, "lobrdg_r_ne" }, // lobrdg23
-			{ 0x61, "lobrdg_r_ne" }, // lobrdg24
-			{ 0x62, "lobrdg_r_sw" }, // lobrdg25
-			{ 0x63, "lobrdg_r_sw" }, // lobrdg26
-			{ 0x64, "lobrdg_b_d" }, // lobrdg27
-			{ 0x65, "lobrdg_a_d" }, // lobrdg28
+            { 0x4A, "lobrdg_b" }, // lobrdg01
+            { 0x4B, "lobrdg_b" }, // lobrdg02
+            { 0x4C, "lobrdg_b" }, // lobrdg03
+            { 0x4D, "lobrdg_b" }, // lobrdg04
+            { 0x4E, "lobrdg_b" }, // lobrdg05
+            { 0x4F, "lobrdg_b" }, // lobrdg06
+            { 0x50, "lobrdg_b" }, // lobrdg07
+            { 0x51, "lobrdg_b" }, // lobrdg08
+            { 0x52, "lobrdg_b" }, // lobrdg09
+            { 0x53, "lobrdg_a" }, // lobrdg10
+            { 0x54, "lobrdg_a" }, // lobrdg11
+            { 0x55, "lobrdg_a" }, // lobrdg12
+            { 0x56, "lobrdg_a" }, // lobrdg13
+            { 0x57, "lobrdg_a" }, // lobrdg14
+            { 0x58, "lobrdg_a" }, // lobrdg15
+            { 0x59, "lobrdg_a" }, // lobrdg16
+            { 0x5A, "lobrdg_a" }, // lobrdg17
+            { 0x5B, "lobrdg_a" }, // lobrdg18
+            { 0x5C, "lobrdg_r_se" }, // lobrdg19
+            { 0x5D, "lobrdg_r_se" }, // lobrdg20
+            { 0x5E, "lobrdg_r_nw" }, // lobrdg21
+            { 0x5F, "lobrdg_r_nw" }, // lobrdg22
+            { 0x60, "lobrdg_r_ne" }, // lobrdg23
+            { 0x61, "lobrdg_r_ne" }, // lobrdg24
+            { 0x62, "lobrdg_r_sw" }, // lobrdg25
+            { 0x63, "lobrdg_r_sw" }, // lobrdg26
+            { 0x64, "lobrdg_b_d" }, // lobrdg27
+            { 0x65, "lobrdg_a_d" }, // lobrdg28
 
 			// Ramps
-			{ 0x7A, "lobrdg_r_se" }, // lobrdg1
-			{ 0x7B, "lobrdg_r_nw" }, // lobrdg2
-			{ 0x7C, "lobrdg_r_ne" }, // lobrdg3
-			{ 0x7D, "lobrdg_r_sw" }, // lobrdg4
+            { 0x7A, "lobrdg_r_se" }, // lobrdg1
+            { 0x7B, "lobrdg_r_nw" }, // lobrdg2
+            { 0x7C, "lobrdg_r_ne" }, // lobrdg3
+            { 0x7D, "lobrdg_r_sw" }, // lobrdg4
 
 			// Other
-			{ 0xA7, null }, // veinhole
-			{ 0xA8, "srock01" },
+            { 0xA7, null }, // veinhole
+            { 0xA8, "srock01" },
             { 0xA9, "srock02" },
             { 0xAA, "srock03" },
             { 0xAB, "srock04" },
@@ -106,53 +106,53 @@ namespace OpenRA.Mods.RA2.UtilityCommands
             { 0xB0, "trock04" },
             { 0xB1, "trock05" },
             { 0xB2, null }, // veinholedummy
-			{ 0xB3, "crate" },
+            { 0xB3, "crate" },
 
 			// Fences
-			{ 0xCB, "cafncb" }, // black fence
-			{ 0xCC, "cafncw" }, // white fence
+            { 0xCB, "cafncb" }, // black fence
+            { 0xCC, "cafncw" }, // white fence
 
 			// Concrete Bridges
-			{ 0xCD, "lobrdb_b" }, // lobrdb01
-			{ 0xCE, "lobrdb_b" }, // lobrdb02
-			{ 0xCF, "lobrdb_b" }, // lobrdb03
-			{ 0xD0, "lobrdb_b" }, // lobrdb04
-			{ 0xD1, "lobrdb_b" }, // lobrdb05
-			{ 0xD2, "lobrdb_b" }, // lobrdb06
-			{ 0xD3, "lobrdb_b" }, // lobrdb07
-			{ 0xD4, "lobrdb_b" }, // lobrdb08
-			{ 0xD5, "lobrdb_b" }, // lobrdb09
-			{ 0xD6, "lobrdb_a" }, // lobrdb10
-			{ 0xD7, "lobrdb_a" }, // lobrdb11
-			{ 0xD8, "lobrdb_a" }, // lobrdb12
-			{ 0xD9, "lobrdb_a" }, // lobrdb13
-			{ 0xDA, "lobrdb_a" }, // lobrdb14
-			{ 0xDB, "lobrdb_a" }, // lobrdb15
-			{ 0xDC, "lobrdb_a" }, // lobrdb16
-			{ 0xDD, "lobrdb_a" }, // lobrdb17
-			{ 0xDE, "lobrdb_a" }, // lobrdb18
-			{ 0xDF, "lobrdb_r_se" }, // lobrdb19
-			{ 0xE0, "lobrdb_r_se" }, // lobrdb20
-			{ 0xE1, "lobrdb_r_nw" }, // lobrdb21
-			{ 0xE2, "lobrdb_r_nw" }, // lobrdb22
-			{ 0xE3, "lobrdb_r_ne" }, // lobrdb23
-			{ 0xE4, "lobrdb_r_ne" }, // lobrdb24
-			{ 0xE5, "lobrdb_r_sw" }, // lobrdb25
-			{ 0xE6, "lobrdb_r_sw" }, // lobrdb26
-			{ 0xE7, "lobrdb_b_d" }, // lobrdb27
-			{ 0xE8, "lobrdb_a_d" }, // lobrdb28
+            { 0xCD, "lobrdb_b" }, // lobrdb01
+            { 0xCE, "lobrdb_b" }, // lobrdb02
+            { 0xCF, "lobrdb_b" }, // lobrdb03
+            { 0xD0, "lobrdb_b" }, // lobrdb04
+            { 0xD1, "lobrdb_b" }, // lobrdb05
+            { 0xD2, "lobrdb_b" }, // lobrdb06
+            { 0xD3, "lobrdb_b" }, // lobrdb07
+            { 0xD4, "lobrdb_b" }, // lobrdb08
+            { 0xD5, "lobrdb_b" }, // lobrdb09
+            { 0xD6, "lobrdb_a" }, // lobrdb10
+            { 0xD7, "lobrdb_a" }, // lobrdb11
+            { 0xD8, "lobrdb_a" }, // lobrdb12
+            { 0xD9, "lobrdb_a" }, // lobrdb13
+            { 0xDA, "lobrdb_a" }, // lobrdb14
+            { 0xDB, "lobrdb_a" }, // lobrdb15
+            { 0xDC, "lobrdb_a" }, // lobrdb16
+            { 0xDD, "lobrdb_a" }, // lobrdb17
+            { 0xDE, "lobrdb_a" }, // lobrdb18
+            { 0xDF, "lobrdb_r_se" }, // lobrdb19
+            { 0xE0, "lobrdb_r_se" }, // lobrdb20
+            { 0xE1, "lobrdb_r_nw" }, // lobrdb21
+            { 0xE2, "lobrdb_r_nw" }, // lobrdb22
+            { 0xE3, "lobrdb_r_ne" }, // lobrdb23
+            { 0xE4, "lobrdb_r_ne" }, // lobrdb24
+            { 0xE5, "lobrdb_r_sw" }, // lobrdb25
+            { 0xE6, "lobrdb_r_sw" }, // lobrdb26
+            { 0xE7, "lobrdb_b_d" }, // lobrdb27
+            { 0xE8, "lobrdb_a_d" }, // lobrdb28
 
 			// Concrete Ramps
-			{ 0xE9, "lobrdb_r_se" }, // lobrdb1
-			{ 0xEA, "lobrdb_r_nw" }, // lobrdb2
-			{ 0xEB, "lobrdb_r_ne" }, // lobrdb3
-			{ 0xEC, "lobrdb_r_sw" }, // lobrdb4
+            { 0xE9, "lobrdb_r_se" }, // lobrdb1
+            { 0xEA, "lobrdb_r_nw" }, // lobrdb2
+            { 0xEB, "lobrdb_r_ne" }, // lobrdb3
+            { 0xEC, "lobrdb_r_sw" }, // lobrdb4
 
 			// Others
-			{ 0xF0, "cakrmw" }, // Kremlin walls
-			{ 0xF1, "cafncp" }, // prison camp fence
-			{ 0xF2, "crate" }, // wcrate (water crate)
-		};
+            { 0xF0, "cakrmw" }, // Kremlin walls
+            { 0xF1, "cafncp" }, // prison camp fence
+            { 0xF2, "crate" }, // wcrate (water crate)
+        };
 
         static readonly Dictionary<byte, Size> OverlayShapes = new Dictionary<byte, Size>()
         {
@@ -226,87 +226,87 @@ namespace OpenRA.Mods.RA2.UtilityCommands
         {
 			// 1,3 wooden bridge tiles
 			{ 0x4A, DamageState.Undamaged },
-            { 0x4B, DamageState.Undamaged },
-            { 0x4C, DamageState.Undamaged },
-            { 0x4D, DamageState.Undamaged },
-            { 0x4E, DamageState.Heavy },
-            { 0x4F, DamageState.Heavy },
-            { 0x50, DamageState.Heavy },
-            { 0x51, DamageState.Critical },
-            { 0x52, DamageState.Critical },
+			{ 0x4B, DamageState.Undamaged },
+			{ 0x4C, DamageState.Undamaged },
+			{ 0x4D, DamageState.Undamaged },
+			{ 0x4E, DamageState.Heavy },
+			{ 0x4F, DamageState.Heavy },
+			{ 0x50, DamageState.Heavy },
+			{ 0x51, DamageState.Critical },
+			{ 0x52, DamageState.Critical },
 
 			// 1,3 concrete bridge tiles
 			{ 0xCD, DamageState.Undamaged },
-            { 0xCE, DamageState.Undamaged },
-            { 0xCF, DamageState.Undamaged },
-            { 0xD0, DamageState.Undamaged },
-            { 0xD1, DamageState.Heavy },
-            { 0xD2, DamageState.Heavy },
-            { 0xD3, DamageState.Heavy },
-            { 0xD4, DamageState.Critical },
-            { 0xD5, DamageState.Critical },
+			{ 0xCE, DamageState.Undamaged },
+			{ 0xCF, DamageState.Undamaged },
+			{ 0xD0, DamageState.Undamaged },
+			{ 0xD1, DamageState.Heavy },
+			{ 0xD2, DamageState.Heavy },
+			{ 0xD3, DamageState.Heavy },
+			{ 0xD4, DamageState.Critical },
+			{ 0xD5, DamageState.Critical },
 
 			// 3,1 wooden bridge tiles
 			{ 0x53, DamageState.Undamaged },
-            { 0x54, DamageState.Undamaged },
-            { 0x55, DamageState.Undamaged },
-            { 0x56, DamageState.Undamaged },
-            { 0x57, DamageState.Heavy },
-            { 0x58, DamageState.Heavy },
-            { 0x59, DamageState.Heavy },
-            { 0x5A, DamageState.Critical },
-            { 0x5B, DamageState.Critical },
+			{ 0x54, DamageState.Undamaged },
+			{ 0x55, DamageState.Undamaged },
+			{ 0x56, DamageState.Undamaged },
+			{ 0x57, DamageState.Heavy },
+			{ 0x58, DamageState.Heavy },
+			{ 0x59, DamageState.Heavy },
+			{ 0x5A, DamageState.Critical },
+			{ 0x5B, DamageState.Critical },
 
 			// 3,1 concrete bridge tiles
 			{ 0xD6, DamageState.Undamaged },
-            { 0xD7, DamageState.Undamaged },
-            { 0xD8, DamageState.Undamaged },
-            { 0xD9, DamageState.Undamaged },
-            { 0xDA, DamageState.Heavy },
-            { 0xDB, DamageState.Heavy },
-            { 0xDC, DamageState.Heavy },
-            { 0xDD, DamageState.Critical },
-            { 0xDE, DamageState.Critical },
+			{ 0xD7, DamageState.Undamaged },
+			{ 0xD8, DamageState.Undamaged },
+			{ 0xD9, DamageState.Undamaged },
+			{ 0xDA, DamageState.Heavy },
+			{ 0xDB, DamageState.Heavy },
+			{ 0xDC, DamageState.Heavy },
+			{ 0xDD, DamageState.Critical },
+			{ 0xDE, DamageState.Critical },
 
 			// Wooden Ramps
 			{ 0x5C, DamageState.Undamaged },
-            { 0x5D, DamageState.Heavy },
-            { 0x5E, DamageState.Undamaged },
-            { 0x5F, DamageState.Heavy },
-            { 0x60, DamageState.Undamaged },
-            { 0x61, DamageState.Heavy },
-            { 0x62, DamageState.Undamaged },
-            { 0x63, DamageState.Heavy },
+			{ 0x5D, DamageState.Heavy },
+			{ 0x5E, DamageState.Undamaged },
+			{ 0x5F, DamageState.Heavy },
+			{ 0x60, DamageState.Undamaged },
+			{ 0x61, DamageState.Heavy },
+			{ 0x62, DamageState.Undamaged },
+			{ 0x63, DamageState.Heavy },
 
 			// Concrete Ramps
 			{ 0xDF, DamageState.Undamaged },
-            { 0xE0, DamageState.Heavy },
-            { 0xE1, DamageState.Undamaged },
-            { 0xE2, DamageState.Heavy },
-            { 0xE3, DamageState.Undamaged },
-            { 0xE4, DamageState.Heavy },
-            { 0xE5, DamageState.Undamaged },
-            { 0xE6, DamageState.Heavy },
+			{ 0xE0, DamageState.Heavy },
+			{ 0xE1, DamageState.Undamaged },
+			{ 0xE2, DamageState.Heavy },
+			{ 0xE3, DamageState.Undamaged },
+			{ 0xE4, DamageState.Heavy },
+			{ 0xE5, DamageState.Undamaged },
+			{ 0xE6, DamageState.Heavy },
 
 			// Wooden ramp duplicates
 			{ 0x7A, DamageState.Undamaged },
-            { 0x7B, DamageState.Undamaged },
-            { 0x7C, DamageState.Undamaged },
-            { 0x7D, DamageState.Undamaged },
+			{ 0x7B, DamageState.Undamaged },
+			{ 0x7C, DamageState.Undamaged },
+			{ 0x7D, DamageState.Undamaged },
 
 			// Concrete ramp duplicates
 			{ 0xE9, DamageState.Undamaged },
-            { 0xEA, DamageState.Undamaged },
-            { 0xEB, DamageState.Undamaged },
-            { 0xEC, DamageState.Undamaged },
+			{ 0xEA, DamageState.Undamaged },
+			{ 0xEB, DamageState.Undamaged },
+			{ 0xEC, DamageState.Undamaged },
 
 			// Wooden dead bridge placeholders
 			{ 0x64, DamageState.Undamaged },
-            { 0x65, DamageState.Undamaged },
+			{ 0x65, DamageState.Undamaged },
 
 			// Concrete dead bridge placeholders
 			{ 0xE7, DamageState.Undamaged },
-            { 0xE8, DamageState.Undamaged },
+			{ 0xE8, DamageState.Undamaged },
         };
 
         static readonly Dictionary<byte, byte[]> ResourceFromOverlay = new Dictionary<byte, byte[]>()
@@ -319,10 +319,10 @@ namespace OpenRA.Mods.RA2.UtilityCommands
                     0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79,
 
 					// third ore - sometimes used by third party mappers
-					0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88,
+                    0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88,
                     0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92,
                 }
-            },
+			},
 
 			// Gems
 			{
@@ -333,7 +333,7 @@ namespace OpenRA.Mods.RA2.UtilityCommands
                     0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C,
                     0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6
                 }
-            }
+			}
         };
 
         static readonly string[] LampActors =

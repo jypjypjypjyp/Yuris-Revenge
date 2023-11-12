@@ -90,13 +90,13 @@ namespace OpenRA.Mods.YR.Traits
 
     public class BaseSpawnerMaster : ConditionalTrait<BaseSpawnerMasterInfo>, INotifyCreated, INotifyKilled, INotifyOwnerChanged
     {
-        readonly Actor self;
+        private readonly Actor self;
         protected BaseSpawnerSlaveEntry[] SlaveEntries;
+        private IFacing facing;
+        private ExitInfo[] exits;
 
-        IFacing facing;
-        ExitInfo[] exits;
-
-        public BaseSpawnerMaster(ActorInitializer init, BaseSpawnerMasterInfo info) : base(info)
+        public BaseSpawnerMaster(ActorInitializer init, BaseSpawnerMasterInfo info)
+            : base(info)
         {
             self = init.Self;
 
@@ -254,7 +254,7 @@ namespace OpenRA.Mods.YR.Traits
         // Production.cs use random to select an exit.
         // Here, we choose one by round robin.
         // Start from -1 so that +1 logic below will make it 0.
-        int exitRoundRobin = -1;
+        private int exitRoundRobin = -1;
         protected ExitInfo ChooseExit(Actor self)
         {
             if (exits.Length == 0)

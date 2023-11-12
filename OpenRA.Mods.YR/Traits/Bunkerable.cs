@@ -26,7 +26,8 @@ namespace OpenRA.Mods.YR.Traits
 
     public class Bunkerable : ConditionalTrait<BunkerableInfo>
     {
-        public Bunkerable(ActorInitializer init, BunkerableInfo info) : base(info)
+        public Bunkerable(ActorInitializer init, BunkerableInfo info)
+            : base(info)
         {
         }
     }

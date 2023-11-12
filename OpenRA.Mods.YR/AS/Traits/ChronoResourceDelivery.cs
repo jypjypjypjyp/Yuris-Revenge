@@ -56,9 +56,9 @@ namespace OpenRA.Mods.AS.Traits
 
     public class ChronoResourceDelivery : ConditionalTrait<ChronoResourceDeliveryInfo>, INotifyHarvesterAction, ITick
     {
-        CPos? destination = null;
-        CPos harvestedField;
-        int ticksTillCheck = 0;
+        private CPos? destination = null;
+        private CPos harvestedField;
+        private int ticksTillCheck = 0;
 
         public ChronoResourceDelivery(Actor self, ChronoResourceDeliveryInfo info)
             : base(info) { }
@@ -104,7 +104,7 @@ namespace OpenRA.Mods.AS.Traits
         public void Docked() { }
         public void Undocked() { }
 
-        void TeleportIfPossible(Actor self)
+        private void TeleportIfPossible(Actor self)
         {
             // We're already here; no need to interfere.
             if (self.Location == destination.Value)
@@ -121,7 +121,7 @@ namespace OpenRA.Mods.AS.Traits
             }
         }
 
-        void Reset()
+        private void Reset()
         {
             ticksTillCheck = 0;
             destination = null;

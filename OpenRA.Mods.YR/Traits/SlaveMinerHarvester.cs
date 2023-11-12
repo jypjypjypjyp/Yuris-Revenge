@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.YR.Activities;
@@ -49,7 +50,8 @@ namespace OpenRA.Mods.YR.Traits
     [Desc("This actor is a harvester that uses its spawns to indirectly harvest resources. i.e., Slave Miner.")]
     public class SlaveMinerHarvesterInfo : SpawnerHarvestResourceInfo, Requires<IOccupySpaceInfo>, Requires<GrantConditionOnDeployInfo>
     {
-        [VoiceReference] public readonly string HarvestVoice = "Action";
+        [VoiceReference]
+        public readonly string HarvestVoice = "Action";
 
         [Desc("Automatically search for resources on creation?")]
         public readonly bool SearchOnCreation = true;
@@ -79,10 +81,10 @@ namespace OpenRA.Mods.YR.Traits
         ITick, IIssueOrder, IResolveOrder, IOrderVoice, INotifyDeployComplete, INotifyTransform
     {
         private const string orderID = "SlaveMinerHarvest";
-        readonly SlaveMinerHarvesterInfo info;
-        readonly Actor self;
-        readonly IResourceLayer resLayer;
-        readonly Mobile mobile;
+        private readonly SlaveMinerHarvesterInfo info;
+        private readonly Actor self;
+        private readonly IResourceLayer resLayer;
+        private readonly Mobile mobile;
 
         // Because activities don't remember states, we remember states here for them.
         public CPos? LastOrderLocation = null;
@@ -93,9 +95,9 @@ namespace OpenRA.Mods.YR.Traits
             get { yield return new SlaveMinerHarvestOrderTargeter<SlaveMinerHarvesterInfo>(orderID); }
         }
 
-        int respawnTicks; // allowed to spawn a new slave when <= 0.
-        int kickTicks;
-        bool allowKicks = true; // allow kicks?
+        private int respawnTicks; // allowed to spawn a new slave when <= 0.
+        private int kickTicks;
+        private bool allowKicks = true; // allow kicks?
 
         public SlaveMinerHarvester(ActorInitializer init, SlaveMinerHarvesterInfo info)
             : base(init, info)
@@ -110,7 +112,7 @@ namespace OpenRA.Mods.YR.Traits
         }
 
         // Modify Harvester trait's states to do the mining.
-        void AssignTargetForSpawned(Actor slave, CPos targetLocation)
+        private void AssignTargetForSpawned(Actor slave, CPos targetLocation)
         {
             var harvest = slave.Trait<Harvester>();
 
@@ -119,7 +121,7 @@ namespace OpenRA.Mods.YR.Traits
         }
 
         // Launch a freshly created slave that isn't in world to the world.
-        void Launch(Actor self, BaseSpawnerSlaveEntry se, CPos targetLocation)
+        private void Launch(Actor self, BaseSpawnerSlaveEntry se, CPos targetLocation)
         {
             var slave = se.Actor;
 
@@ -185,7 +187,7 @@ namespace OpenRA.Mods.YR.Traits
             return null;
         }
 
-        CPos ResolveHarvestLocation(Actor self, Order order)
+        private CPos ResolveHarvestLocation(Actor self, Order order)
         {
             if (self.World.Map.CellContaining(order.Target.CenterPosition) == CPos.Zero)
                 return self.Location;
@@ -203,7 +205,7 @@ namespace OpenRA.Mods.YR.Traits
             return mobile.NearestCell(loc, p => mobile.CanEnterCell(p), 1, 6);
         }
 
-        void HandleSpawnerHarvest(Actor self, Order order)
+        private void HandleSpawnerHarvest(Actor self, Order order)
         {
             allowKicks = true;
 
@@ -307,7 +309,7 @@ namespace OpenRA.Mods.YR.Traits
                 return false;
 
             // Can the harvester collect this kind of resource?
-            return info.Resources.Contains(resType.Info.Type);
+            return info.Resources.Contains(resType);
         }
 
         void INotifyTransform.BeforeTransform(Actor self)
@@ -329,6 +331,7 @@ namespace OpenRA.Mods.YR.Traits
                 if (!se.Actor.IsDead)
                     se.Actor.QueueActivity(new FindAndDeliverResources(se.Actor));
             }
+
             refineryMaster.AssignSlavesToMaster(SlaveEntries);
             toActor.QueueActivity(new SlaveMinerMasterHarvest(toActor));
         }
@@ -344,9 +347,9 @@ namespace OpenRA.Mods.YR.Traits
         }
     }
 
-    class SlaveMinerHarvestOrderTargeter<T> : IOrderTargeter where T : SpawnerHarvestResourceInfo
+    internal class SlaveMinerHarvestOrderTargeter<T> : IOrderTargeter where T : SpawnerHarvestResourceInfo
     {
-        private string orderID;
+        private readonly string orderID;
         public SlaveMinerHarvestOrderTargeter(string orderID)
         {
             this.orderID = orderID;
@@ -357,7 +360,7 @@ namespace OpenRA.Mods.YR.Traits
         public bool IsQueued { get; protected set; }
         public bool TargetOverridesSelection(TargetModifiers modifiers) { return true; }
 
-        public bool CanTarget(Actor self, in Target target, List<Actor> othersAtTarget, ref TargetModifiers modifiers, ref string cursor)
+        public bool CanTarget(Actor self, in Target target, ref TargetModifiers modifiers, ref string cursor)
         {
             if (target.Type != TargetType.Terrain)
                 return false;
@@ -371,9 +374,10 @@ namespace OpenRA.Mods.YR.Traits
             if (!self.Owner.Shroud.IsExplored(location))
                 return false;
 
-            var res = self.World.WorldActor.Trait<ResourceRenderer>().GetRenderedResourceType(location);
+            var resourceRenderer = self.World.WorldActor.TraitsImplementing<IResourceRenderer>().Single();
+            var res = resourceRenderer.GetRenderedResourceType(location);
             var info = self.Info.TraitInfo<T>();
-            if (res == null || !info.Resources.Contains(res.Info.Type))
+            if (res == null || !info.Resources.Contains(res))
                 return false;
 
             cursor = "harvest";
@@ -382,7 +386,7 @@ namespace OpenRA.Mods.YR.Traits
             return true;
         }
 
-        public bool TargetOverridesSelection(Actor self, Target target, List<Actor> actorsAt, CPos xy, TargetModifiers modifiers)
+        public bool TargetOverridesSelection(Actor self, in Target target, List<Actor> actorsAt, CPos xy, TargetModifiers modifiers)
         {
             return true;
         }

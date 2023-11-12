@@ -5,7 +5,7 @@ namespace OpenRA.Mods.YR.WDT
 {
     public class WDTDataReader
     {
-        string wdtDataFile;
+        private readonly string wdtDataFile;
         public WDTDataReader(string wdtDataFile)
         {
             this.wdtDataFile = wdtDataFile;
@@ -27,12 +27,15 @@ namespace OpenRA.Mods.YR.WDT
                 {
                     foreach (var node in scenarioNode.Value.Nodes)
                     {
-                        WDTScenario wdtScenario = new WDTScenario();
-                        wdtScenario.Key = node.Key;
-                        wdtScenario.Name = node.Value.Nodes[0].Value.Value;
-                        wdtScenario.BackgroundImage = node.Value.Nodes[1].Value.Value;
+                        WDTScenario wdtScenario = new WDTScenario
+                        {
+                            Key = node.Key,
+                            Name = node.Value.Nodes[0].Value.Value,
+                            BackgroundImage = node.Value.Nodes[1].Value.Value
+                        };
                         wdtData.Scenarios.Add(wdtScenario);
                     }
+
                     foreach (var scenarioKeyNode in blocksNode.Value.Nodes)
                     {
                         foreach (var blockNode in scenarioKeyNode.Value.Nodes)
@@ -41,9 +44,12 @@ namespace OpenRA.Mods.YR.WDT
                             {
                                 wdtData.Blocks.Add(scenarioKeyNode.Key, new List<WDTBlock>());
                             }
-                            WDTBlock block = new WDTBlock();
-                            block.Name = blockNode.Value.Nodes[0].Value.Value;
-                            block.Image = blockNode.Value.Nodes[1].Value.Value;
+
+                            WDTBlock block = new WDTBlock
+                            {
+                                Name = blockNode.Value.Nodes[0].Value.Value,
+                                Image = blockNode.Value.Nodes[1].Value.Value
+                            };
                             wdtData.Blocks[scenarioKeyNode.Key].Add(block);
                         }
                     }

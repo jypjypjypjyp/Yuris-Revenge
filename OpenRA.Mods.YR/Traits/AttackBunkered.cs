@@ -47,7 +47,8 @@ namespace OpenRA.Mods.YR.Traits
 
         public FirePort[] Ports { get; private set; }
 
-        [PaletteReference] public readonly string MuzzlePalette = "effect";
+        [PaletteReference]
+        public readonly string MuzzlePalette = "effect";
 
         public override object Create(ActorInitializer init) { return new AttackBunkered(init.Self, this); }
         public override void RulesetLoaded(Ruleset rules, ActorInfo ai)
@@ -80,12 +81,12 @@ namespace OpenRA.Mods.YR.Traits
     public class AttackBunkered : AttackFollow, INotifyPassengerEntered, INotifyPassengerExited, IRender
     {
         public readonly new AttackBunkeredInfo Info;
-        Lazy<BodyOrientation> coords;
-        List<Armament> armaments;
-        List<AnimationWithOffset> muzzles;
-        Dictionary<Actor, IFacing> paxFacing;
-        Dictionary<Actor, IPositionable> paxPos;
-        Dictionary<Actor, RenderSprites> paxRender;
+        private readonly Lazy<BodyOrientation> coords;
+        private readonly List<Armament> armaments;
+        private readonly List<AnimationWithOffset> muzzles;
+        private readonly Dictionary<Actor, IFacing> paxFacing;
+        private readonly Dictionary<Actor, IPositionable> paxPos;
+        private readonly Dictionary<Actor, RenderSprites> paxRender;
 
         public AttackBunkered(Actor self, AttackBunkeredInfo info)
             : base(self, info)
@@ -124,7 +125,7 @@ namespace OpenRA.Mods.YR.Traits
             armaments.RemoveAll(a => a.Actor == passenger);
         }
 
-        FirePort SelectFirePort(Actor self, WAngle targetYaw)
+        private FirePort SelectFirePort(Actor self, WAngle targetYaw)
         {
             // Pick a random port that faces the target
             var bodyYaw = facing != null ? facing.Facing : WAngle.Zero;
@@ -141,7 +142,7 @@ namespace OpenRA.Mods.YR.Traits
             return null;
         }
 
-        WVec PortOffset(Actor self, FirePort p)
+        private WVec PortOffset(Actor self, FirePort p)
         {
             var bodyOrientation = coords.Value.QuantizeOrientation(self.Orientation);
             return coords.Value.LocalToWorld(p.Offset.Rotate(bodyOrientation));

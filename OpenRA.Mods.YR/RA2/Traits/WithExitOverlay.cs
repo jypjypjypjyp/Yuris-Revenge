@@ -39,9 +39,9 @@ namespace OpenRA.Mods.RA2.Traits
 
     public class WithExitOverlay : PausableConditionalTrait<WithExitOverlayInfo>, INotifyDamageStateChanged, INotifyProduction, ITick
     {
-        readonly Animation overlay;
-        bool enable;
-        CPos exit;
+        private readonly Animation overlay;
+        private bool enable;
+        private CPos exit;
 
         public WithExitOverlay(Actor self, WithExitOverlayInfo info)
             : base(info)

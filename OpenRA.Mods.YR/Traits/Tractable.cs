@@ -78,28 +78,25 @@ namespace OpenRA.Mods.YR.Traits
 
     public class Tractable : ConditionalTrait<TractableInfo>, INotifyCreated, ITick
     {
-        int airborneToken = ConditionManager.InvalidConditionToken;
-        int tractingToken = ConditionManager.InvalidConditionToken;
-        int cruisingToken = ConditionManager.InvalidConditionToken;
-        int cruiseSpeedMultiplier = 1;
-        Actor tractor;
-        IMove tractorMove;
-        IPositionable positionable;
-        IOccupySpace ios;
-        ConditionManager conditionManager;
+        private int airborneToken = ConditionManager.InvalidConditionToken;
+        private int tractingToken = ConditionManager.InvalidConditionToken;
+        private int cruisingToken = ConditionManager.InvalidConditionToken;
+        private int cruiseSpeedMultiplier = 1;
+        private Actor tractor;
+        private IMove tractorMove;
+        private IPositionable positionable;
+        private IOccupySpace ios;
+        private int timeoutTicks = 0;
+        private bool airborne = false;
+        private bool cruising = false;
 
-        int timeoutTicks = 0;
-
-        bool airborne = false;
-        bool cruising = false;
-
-        public Tractable(Actor self, TractableInfo info) : base(info)
+        public Tractable(Actor self, TractableInfo info)
+            : base(info)
         {
         }
 
         void INotifyCreated.Created(Actor self)
         {
-            conditionManager = self.TraitOrDefault<ConditionManager>();
             positionable = self.TraitOrDefault<IPositionable>();
             ios = self.TraitOrDefault<IOccupySpace>();
         }
@@ -145,7 +142,7 @@ namespace OpenRA.Mods.YR.Traits
         /// Pull self to dest.
         /// </summary>
         /// <returns>true when done, false otherwise.</returns>
-        bool FlyToward(Actor self, CPos dest)
+        private bool FlyToward(Actor self, CPos dest)
         {
             var step = self.World.Map.CenterOfCell(dest) - self.CenterPosition;
             if (step.HorizontalLengthSquared == 0)
@@ -163,7 +160,7 @@ namespace OpenRA.Mods.YR.Traits
             return false;
         }
 
-        int CalcAltitudeDelta(Actor self, WDist altitude, WDist targetAltitude)
+        private int CalcAltitudeDelta(Actor self, WDist altitude, WDist targetAltitude)
         {
             if (altitude == targetAltitude)
                 return 0;
@@ -219,8 +216,8 @@ namespace OpenRA.Mods.YR.Traits
 
             this.tractor = tractor;
             tractorMove = tractor.TraitOrDefault<IMove>();
-            if (conditionManager != null && !string.IsNullOrEmpty(Info.TractingCondition) && tractingToken == ConditionManager.InvalidConditionToken)
-                tractingToken = conditionManager.GrantCondition(self, Info.TractingCondition);
+            if (self != null && !string.IsNullOrEmpty(Info.TractingCondition) && tractingToken == ConditionManager.InvalidConditionToken)
+                tractingToken = self.GrantCondition(Info.TractingCondition);
         }
 
         public void EndTract(Actor self)
@@ -231,52 +228,52 @@ namespace OpenRA.Mods.YR.Traits
         #region altitudes
         public void RevokeTractingCondition(Actor self)
         {
-            if (conditionManager != null && tractingToken != ConditionManager.InvalidConditionToken)
-                tractingToken = conditionManager.RevokeCondition(self, tractingToken);
+            if (self != null && tractingToken != Actor.InvalidConditionToken)
+                tractingToken = self.RevokeCondition(tractingToken);
         }
 
         // CnP from Aircraft.cs
-        void OnAirborneAltitudeReached(Actor self)
+        private void OnAirborneAltitudeReached(Actor self)
         {
             if (airborne)
                 return;
 
             airborne = true;
-            if (conditionManager != null && !string.IsNullOrEmpty(Info.AirborneCondition) && airborneToken == ConditionManager.InvalidConditionToken)
-                airborneToken = conditionManager.GrantCondition(self, Info.AirborneCondition);
+            if (self != null && !string.IsNullOrEmpty(Info.AirborneCondition) && airborneToken == ConditionManager.InvalidConditionToken)
+                airborneToken = self.GrantCondition(Info.AirborneCondition);
         }
 
         // CnP from Aircraft.cs
-        void OnAirborneAltitudeLeft(Actor self)
+        private void OnAirborneAltitudeLeft(Actor self)
         {
             if (!airborne)
                 return;
 
             airborne = false;
-            if (conditionManager != null && airborneToken != ConditionManager.InvalidConditionToken)
-                airborneToken = conditionManager.RevokeCondition(self, airborneToken);
+            if (self != null && airborneToken != Actor.InvalidConditionToken)
+                airborneToken = self.RevokeCondition(airborneToken);
         }
 
         // CnP from Aircraft.cs
-        void OnCruisingAltitudeReached(Actor self)
+        private void OnCruisingAltitudeReached(Actor self)
         {
             if (cruising)
                 return;
 
             cruising = true;
-            if (conditionManager != null && !string.IsNullOrEmpty(Info.CruisingCondition) && cruisingToken == ConditionManager.InvalidConditionToken)
-                cruisingToken = conditionManager.GrantCondition(self, Info.CruisingCondition);
+            if (self != null && !string.IsNullOrEmpty(Info.CruisingCondition) && cruisingToken == ConditionManager.InvalidConditionToken)
+                cruisingToken = self.GrantCondition(Info.CruisingCondition);
         }
 
         // CnP from Aircraft.cs
-        void OnCruisingAltitudeLeft(Actor self)
+        private void OnCruisingAltitudeLeft(Actor self)
         {
             if (!cruising)
                 return;
 
             cruising = false;
-            if (conditionManager != null && cruisingToken != ConditionManager.InvalidConditionToken)
-                cruisingToken = conditionManager.RevokeCondition(self, cruisingToken);
+            if (self != null && cruisingToken != Actor.InvalidConditionToken)
+                cruisingToken = self.RevokeCondition(cruisingToken);
         }
         #endregion
     }

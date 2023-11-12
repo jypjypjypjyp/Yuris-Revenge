@@ -48,7 +48,7 @@ namespace OpenRA.Mods.RA2.Traits
             Spawn(self);
         }
 
-        void Spawn(Actor self)
+        private void Spawn(Actor self)
         {
             var buildingInfo = self.Info.TraitInfoOrDefault<BuildingInfo>();
             var eligibleLocations = buildingInfo != null

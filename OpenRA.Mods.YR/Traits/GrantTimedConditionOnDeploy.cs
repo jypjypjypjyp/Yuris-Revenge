@@ -27,7 +27,8 @@ namespace OpenRA.Mods.RA2.Traits
         [Desc("The condition granted during deploying.")]
         public readonly string DeployingCondition = null;
 
-        [GrantedConditionReference, FieldLoader.Require]
+        [GrantedConditionReference]
+        [FieldLoader.Require]
         [Desc("The condition granted after deploying.")]
         public readonly string DeployedCondition = null;
 
@@ -43,10 +44,12 @@ namespace OpenRA.Mods.RA2.Traits
         [Desc("Cursor to display when unable to (un)deploy the actor.")]
         public readonly string DeployBlockedCursor = "deploy-blocked";
 
-        [SequenceReference, Desc("Animation to play for deploying.")]
+        [SequenceReference]
+        [Desc("Animation to play for deploying.")]
         public readonly string DeployAnimation = null;
 
-        [SequenceReference, Desc("Animation to play for undeploying.")]
+        [SequenceReference]
+        [Desc("Animation to play for undeploying.")]
         public readonly string UndeployAnimation = null;
 
         [Desc("Facing that the actor must face before deploying. Set to -1 to deploy regardless of facing.")]
@@ -60,29 +63,30 @@ namespace OpenRA.Mods.RA2.Traits
 
         public readonly bool StartsFullyCharged = false;
 
-        [VoiceReference] public readonly string Voice = "Action";
+        [VoiceReference]
+        public readonly string Voice = "Action";
 
         public readonly bool ShowSelectionBar = true;
         public readonly Color ChargingColor = Color.DarkRed;
         public readonly Color DischargingColor = Color.DarkMagenta;
 
-        public object Create(ActorInitializer init) { return new GrantTimedConditionOnDeploy(init, this); }
+        public override object Create(ActorInitializer init) { return new GrantTimedConditionOnDeploy(init, this); }
     }
 
     public enum TimedDeployState { Charging, Ready, Active, Deploying, Undeploying }
 
     public class GrantTimedConditionOnDeploy : IResolveOrder, IIssueOrder, INotifyCreated, ISelectionBar, IOrderVoice, ISync, ITick, IIssueDeployOrder
     {
-        readonly Actor self;
-        readonly GrantTimedConditionOnDeployInfo info;
-        readonly bool canTurn;
-        readonly Lazy<WithSpriteBody> body;
-        int deployedToken = ConditionManager.InvalidConditionToken;
-        int deployingToken = ConditionManager.InvalidConditionToken;
+        private readonly Actor self;
+        private readonly GrantTimedConditionOnDeployInfo info;
+        private readonly bool canTurn;
+        private readonly Lazy<WithSpriteBody> body;
+        private int deployedToken = Actor.InvalidConditionToken;
+        private int deployingToken = Actor.InvalidConditionToken;
 
-        ConditionManager manager;
-        [Sync] int ticks;
-        TimedDeployState deployState;
+        [Sync]
+        private int ticks;
+        private TimedDeployState deployState;
 
         public GrantTimedConditionOnDeploy(ActorInitializer init, GrantTimedConditionOnDeployInfo info)
         {
@@ -94,8 +98,6 @@ namespace OpenRA.Mods.RA2.Traits
 
         void INotifyCreated.Created(Actor self)
         {
-            manager = self.Trait<ConditionManager>();
-
             if (info.StartsFullyCharged)
             {
                 ticks = info.DeployedTicks;
@@ -122,7 +124,7 @@ namespace OpenRA.Mods.RA2.Traits
             }
         }
 
-        Order IIssueOrder.IssueOrder(Actor self, IOrderTargeter order, Target target, bool queued)
+        Order IIssueOrder.IssueOrder(Actor self, IOrderTargeter order, in Target target, bool queued)
         {
             if (order.OrderID == "GrantTimedConditionOnDeploy")
                 return new Order(order.OrderID, self, queued);
@@ -140,12 +142,12 @@ namespace OpenRA.Mods.RA2.Traits
 
             // Turn to the required facing.
             if (info.Facing != -1 && canTurn)
-                self.QueueActivity(new Turn(self, info.Facing));
+                self.QueueActivity(new Turn(self, WAngle.FromFacing(info.Facing)));
 
             self.QueueActivity(new CallFunc(Deploy));
         }
 
-        bool IsCursorBlocked()
+        private bool IsCursorBlocked()
         {
             return deployState != TimedDeployState.Ready;
         }
@@ -155,7 +157,7 @@ namespace OpenRA.Mods.RA2.Traits
             return order.OrderString == "GrantTimedConditionOnDeploy" && deployState == TimedDeployState.Ready ? info.Voice : null;
         }
 
-        void Deploy()
+        private void Deploy()
         {
             // Something went wrong, most likely due to deploy order spam and the fact that this is a delayed action.
             if (deployState != TimedDeployState.Ready)
@@ -172,24 +174,24 @@ namespace OpenRA.Mods.RA2.Traits
                 OnDeployCompleted();
             else
             {
-                if (manager != null && !string.IsNullOrEmpty(info.DeployingCondition) && deployingToken == ConditionManager.InvalidConditionToken)
-                    deployingToken = manager.GrantCondition(self, info.DeployingCondition);
+                if (self != null && !string.IsNullOrEmpty(info.DeployingCondition) && deployingToken == Actor.InvalidConditionToken)
+                    deployingToken = self.GrantCondition(info.DeployingCondition);
                 body.Value.PlayCustomAnimation(self, info.DeployAnimation, OnDeployCompleted);
             }
         }
 
-        void OnDeployCompleted()
+        private void OnDeployCompleted()
         {
-            if (manager != null && !string.IsNullOrEmpty(info.DeployedCondition) && deployedToken == ConditionManager.InvalidConditionToken)
-                deployedToken = manager.GrantCondition(self, info.DeployedCondition);
+            if (self != null && !string.IsNullOrEmpty(info.DeployedCondition) && deployedToken == Actor.InvalidConditionToken)
+                deployedToken = self.GrantCondition(info.DeployedCondition);
 
-            if (deployingToken != ConditionManager.InvalidConditionToken)
-                deployingToken = manager.RevokeCondition(self, deployingToken);
+            if (deployingToken != Actor.InvalidConditionToken)
+                deployingToken = self.RevokeCondition(deployingToken);
 
             deployState = TimedDeployState.Active;
         }
 
-        void RevokeDeploy()
+        private void RevokeDeploy()
         {
             deployState = TimedDeployState.Undeploying;
 
@@ -200,19 +202,19 @@ namespace OpenRA.Mods.RA2.Traits
                 OnUndeployCompleted();
             else
             {
-                if (manager != null && !string.IsNullOrEmpty(info.DeployingCondition) && deployingToken == ConditionManager.InvalidConditionToken)
-                    deployingToken = manager.GrantCondition(self, info.DeployingCondition);
+                if (self != null && !string.IsNullOrEmpty(info.DeployingCondition) && deployingToken == Actor.InvalidConditionToken)
+                    deployingToken = self.GrantCondition(info.DeployingCondition);
                 body.Value.PlayCustomAnimation(self, info.UndeployAnimation, OnUndeployCompleted);
             }
         }
 
-        void OnUndeployCompleted()
+        private void OnUndeployCompleted()
         {
-            if (deployedToken != ConditionManager.InvalidConditionToken)
-                deployedToken = manager.RevokeCondition(self, deployedToken);
+            if (deployedToken != Actor.InvalidConditionToken)
+                deployedToken = self.RevokeCondition(deployedToken);
 
-            if (deployingToken != ConditionManager.InvalidConditionToken)
-                deployingToken = manager.RevokeCondition(self, deployingToken);
+            if (deployingToken != Actor.InvalidConditionToken)
+                deployingToken = self.RevokeCondition(deployingToken);
 
             deployState = TimedDeployState.Charging;
             ticks = info.CooldownTicks;

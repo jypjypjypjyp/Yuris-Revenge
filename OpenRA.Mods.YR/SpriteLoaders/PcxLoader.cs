@@ -6,7 +6,7 @@ namespace OpenRA.Mods.YR.SpriteLoaders
 {
     public class PcxLoader : ISpriteLoader
     {
-        class PcxFrame : ISpriteFrame
+        private class PcxFrame : ISpriteFrame
         {
             public Size Size { get; set; }
             public Size FrameSize { get; set; }

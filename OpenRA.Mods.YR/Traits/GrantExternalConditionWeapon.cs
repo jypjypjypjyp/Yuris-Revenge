@@ -28,6 +28,7 @@ namespace OpenRA.Mods.YR.Traits.Conditions
         Self,
         Target,
     }
+
     /// <summary>
     /// This kind of weapon can grant a external condition to the victim
     /// </summary>
@@ -56,7 +57,7 @@ namespace OpenRA.Mods.YR.Traits.Conditions
         [Desc("Range of the damage")]
         public readonly int DamageRange = 1;
 
-        public object Create(ActorInitializer init)
+        public override object Create(ActorInitializer init)
         {
             return new GrantExternalConditionWeapon(init, this);
         }
@@ -64,15 +65,15 @@ namespace OpenRA.Mods.YR.Traits.Conditions
 
     public class GrantExternalConditionWeapon : ITick, INotifyAttack
     {
-        private GrantExternalConditionWeaponInfo info;
-        private Actor self;
+        private readonly GrantExternalConditionWeaponInfo info;
+        private readonly Actor self;
         public GrantExternalConditionWeapon(ActorInitializer init, GrantExternalConditionWeaponInfo info)
         {
             this.info = info;
             self = init.Self;
         }
 
-        public void Attacking(Actor self, Target target, Armament a, Barrel barrel)
+        public void Attacking(Actor self, in Target target, Armament a, Barrel barrel)
         {
             if (a.Info.Name != info.ArmamentName)
                 return;
@@ -86,16 +87,15 @@ namespace OpenRA.Mods.YR.Traits.Conditions
                         var external = actor.TraitsImplementing<ExternalCondition>()
                             .FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(actor, self));
 
-                        if (external != null)
-                            external.GrantCondition(actor, self, info.EffectDuration);
+                        external?.GrantCondition(actor, self, info.EffectDuration);
                     }
+
                     break;
                 case WeaponType.Single:
                     var thisVictimExternal = target.Actor.TraitsImplementing<ExternalCondition>()
                             .FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(target.Actor, self));
 
-                    if (thisVictimExternal != null)
-                        thisVictimExternal.GrantCondition(target.Actor, self, info.EffectDuration);
+                    thisVictimExternal?.GrantCondition(target.Actor, self, info.EffectDuration);
 
                     switch (info.DamageRangeType)
                     {
@@ -106,16 +106,17 @@ namespace OpenRA.Mods.YR.Traits.Conditions
                                 var victimExternal = actor.TraitsImplementing<ExternalCondition>()
                                     .FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(actor, self));
 
-                                if (victimExternal != null)
-                                    victimExternal.GrantCondition(actor, self, info.EffectDuration);
+                                victimExternal?.GrantCondition(actor, self, info.EffectDuration);
                             }
+
                             break;
                     }
+
                     break;
             }
         }
 
-        public void PreparingAttack(Actor self, Target target, Armament a, Barrel barrel) { }
+        public void PreparingAttack(Actor self, in Target target, Armament a, Barrel barrel) { }
 
         public void Tick(Actor self)
         {

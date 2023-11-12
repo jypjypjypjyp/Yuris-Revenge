@@ -18,12 +18,12 @@ namespace OpenRA.Mods.RA2.Widgets.Logic
 {
     public class PowerMeterWidget : Widget
     {
-        Widget sidebarProduction;
-        int lastMeterCheck;
-        int barHeight;
-        bool bypassAnimation;
-        int warningFlash;
-        int lastTotalPowerDisplay;
+        private Widget sidebarProduction;
+        private int lastMeterCheck;
+        private int barHeight;
+        private bool bypassAnimation;
+        private int warningFlash;
+        private int lastTotalPowerDisplay;
 
         protected readonly World World;
 

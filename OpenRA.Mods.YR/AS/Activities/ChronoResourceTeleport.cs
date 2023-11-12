@@ -19,9 +19,9 @@ namespace OpenRA.Mods.AS.Activities
 {
     public class ChronoResourceTeleport : Activity
     {
-        readonly CPos destination;
-        readonly ChronoResourceDeliveryInfo info;
-        readonly CPos harvestedField;
+        private readonly CPos destination;
+        private readonly ChronoResourceDeliveryInfo info;
+        private readonly CPos harvestedField;
 
         public ChronoResourceTeleport(CPos destination, ChronoResourceDeliveryInfo info, CPos harvestedField)
         {

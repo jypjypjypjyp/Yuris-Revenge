@@ -15,12 +15,11 @@ namespace OpenRA.Mods.AS.Activities
 {
     public class FallDown : Activity
     {
-        readonly IPositionable pos;
-        readonly WVec fallVector;
-
-        WPos dropPosition;
-        WPos currentPosition;
-        bool triggered = false;
+        private readonly IPositionable pos;
+        private readonly WVec fallVector;
+        private readonly WPos dropPosition;
+        private WPos currentPosition;
+        private bool triggered = false;
 
         public FallDown(Actor self, WPos dropPosition, int fallRate, Actor ignoreActor = null)
         {
@@ -30,7 +29,7 @@ namespace OpenRA.Mods.AS.Activities
             this.dropPosition = dropPosition;
         }
 
-        Activity FirstTick(Actor self)
+        private Activity FirstTick(Actor self)
         {
             triggered = true;
 
@@ -41,7 +40,7 @@ namespace OpenRA.Mods.AS.Activities
             return this;
         }
 
-        Activity LastTick(Actor self)
+        private Activity LastTick(Actor self)
         {
             var dat = self.World.Map.DistanceAboveTerrain(currentPosition);
             pos.SetPosition(self, currentPosition - new WVec(WDist.Zero, WDist.Zero, dat));

@@ -33,10 +33,10 @@ namespace OpenRA.Mods.YR
 
     public class WithBuildingPlacedOverlayConditional : ConditionalTrait<WithBuildingPlacedOverlayConditionalInfo>, INotifySold, INotifyDamageStateChanged, INotifyBuildingPlaced, INotifyTransform
     {
-        readonly Animation overlay;
-        bool buildComplete;
-        bool visible;
-        int wbpoToken = Actor.InvalidConditionToken;
+        private readonly Animation overlay;
+        private bool buildComplete;
+        private bool visible;
+        private int wbpoToken = Actor.InvalidConditionToken;
 
         public WithBuildingPlacedOverlayConditional(Actor self, WithBuildingPlacedOverlayConditionalInfo info)
             : base(info)

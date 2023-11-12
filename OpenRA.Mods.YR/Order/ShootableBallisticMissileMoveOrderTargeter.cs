@@ -21,7 +21,7 @@ namespace OpenRA.Mods.YR.Orders
     {
         public string OrderID { get; protected set; }
         public int OrderPriority { get; protected set; }
-        public bool TargetOverridesSelection(TargetModifiers modifiers)
+        public  bool TargetOverridesSelection(TargetModifiers modifiers)
         {
             return modifiers.HasModifier(TargetModifiers.ForceMove);
         }

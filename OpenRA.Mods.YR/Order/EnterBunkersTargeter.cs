@@ -18,7 +18,7 @@ namespace OpenRA.Mods.YR.Orders
 {
     public class EnterBunkersTargeter : EnterAlliedActorTargeter<BunkerCargoInfo>
     {
-        readonly Func<Actor, TargetModifiers, bool> canTarget;
+        private readonly Func<Actor, TargetModifiers, bool> canTarget;
 
         public EnterBunkersTargeter(string order, int priority,
             string enterCursor, string enterBlockedCursor,

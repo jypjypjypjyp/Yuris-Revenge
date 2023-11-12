@@ -34,9 +34,6 @@ namespace OpenRA.Mods.YR.Traits
         [Desc("After this many ticks, we remove the condition.")]
         public readonly int LaunchingTicks = 15;
 
-        [Desc("Pip color for the spawn count.")]
-        public readonly PipType PipType = PipType.Green;
-
         [Desc("Insta-repair spawners when they return?")]
         public readonly bool InstaRepair = true;
 
@@ -55,28 +52,26 @@ namespace OpenRA.Mods.YR.Traits
         public override object Create(ActorInitializer init) { return new CarrierMaster(init, this); }
     }
 
-    public class CarrierMaster : BaseSpawnerMaster, IPips, ITick, INotifyAttack, INotifyBecomingIdle
+    public class CarrierMaster : BaseSpawnerMaster, ITick, INotifyAttack, INotifyBecomingIdle
     {
-        class CarrierSlaveEntry : BaseSpawnerSlaveEntry
+        private class CarrierSlaveEntry : BaseSpawnerSlaveEntry
         {
             public int RearmTicks = 0;
             public bool IsLaunched = false;
             public new CarrierSlave SpawnerSlave;
         }
 
-        readonly Dictionary<string, Stack<int>> spawnContainTokens = new Dictionary<string, Stack<int>>();
+        private readonly Dictionary<string, Stack<int>> spawnContainTokens = new Dictionary<string, Stack<int>>();
 
         public new CarrierMasterInfo Info { get; private set; }
 
-        CarrierSlaveEntry[] slaveEntries;
-        ConditionManager conditionManager;
+        private CarrierSlaveEntry[] slaveEntries;
+        private readonly Stack<int> loadedTokens = new Stack<int>();
+        private int respawnTicks = 0;
+        private int loadedConditionToken = Actor.InvalidConditionToken;
 
-        Stack<int> loadedTokens = new Stack<int>();
-
-        int respawnTicks = 0;
-        int loadedConditionToken = ConditionManager.InvalidConditionToken;
-
-        public CarrierMaster(ActorInitializer init, CarrierMasterInfo info) : base(init, info)
+        public CarrierMaster(ActorInitializer init, CarrierMasterInfo info)
+            : base(init, info)
         {
             Info = info;
         }
@@ -84,13 +79,11 @@ namespace OpenRA.Mods.YR.Traits
         protected override void Created(Actor self)
         {
             base.Created(self);
-            conditionManager = self.Trait<ConditionManager>();
 
             if (!string.IsNullOrEmpty(Info.LoadedCondition) &&
-                loadedConditionToken == ConditionManager.InvalidConditionToken)
+                loadedConditionToken == Actor.InvalidConditionToken)
             {
-                loadedConditionToken = conditionManager.GrantCondition(self,
-                    Info.LoadedCondition);
+                loadedConditionToken = self.GrantCondition(Info.LoadedCondition);
             }
         }
 
@@ -114,11 +107,11 @@ namespace OpenRA.Mods.YR.Traits
             carrierSlaveEntry.SpawnerSlave = slave.Trait<CarrierSlave>();
         }
 
-        void INotifyAttack.PreparingAttack(Actor self, Target target, Armament a, Barrel barrel) { }
+        void INotifyAttack.PreparingAttack(Actor self, in Target target, Armament a, Barrel barrel) { }
 
         // The rate of fire of the dummy weapon determines the launch cycle as each shot
         // invokes Attacking()
-        void INotifyAttack.Attacking(Actor self, Target target, Armament a, Barrel barrel)
+        void INotifyAttack.Attacking(Actor self, in Target target, Armament a, Barrel barrel)
         {
             if (IsTraitDisabled)
                 return;
@@ -145,18 +138,18 @@ namespace OpenRA.Mods.YR.Traits
 
             // Launching condition is timed, so not saving the token.
             if (Info.LaunchingCondition != null)
-                conditionManager.GrantCondition(self, Info.LaunchingCondition); // TODO removed Info.LaunchingTicks
+                self.GrantCondition(Info.LaunchingCondition); // TODO removed Info.LaunchingTicks
 
             SpawnIntoWorld(self, carrierSlaveEntry.Actor, self.CenterPosition);
 
             // Queue attack order, too.
+            Target target2 = target;
             self.World.AddFrameEndTask(w =>
             {
                 // The actor might had been trying to do something before entering the carrier.
                 // Cancel whatever it was trying to do.
                 carrierSlaveEntry.SpawnerSlave.Stop(carrierSlaveEntry.Actor);
-
-                carrierSlaveEntry.SpawnerSlave.Attack(carrierSlaveEntry.Actor, target);
+                carrierSlaveEntry.SpawnerSlave.Attack(carrierSlaveEntry.Actor, target2);
             });
         }
 
@@ -165,7 +158,7 @@ namespace OpenRA.Mods.YR.Traits
             Recall(self);
         }
 
-        void Recall(Actor self)
+        private void Recall(Actor self)
         {
             // Tell launched slaves to come back and enter me.
             foreach (var carrierSlaveEntry in slaveEntries)
@@ -180,32 +173,13 @@ namespace OpenRA.Mods.YR.Traits
                 respawnTicks = Info.RespawnTicks;
         }
 
-        CarrierSlaveEntry GetLaunchable()
+        private CarrierSlaveEntry GetLaunchable()
         {
             foreach (var carrierSlaveEntry in slaveEntries)
                 if (carrierSlaveEntry.RearmTicks <= 0 && !carrierSlaveEntry.IsLaunched && carrierSlaveEntry.IsValid)
                     return carrierSlaveEntry;
 
             return null;
-        }
-
-        public IEnumerable<PipType> GetPips(Actor self)
-        {
-            if (IsTraitDisabled)
-                yield break;
-
-            int inside = 0;
-            foreach (var carrierSlaveEntry in slaveEntries)
-                if (carrierSlaveEntry.IsValid && !carrierSlaveEntry.IsLaunched)
-                    inside++;
-
-            for (var i = 0; i < Info.Actors.Length; i++)
-            {
-                if (i < inside)
-                    yield return Info.PipType;
-                else
-                    yield return PipType.Transparent;
-            }
         }
 
         public void PickupSlave(Actor self, Actor a)
@@ -226,12 +200,11 @@ namespace OpenRA.Mods.YR.Traits
             // setup rearm
             slaveEntry.RearmTicks = Info.RearmTicks;
 
-            string spawnContainCondition;
-            if (conditionManager != null && Info.SpawnContainConditions.TryGetValue(a.Info.Name, out spawnContainCondition))
-                spawnContainTokens.GetOrAdd(a.Info.Name).Push(conditionManager.GrantCondition(self, spawnContainCondition));
+            if (self != null && Info.SpawnContainConditions.TryGetValue(a.Info.Name, out string spawnContainCondition))
+                spawnContainTokens.GetOrAdd(a.Info.Name).Push(self.GrantCondition(spawnContainCondition));
 
-            if (conditionManager != null && !string.IsNullOrEmpty(Info.LoadedCondition))
-                loadedTokens.Push(conditionManager.GrantCondition(self, Info.LoadedCondition));
+            if (self != null && !string.IsNullOrEmpty(Info.LoadedCondition))
+                loadedTokens.Push(self.GrantCondition(Info.LoadedCondition));
         }
 
         public void Tick(Actor self)
@@ -246,9 +219,9 @@ namespace OpenRA.Mods.YR.Traits
                     Replenish(self, slaveEntries);
 
                     if (!string.IsNullOrEmpty(Info.LoadedCondition) &&
-                        loadedConditionToken == ConditionManager.InvalidConditionToken)
+                        loadedConditionToken == Actor.InvalidConditionToken)
                     {
-                        loadedConditionToken = conditionManager.GrantCondition(self, Info.LoadedCondition);
+                        loadedConditionToken = self.GrantCondition(Info.LoadedCondition);
                     }
 
                     // If there's something left to spawn, restart the timer.
@@ -257,9 +230,9 @@ namespace OpenRA.Mods.YR.Traits
                 }
                 else
                 {
-                    if (loadedConditionToken != ConditionManager.InvalidConditionToken)
+                    if (loadedConditionToken != Actor.InvalidConditionToken)
                     {
-                        loadedConditionToken = conditionManager.RevokeCondition(self, loadedConditionToken);
+                        loadedConditionToken = self.RevokeCondition(loadedConditionToken);
                     }
                 }
             }

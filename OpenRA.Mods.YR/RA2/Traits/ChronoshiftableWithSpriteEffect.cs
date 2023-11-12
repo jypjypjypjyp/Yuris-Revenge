@@ -38,7 +38,7 @@ namespace OpenRA.Mods.RA2.Traits
 
     public class ChronoshiftableWithSpriteEffect : Chronoshiftable
     {
-        readonly ChronoshiftableWithSpriteEffectInfo info;
+        private readonly ChronoshiftableWithSpriteEffectInfo info;
 
         public ChronoshiftableWithSpriteEffect(ActorInitializer init, ChronoshiftableWithSpriteEffectInfo info)
             : base(init, info)

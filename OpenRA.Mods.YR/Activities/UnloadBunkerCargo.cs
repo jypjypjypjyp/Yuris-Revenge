@@ -22,17 +22,16 @@ namespace OpenRA.Mods.YR.Activities
 {
     public class UnloadBunkerCargo : Activity
     {
-        readonly Actor self;
-        readonly BunkerCargo cargo;
-        readonly INotifyUnload[] notifiers;
-        readonly bool unloadAll;
-        readonly Aircraft aircraft;
-        readonly Mobile mobile;
-        readonly bool assignTargetOnFirstRun;
-        readonly WDist unloadRange;
-
-        Target destination;
-        bool takeOffAfterUnload;
+        private readonly Actor self;
+        private readonly BunkerCargo cargo;
+        private readonly INotifyUnload[] notifiers;
+        private readonly bool unloadAll;
+        private readonly Aircraft aircraft;
+        private readonly Mobile mobile;
+        private readonly bool assignTargetOnFirstRun;
+        private readonly WDist unloadRange;
+        private Target destination;
+        private bool takeOffAfterUnload;
 
         public UnloadBunkerCargo(Actor self, WDist unloadRange, bool unloadAll = true)
             : this(self, Target.Invalid, unloadRange, unloadAll)
@@ -84,7 +83,7 @@ namespace OpenRA.Mods.YR.Activities
                 .FirstOrDefault(s => s.Value.SubCell != SubCell.Invalid);
         }
 
-        IEnumerable<CPos> BlockedExitCells(Actor passenger)
+        private IEnumerable<CPos> BlockedExitCells(Actor passenger)
         {
             var pos = passenger.Trait<IPositionable>();
 

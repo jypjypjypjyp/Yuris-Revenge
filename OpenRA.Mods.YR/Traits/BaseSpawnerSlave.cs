@@ -41,13 +41,11 @@ namespace OpenRA.Mods.YR.Traits
     public class BaseSpawnerSlave : INotifyCreated, INotifyKilled, INotifyOwnerChanged
     {
         protected AttackBase[] attackBases;
-
-        readonly BaseSpawnerSlaveInfo info;
+        private readonly BaseSpawnerSlaveInfo info;
 
         public bool HasFreeWill = false;
-
-        int masterDeadToken = this.InvalidConditionToken;
-        BaseSpawnerMaster spawnerMaster = null;
+        private int masterDeadToken = this.InvalidConditionToken;
+        private BaseSpawnerMaster spawnerMaster = null;
 
         public Actor Master { get; private set; }
 
@@ -75,7 +73,7 @@ namespace OpenRA.Mods.YR.Traits
             this.spawnerMaster = spawnerMaster;
         }
 
-        bool TargetSwitched(Target lastTarget, Target newTarget)
+        private  bool TargetSwitched(Target lastTarget, Target newTarget)
         {
             if (newTarget.Type != lastTarget.Type)
                 return true;

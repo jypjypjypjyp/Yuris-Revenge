@@ -23,13 +23,14 @@ namespace OpenRA.Mods.YR.Traits.Render
             return new WithSupportPowerAnimation(init, this);
         }
     }
+
     public class WithSupportPowerAnimation : ConditionalTrait<WithSupportPowerAnimationInfo>, INotifySupportPowerCharged, INotifySupportPowerActived
     {
-        private WithSupportPowerAnimationInfo info;
-        private Actor self;
+        private readonly WithSupportPowerAnimationInfo info;
+        private readonly Actor self;
         private WithSpriteBody wsb;
-        private SupportPowerManager supportPowerManager;
-        private IEnumerable<SupportPowerInstance> powers;
+        private readonly SupportPowerManager supportPowerManager;
+        private readonly IEnumerable<SupportPowerInstance> powers;
         private string key;
         private int conditionToken = Actor.InvalidConditionToken;
         public WithSupportPowerAnimation(ActorInitializer init, WithSupportPowerAnimationInfo info)
