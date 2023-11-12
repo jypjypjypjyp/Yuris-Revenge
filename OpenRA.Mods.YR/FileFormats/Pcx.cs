@@ -2,10 +2,10 @@
 
 namespace OpenRA.Mods.YR.FileFormats
 {
-	public class Pcx
-	{
-		public Pcx(Stream s)
-		{
-		}
-	}
+    public class Pcx
+    {
+        public Pcx(Stream s)
+        {
+        }
+    }
 }

@@ -22,79 +22,79 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Activities
 {
-	public class TractionFallToEarth : Activity
-	{
-		readonly Tractable tractable;
+    public class TractionFallToEarth : Activity
+    {
+        readonly Tractable tractable;
 
-		int fallSpeed = 0;
+        int fallSpeed = 0;
 
-		public TractionFallToEarth(Actor self, Tractable tractable)
-		{
-			IsInterruptible = false;
-			this.tractable = tractable;
-		}
+        public TractionFallToEarth(Actor self, Tractable tractable)
+        {
+            IsInterruptible = false;
+            this.tractable = tractable;
+        }
 
-		void OnGroundLevel(Actor self)
-		{
-			if (tractable.Info.ExplosionWeapon != null)
-			{
-				// Use .FromPos since this actor is killed. Cannot use Target.FromActor
-				tractable.Info.ExplosionWeapon.Impact(Target.FromPos(self.CenterPosition), new GameRules.WarheadArgs() { SourceActor = self, DamageModifiers = new int[0] });
-			}
+        void OnGroundLevel(Actor self)
+        {
+            if (tractable.Info.ExplosionWeapon != null)
+            {
+                // Use .FromPos since this actor is killed. Cannot use Target.FromActor
+                tractable.Info.ExplosionWeapon.Impact(Target.FromPos(self.CenterPosition), new GameRules.WarheadArgs() { SourceActor = self, DamageModifiers = new int[0] });
+            }
 
-			tractable.RevokeTractingCondition(self);
+            tractable.RevokeTractingCondition(self);
 
-			// Is where I fell a death trap?
-			var terrain = self.World.Map.GetTerrainInfo(self.Location);
-			var health = self.Trait<Health>();
+            // Is where I fell a death trap?
+            var terrain = self.World.Map.GetTerrainInfo(self.Location);
+            var health = self.Trait<Health>();
 
-			if (tractable.Info.DeathTerrainTypes.Contains(terrain.Type))
-			{
-				// If this actor is immobile there, kill it.
-				var mobile = self.TraitOrDefault<Mobile>();
-				if (!mobile.Info.LocomotorInfo.TerrainSpeeds.ContainsKey(terrain.Type) || mobile.Info.LocomotorInfo.TerrainSpeeds[terrain.Type].Speed == 0)
-				{
-					// Don't even leave husk behind.
-					self.Dispose();
+            if (tractable.Info.DeathTerrainTypes.Contains(terrain.Type))
+            {
+                // If this actor is immobile there, kill it.
+                var mobile = self.TraitOrDefault<Mobile>();
+                if (!mobile.Info.LocomotorInfo.TerrainSpeeds.ContainsKey(terrain.Type) || mobile.Info.LocomotorInfo.TerrainSpeeds[terrain.Type].Speed == 0)
+                {
+                    // Don't even leave husk behind.
+                    self.Dispose();
 
-					// Still do "unit lost" notification.
-					var ai = new AttackInfo
-					{
-						Attacker = self,
-						Damage = new Damage(health.MaxHP),
-						DamageState = DamageState.Dead,
-						PreviousDamageState = DamageState.Undamaged
-					};
+                    // Still do "unit lost" notification.
+                    var ai = new AttackInfo
+                    {
+                        Attacker = self,
+                        Damage = new Damage(health.MaxHP),
+                        DamageState = DamageState.Dead,
+                        PreviousDamageState = DamageState.Undamaged
+                    };
 
-					foreach (var nd in self.TraitsImplementing<INotifyKilled>()
-							.Concat(self.Owner.PlayerActor.TraitsImplementing<INotifyKilled>()))
-						nd.Killed(self, ai);
+                    foreach (var nd in self.TraitsImplementing<INotifyKilled>()
+                            .Concat(self.Owner.PlayerActor.TraitsImplementing<INotifyKilled>()))
+                        nd.Killed(self, ai);
 
-					return;
-				}
-			}
+                    return;
+                }
+            }
 
-			health.InflictDamage(self, self, new Damage(health.MaxHP * tractable.Info.DamageFactor / 100), false);
-		}
+            health.InflictDamage(self, self, new Damage(health.MaxHP * tractable.Info.DamageFactor / 100), false);
+        }
 
-		public override bool Tick(Actor self)
-		{
-			if (self.World.Map.DistanceAboveTerrain(self.CenterPosition).Length <= 0)
-			{
-				OnGroundLevel(self);
-				return false;
-			}
+        public override bool Tick(Actor self)
+        {
+            if (self.World.Map.DistanceAboveTerrain(self.CenterPosition).Length <= 0)
+            {
+                OnGroundLevel(self);
+                return false;
+            }
 
-			var move = new WVec(0, 0, fallSpeed);
-			fallSpeed -= tractable.Info.FallGravity.Length;
+            var move = new WVec(0, 0, fallSpeed);
+            fallSpeed -= tractable.Info.FallGravity.Length;
 
-			var pos = self.CenterPosition + move;
-			if (pos.Z < 0)
-				tractable.SetPosition(self, new WPos(pos.X, pos.Y, 0));
-			else
-				tractable.SetPosition(self, pos);
+            var pos = self.CenterPosition + move;
+            if (pos.Z < 0)
+                tractable.SetPosition(self, new WPos(pos.X, pos.Y, 0));
+            else
+                tractable.SetPosition(self, pos);
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
 }

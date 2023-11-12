@@ -11,17 +11,13 @@
  * information, see COPYING.
  */
 #endregion
-using OpenRA;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.YR.Activities;
-using OpenRA.Primitives;
 using OpenRA.Traits;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.Traits
 {
@@ -81,7 +77,7 @@ namespace OpenRA.Mods.YR.Traits
         #region Transform
         public void AfterTransform(Actor toActor)
         {
-            //When transform complete, assign the slaves to this transform actor
+            // When transform complete, assign the slaves to this transform actor
             SlaveMinerHarvester harvesterMaster = toActor.Trait<SlaveMinerHarvester>();
             foreach (var se in SlaveEntries)
             {
@@ -159,7 +155,7 @@ namespace OpenRA.Mods.YR.Traits
 
         private void HandleSpawnerHarvest(Actor self, Order order)
         {
-            //Maybe player have a better idea, let's move
+            // Maybe player have a better idea, let's move
             ForceMove(self.World.Map.CellContaining(order.Target.CenterPosition));
         }
 

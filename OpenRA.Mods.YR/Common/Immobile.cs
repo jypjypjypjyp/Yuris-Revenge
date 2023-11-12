@@ -16,55 +16,55 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.Common.Traits
 {
-	class ImmobileInfo : TraitInfo, IOccupySpaceInfo
-	{
-		public readonly bool OccupiesSpace = true;
-		public override object Create(ActorInitializer init) { return new Immobile(init, this); }
+    class ImmobileInfo : TraitInfo, IOccupySpaceInfo
+    {
+        public readonly bool OccupiesSpace = true;
+        public override object Create(ActorInitializer init) { return new Immobile(init, this); }
 
-		public IReadOnlyDictionary<CPos, SubCell> OccupiedCells(ActorInfo info, CPos location, SubCell subCell = SubCell.Any)
-		{
-			var occupied = OccupiesSpace ? new Dictionary<CPos, SubCell>() { { location, SubCell.FullCell } } :
-				new Dictionary<CPos, SubCell>();
+        public IReadOnlyDictionary<CPos, SubCell> OccupiedCells(ActorInfo info, CPos location, SubCell subCell = SubCell.Any)
+        {
+            var occupied = OccupiesSpace ? new Dictionary<CPos, SubCell>() { { location, SubCell.FullCell } } :
+                new Dictionary<CPos, SubCell>();
 
-			return new ReadOnlyDictionary<CPos, SubCell>(occupied);
-		}
+            return new ReadOnlyDictionary<CPos, SubCell>(occupied);
+        }
 
-		bool IOccupySpaceInfo.SharesCell { get { return false; } }
-	}
+        bool IOccupySpaceInfo.SharesCell { get { return false; } }
+    }
 
-	class Immobile : IOccupySpace, ISync, INotifyAddedToWorld, INotifyRemovedFromWorld
-	{
-		[Sync]
-		readonly CPos location;
+    class Immobile : IOccupySpace, ISync, INotifyAddedToWorld, INotifyRemovedFromWorld
+    {
+        [Sync]
+        readonly CPos location;
 
-		[Sync]
-		readonly WPos position;
+        [Sync]
+        readonly WPos position;
 
-		readonly (CPos, SubCell)[] occupied;
+        readonly (CPos, SubCell)[] occupied;
 
-		public Immobile(ActorInitializer init, ImmobileInfo info)
-		{
-			location = init.GetValue<LocationInit, CPos>();
-			position = init.World.Map.CenterOfCell(location);
+        public Immobile(ActorInitializer init, ImmobileInfo info)
+        {
+            location = init.GetValue<LocationInit, CPos>();
+            position = init.World.Map.CenterOfCell(location);
 
-			if (info.OccupiesSpace)
-				occupied = new[] { (TopLeft, SubCell.FullCell) };
-			else
-				occupied = Array.Empty<(CPos, SubCell)>();
-		}
+            if (info.OccupiesSpace)
+                occupied = new[] { (TopLeft, SubCell.FullCell) };
+            else
+                occupied = Array.Empty<(CPos, SubCell)>();
+        }
 
-		public CPos TopLeft { get { return location; } }
-		public WPos CenterPosition { get { return position; } }
-		public (CPos, SubCell)[] OccupiedCells() { return occupied; }
+        public CPos TopLeft { get { return location; } }
+        public WPos CenterPosition { get { return position; } }
+        public (CPos, SubCell)[] OccupiedCells() { return occupied; }
 
-		void INotifyAddedToWorld.AddedToWorld(Actor self)
-		{
-			self.World.AddToMaps(self, this);
-		}
+        void INotifyAddedToWorld.AddedToWorld(Actor self)
+        {
+            self.World.AddToMaps(self, this);
+        }
 
-		void INotifyRemovedFromWorld.RemovedFromWorld(Actor self)
-		{
-			self.World.RemoveFromMaps(self, this);
-		}
-	}
+        void INotifyRemovedFromWorld.RemovedFromWorld(Actor self)
+        {
+            self.World.RemoveFromMaps(self, this);
+        }
+    }
 }

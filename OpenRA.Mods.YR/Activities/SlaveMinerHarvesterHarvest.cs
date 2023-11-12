@@ -29,249 +29,249 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Activities
 {
-	/// <summary>
-	/// Harvester Master Vehicle can find the resource
-	/// </summary>
-	public class SlaveMinerHarvesterHarvest : Activity
-	{
-		private readonly SlaveMinerHarvester harv;
-		private readonly SlaveMinerHarvesterInfo harvInfo;
-		private readonly Mobile mobile;
-		private readonly ResourceClaimLayer claimLayer;
-		private readonly GrantConditionOnDeploy deploy;
-		private readonly Transforms tranforms;
-		private CPos deployDestPosition;
-		private CPos? avoidCell;
-		private int cellRange;
+    /// <summary>
+    /// Harvester Master Vehicle can find the resource
+    /// </summary>
+    public class SlaveMinerHarvesterHarvest : Activity
+    {
+        private readonly SlaveMinerHarvester harv;
+        private readonly SlaveMinerHarvesterInfo harvInfo;
+        private readonly Mobile mobile;
+        private readonly ResourceClaimLayer claimLayer;
+        private readonly GrantConditionOnDeploy deploy;
+        private readonly Transforms tranforms;
+        private CPos deployDestPosition;
+        private CPos? avoidCell;
+        private int cellRange;
 
-		public SlaveMinerHarvesterHarvest(Actor self)
-		{
-			harv = self.Trait<SlaveMinerHarvester>();
-			harvInfo = self.Info.TraitInfo<SlaveMinerHarvesterInfo>();
-			mobile = self.Trait<Mobile>();
-			deploy = self.Trait<GrantConditionOnDeploy>();
-			claimLayer = self.World.WorldActor.TraitOrDefault<ResourceClaimLayer>();
-			tranforms = self.Trait<Transforms>();
-			ChildHasPriority = false;
-		}
+        public SlaveMinerHarvesterHarvest(Actor self)
+        {
+            harv = self.Trait<SlaveMinerHarvester>();
+            harvInfo = self.Info.TraitInfo<SlaveMinerHarvesterInfo>();
+            mobile = self.Trait<Mobile>();
+            deploy = self.Trait<GrantConditionOnDeploy>();
+            claimLayer = self.World.WorldActor.TraitOrDefault<ResourceClaimLayer>();
+            tranforms = self.Trait<Transforms>();
+            ChildHasPriority = false;
+        }
 
-		public SlaveMinerHarvesterHarvest(Actor self, CPos avoidCell)
-			: this(self)
-		{
-			this.avoidCell = avoidCell;
-		}
+        public SlaveMinerHarvesterHarvest(Actor self, CPos avoidCell)
+            : this(self)
+        {
+            this.avoidCell = avoidCell;
+        }
 
-		void ScanAndMove(Actor self, out MiningState state)
-		{
-			var closestHarvestablePosition = ClosestHarvestablePos(self, harvInfo.LongScanRadius);
+        void ScanAndMove(Actor self, out MiningState state)
+        {
+            var closestHarvestablePosition = ClosestHarvestablePos(self, harvInfo.LongScanRadius);
 
-			// No suitable resource field found.
-			// We only have to wait for resource to regen.
-			if (!closestHarvestablePosition.HasValue)
-			{
-				var randFrames = self.World.SharedRandom.Next(100, 175);
+            // No suitable resource field found.
+            // We only have to wait for resource to regen.
+            if (!closestHarvestablePosition.HasValue)
+            {
+                var randFrames = self.World.SharedRandom.Next(100, 175);
 
-				// Avoid creating an activity cycle
-				QueueChild(new Wait(randFrames));
-				state = MiningState.Scan;
-			}
+                // Avoid creating an activity cycle
+                QueueChild(new Wait(randFrames));
+                state = MiningState.Scan;
+            }
 
-			// ... Don't claim resource layer here. Slaves will claim by themselves.
+            // ... Don't claim resource layer here. Slaves will claim by themselves.
 
-			// If not given a direct order, assume ordered to the first resource location we find:
-			if (!harv.LastOrderLocation.HasValue)
-				harv.LastOrderLocation = closestHarvestablePosition;
+            // If not given a direct order, assume ordered to the first resource location we find:
+            if (!harv.LastOrderLocation.HasValue)
+                harv.LastOrderLocation = closestHarvestablePosition;
 
-			// Calculate best depoly position.
-			var deployPosition = CalcTransformPosition(self, closestHarvestablePosition.Value);
+            // Calculate best depoly position.
+            var deployPosition = CalcTransformPosition(self, closestHarvestablePosition.Value);
 
-			// Just sit there until we can. Won't happen unless the map is filled with units.
-			if (deployPosition == null)
-			{
-				QueueChild(new Wait(harvInfo.KickDelay));
-				state = MiningState.Scan;
-			}
+            // Just sit there until we can. Won't happen unless the map is filled with units.
+            if (deployPosition == null)
+            {
+                QueueChild(new Wait(harvInfo.KickDelay));
+                state = MiningState.Scan;
+            }
 
-			// TODO: The harvest-deliver-return sequence is a horrible mess of duplicated code and edge-cases
-			var notify = self.TraitsImplementing<INotifyHarvesterAction>();
-			foreach (var n in notify)
-				n.MovingToResources(self, deployPosition.Value);
+            // TODO: The harvest-deliver-return sequence is a horrible mess of duplicated code and edge-cases
+            var notify = self.TraitsImplementing<INotifyHarvesterAction>();
+            foreach (var n in notify)
+                n.MovingToResources(self, deployPosition.Value);
 
-			state = MiningState.Moving;
+            state = MiningState.Moving;
 
-			// When it reached the best position, we will let it do this activity again
-			deployDestPosition = deployPosition.Value;
-			cellRange = 2;
-			var moveActivity = mobile.MoveTo(deployPosition.Value, cellRange);
-			moveActivity.Queue(this);
-			QueueChild(moveActivity);
-		}
+            // When it reached the best position, we will let it do this activity again
+            deployDestPosition = deployPosition.Value;
+            cellRange = 2;
+            var moveActivity = mobile.MoveTo(deployPosition.Value, cellRange);
+            moveActivity.Queue(this);
+            QueueChild(moveActivity);
+        }
 
-		private void CheckIfReachedBestLocation(Actor self, out MiningState state)
-		{
-			if ((self.Location - deployDestPosition).LengthSquared <= cellRange * cellRange)
-			{
-				ChildActivity.Cancel(self);
-				state = MiningState.TryDeploy;
-			}
-			else
-			{
-				state = MiningState.Moving;
-			}
-		}
+        private void CheckIfReachedBestLocation(Actor self, out MiningState state)
+        {
+            if ((self.Location - deployDestPosition).LengthSquared <= cellRange * cellRange)
+            {
+                ChildActivity.Cancel(self);
+                state = MiningState.TryDeploy;
+            }
+            else
+            {
+                state = MiningState.Moving;
+            }
+        }
 
-		private void TryDeploy(Actor self, out MiningState state)
-		{
-			if (!deploy.IsValidTerrain(self.Location))
-			{
-				// If we can't deploy, go back to scan state so that we scan try deploy again.
-				state = MiningState.Scan;
-			}
-			else
-			{
-				IsInterruptible = false;
+        private void TryDeploy(Actor self, out MiningState state)
+        {
+            if (!deploy.IsValidTerrain(self.Location))
+            {
+                // If we can't deploy, go back to scan state so that we scan try deploy again.
+                state = MiningState.Scan;
+            }
+            else
+            {
+                IsInterruptible = false;
 
-				Activity transformsActivity = tranforms.GetTransformActivity();
-				QueueChild(transformsActivity);
+                Activity transformsActivity = tranforms.GetTransformActivity();
+                QueueChild(transformsActivity);
 
-				state = MiningState.Deploying;
-			}
-		}
+                state = MiningState.Deploying;
+            }
+        }
 
-		private void Deploying(Actor self, out MiningState state)
-		{
-			// deploy failure.
-			if (!tranforms.CanDeploy())
-			{
-				// Wait 15 seconds and return state to Scan
-				Activity act = new Wait(15);
-				QueueChild(act);
-				state = MiningState.Scan;
-			}
-			else
-			{
-				state = MiningState.Mining;
-			}
-		}
+        private void Deploying(Actor self, out MiningState state)
+        {
+            // deploy failure.
+            if (!tranforms.CanDeploy())
+            {
+                // Wait 15 seconds and return state to Scan
+                Activity act = new Wait(15);
+                QueueChild(act);
+                state = MiningState.Scan;
+            }
+            else
+            {
+                state = MiningState.Mining;
+            }
+        }
 
-		private Activity Mining(Actor self, out MiningState state)
-		{
-			// Let the harvester become idle so it can shoot enemies.
-			// Tick in SpawnerHarvester trait will kick activity back to KickTick.
-			state = MiningState.Packaging;
-			return ChildActivity;
-		}
+        private Activity Mining(Actor self, out MiningState state)
+        {
+            // Let the harvester become idle so it can shoot enemies.
+            // Tick in SpawnerHarvester trait will kick activity back to KickTick.
+            state = MiningState.Packaging;
+            return ChildActivity;
+        }
 
-		private void UndeployingCheck(Actor self, out MiningState state)
-		{
-			var closestHarvestablePosition = ClosestHarvestablePos(self, harvInfo.KickScanRadius);
-			if (closestHarvestablePosition.HasValue)
-			{
-				// I may stay mining.
-				state = MiningState.Mining;
-			}
-			else
-			{
-				// get going
-				harv.LastOrderLocation = null;
-				CheckWheteherNeedUndeployAndGo(self, out state);
-			}
-		}
+        private void UndeployingCheck(Actor self, out MiningState state)
+        {
+            var closestHarvestablePosition = ClosestHarvestablePos(self, harvInfo.KickScanRadius);
+            if (closestHarvestablePosition.HasValue)
+            {
+                // I may stay mining.
+                state = MiningState.Mining;
+            }
+            else
+            {
+                // get going
+                harv.LastOrderLocation = null;
+                CheckWheteherNeedUndeployAndGo(self, out state);
+            }
+        }
 
-		private Activity CheckWheteherNeedUndeployAndGo(Actor self, out MiningState state)
-		{
-			QueueChild(new DeployForGrantedCondition(self, deploy));
-			state = MiningState.Scan;
-			return this;
-		}
+        private Activity CheckWheteherNeedUndeployAndGo(Actor self, out MiningState state)
+        {
+            QueueChild(new DeployForGrantedCondition(self, deploy));
+            state = MiningState.Scan;
+            return this;
+        }
 
-		public override bool Tick(Actor self)
-		{
-			if (IsCanceling)
-				return true;
+        public override bool Tick(Actor self)
+        {
+            if (IsCanceling)
+                return true;
 
-			switch (harv.MiningState)
-			{
-				case MiningState.Scan:
-					ScanAndMove(self, out harv.MiningState);
-					break;
-				case MiningState.Moving:
-					CheckIfReachedBestLocation(self, out harv.MiningState);
-					break;
-				case MiningState.TryDeploy:
-					TryDeploy(self, out harv.MiningState);
-					break;
-				case MiningState.Deploying:
-					Deploying(self, out harv.MiningState);
-					break;
-				case MiningState.Mining:
-					Mining(self, out harv.MiningState);
-					break;
-				case MiningState.Packaging:
-					UndeployingCheck(self, out harv.MiningState);
-					break;
-			}
+            switch (harv.MiningState)
+            {
+                case MiningState.Scan:
+                    ScanAndMove(self, out harv.MiningState);
+                    break;
+                case MiningState.Moving:
+                    CheckIfReachedBestLocation(self, out harv.MiningState);
+                    break;
+                case MiningState.TryDeploy:
+                    TryDeploy(self, out harv.MiningState);
+                    break;
+                case MiningState.Deploying:
+                    Deploying(self, out harv.MiningState);
+                    break;
+                case MiningState.Mining:
+                    Mining(self, out harv.MiningState);
+                    break;
+                case MiningState.Packaging:
+                    UndeployingCheck(self, out harv.MiningState);
+                    break;
+            }
 
-			return TickChild(self);
-		}
+            return TickChild(self);
+        }
 
-		// Find a nearest Transformable position from harvestablePos
-		CPos? CalcTransformPosition(Actor self, CPos harvestablePos)
-		{
-			var transformActorInfo = self.World.Map.Rules.Actors[tranforms.Info.IntoActor];
-			var transformBuildingInfo = transformActorInfo.TraitInfoOrDefault<BuildingInfo>();
+        // Find a nearest Transformable position from harvestablePos
+        CPos? CalcTransformPosition(Actor self, CPos harvestablePos)
+        {
+            var transformActorInfo = self.World.Map.Rules.Actors[tranforms.Info.IntoActor];
+            var transformBuildingInfo = transformActorInfo.TraitInfoOrDefault<BuildingInfo>();
 
-			// FindTilesInAnnulus gives sorted cells by distance :) Nice.
-			foreach (var tile in self.World.Map.FindTilesInAnnulus(harvestablePos, 0, harvInfo.DeployScanRadius))
-				if (deploy.IsValidTerrain(tile) && mobile.CanEnterCell(tile) && self.World.CanPlaceBuilding(tile + tranforms.Info.Offset, transformActorInfo, transformBuildingInfo, self))
-					return tile;
+            // FindTilesInAnnulus gives sorted cells by distance :) Nice.
+            foreach (var tile in self.World.Map.FindTilesInAnnulus(harvestablePos, 0, harvInfo.DeployScanRadius))
+                if (deploy.IsValidTerrain(tile) && mobile.CanEnterCell(tile) && self.World.CanPlaceBuilding(tile + tranforms.Info.Offset, transformActorInfo, transformBuildingInfo, self))
+                    return tile;
 
-			// Try broader search if unable to find deploy location
-			foreach (var tile in self.World.Map.FindTilesInAnnulus(harvestablePos, harvInfo.DeployScanRadius, harvInfo.LongScanRadius))
-				if (deploy.IsValidTerrain(tile) && mobile.CanEnterCell(tile) && self.World.CanPlaceBuilding(tile + tranforms.Info.Offset, transformActorInfo, transformBuildingInfo, self))
-					return tile;
+            // Try broader search if unable to find deploy location
+            foreach (var tile in self.World.Map.FindTilesInAnnulus(harvestablePos, harvInfo.DeployScanRadius, harvInfo.LongScanRadius))
+                if (deploy.IsValidTerrain(tile) && mobile.CanEnterCell(tile) && self.World.CanPlaceBuilding(tile + tranforms.Info.Offset, transformActorInfo, transformBuildingInfo, self))
+                    return tile;
 
-			return null;
-		}
+            return null;
+        }
 
-		/// <summary>
-		/// Using LastOrderLocation and self.Location as starting points,
-		/// perform A* search to find the nearest accessible and harvestable cell.
-		/// </summary>
-		CPos? ClosestHarvestablePos(Actor self, int searchRadius)
-		{
-			if (harv.CanHarvestCell(self, self.Location) && claimLayer.CanClaimCell(self, self.Location))
-				return self.Location;
+        /// <summary>
+        /// Using LastOrderLocation and self.Location as starting points,
+        /// perform A* search to find the nearest accessible and harvestable cell.
+        /// </summary>
+        CPos? ClosestHarvestablePos(Actor self, int searchRadius)
+        {
+            if (harv.CanHarvestCell(self, self.Location) && claimLayer.CanClaimCell(self, self.Location))
+                return self.Location;
 
-			// Determine where to search from and how far to search:
-			var searchFromLoc = harv.LastOrderLocation ?? self.Location;
-			var searchRadiusSquared = searchRadius * searchRadius;
+            // Determine where to search from and how far to search:
+            var searchFromLoc = harv.LastOrderLocation ?? self.Location;
+            var searchRadiusSquared = searchRadius * searchRadius;
 
-			// Find any harvestable resources:
-			var path = mobile.PathFinder.FindPathToTargetCellByPredicate(
-				self,
-				new[] { searchFromLoc, self.Location },
-				loc => mobile.CanEnterCell(loc) &&
-					harv.CanHarvestCell(self, loc) &&
-					claimLayer.CanClaimCell(self, loc),
-				BlockedByActor.Stationary,
-				loc =>
-				{
-					if ((avoidCell.HasValue && loc == avoidCell.Value) ||
-						(loc - self.Location).LengthSquared > searchRadiusSquared)
-						return PathGraph.PathCostForInvalidPath;
-					return 0;
-				});
+            // Find any harvestable resources:
+            var path = mobile.PathFinder.FindPathToTargetCellByPredicate(
+                self,
+                new[] { searchFromLoc, self.Location },
+                loc => mobile.CanEnterCell(loc) &&
+                    harv.CanHarvestCell(self, loc) &&
+                    claimLayer.CanClaimCell(self, loc),
+                BlockedByActor.Stationary,
+                loc =>
+                {
+                    if ((avoidCell.HasValue && loc == avoidCell.Value) ||
+                        (loc - self.Location).LengthSquared > searchRadiusSquared)
+                        return PathGraph.PathCostForInvalidPath;
+                    return 0;
+                });
 
-			if (path.Count > 0)
-				return path[0];
+            if (path.Count > 0)
+                return path[0];
 
-			return null;
-		}
+            return null;
+        }
 
-		public override IEnumerable<Target> GetTargets(Actor self)
-		{
-			yield return Target.FromCell(self.World, self.Location);
-		}
-	}
+        public override IEnumerable<Target> GetTargets(Actor self)
+        {
+            yield return Target.FromCell(self.World, self.Location);
+        }
+    }
 }

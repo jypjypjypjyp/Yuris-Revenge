@@ -22,273 +22,273 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Traits
 {
-	// What to do when master is killed or mind controlled
-	public enum SpawnerSlaveDisposal
-	{
-		DoNothing,
-		KillSlaves,
-		GiveSlavesToAttacker
-	}
+    // What to do when master is killed or mind controlled
+    public enum SpawnerSlaveDisposal
+    {
+        DoNothing,
+        KillSlaves,
+        GiveSlavesToAttacker
+    }
 
-	public class BaseSpawnerSlaveEntry
-	{
-		public string ActorName = null;
-		public Actor Actor = null;
-		public BaseSpawnerSlave SpawnerSlave = null;
+    public class BaseSpawnerSlaveEntry
+    {
+        public string ActorName = null;
+        public Actor Actor = null;
+        public BaseSpawnerSlave SpawnerSlave = null;
 
-		public bool IsValid { get { return Actor != null && !Actor.IsDead; } }
-	}
+        public bool IsValid { get { return Actor != null && !Actor.IsDead; } }
+    }
 
-	[Desc("This actor can spawn actors.")]
-	public class BaseSpawnerMasterInfo : ConditionalTraitInfo
-	{
-		[Desc("Spawn these units. Define this like paradrop support power.")]
-		public readonly string[] Actors;
+    [Desc("This actor can spawn actors.")]
+    public class BaseSpawnerMasterInfo : ConditionalTraitInfo
+    {
+        [Desc("Spawn these units. Define this like paradrop support power.")]
+        public readonly string[] Actors;
 
-		[Desc("Slave actors to contain upon creation. Set to -1 to start with full slaves.")]
-		public readonly int InitialActorCount = -1;
+        [Desc("Slave actors to contain upon creation. Set to -1 to start with full slaves.")]
+        public readonly int InitialActorCount = -1;
 
-		[Desc("The armament which will trigger the slaves to attack the target. (== \"Name:\" tag of Armament, not @tag!)")]
-		[WeaponReference]
-		public readonly string SpawnerArmamentName = "primary";
+        [Desc("The armament which will trigger the slaves to attack the target. (== \"Name:\" tag of Armament, not @tag!)")]
+        [WeaponReference]
+        public readonly string SpawnerArmamentName = "primary";
 
-		[Desc("What happens to the slaves when the master is killed?")]
-		public readonly SpawnerSlaveDisposal SlaveDisposalOnKill = SpawnerSlaveDisposal.KillSlaves;
+        [Desc("What happens to the slaves when the master is killed?")]
+        public readonly SpawnerSlaveDisposal SlaveDisposalOnKill = SpawnerSlaveDisposal.KillSlaves;
 
-		[Desc("What happens to the slaves when the master is mind controlled?")]
-		public readonly SpawnerSlaveDisposal SlaveDisposalOnOwnerChange = SpawnerSlaveDisposal.GiveSlavesToAttacker;
+        [Desc("What happens to the slaves when the master is mind controlled?")]
+        public readonly SpawnerSlaveDisposal SlaveDisposalOnOwnerChange = SpawnerSlaveDisposal.GiveSlavesToAttacker;
 
-		[Desc("Only spawn initial load of slaves?")]
-		public readonly bool NoRegeneration = false;
+        [Desc("Only spawn initial load of slaves?")]
+        public readonly bool NoRegeneration = false;
 
-		[Desc("Spawn all slaves at once when regenerating slaves, instead of one by one?")]
-		public readonly bool SpawnAllAtOnce = false;
+        [Desc("Spawn all slaves at once when regenerating slaves, instead of one by one?")]
+        public readonly bool SpawnAllAtOnce = false;
 
-		[Desc("Spawn regen delay, in ticks")]
-		public readonly int RespawnTicks = 150;
+        [Desc("Spawn regen delay, in ticks")]
+        public readonly int RespawnTicks = 150;
 
-		// This can be computed but this should be faster.
-		[Desc("Air units and ground units have different mobile trait so...")]
-		public readonly bool SpawnIsGroundUnit = false;
+        // This can be computed but this should be faster.
+        [Desc("Air units and ground units have different mobile trait so...")]
+        public readonly bool SpawnIsGroundUnit = false;
 
-		public override void RulesetLoaded(Ruleset rules, ActorInfo ai)
-		{
-			base.RulesetLoaded(rules, ai);
+        public override void RulesetLoaded(Ruleset rules, ActorInfo ai)
+        {
+            base.RulesetLoaded(rules, ai);
 
-			if (Actors == null || Actors.Length == 0)
-				throw new YamlException("Actors is null or empty for a spawner trait in actor type {0}!".F(ai.Name));
+            if (Actors == null || Actors.Length == 0)
+                throw new YamlException("Actors is null or empty for a spawner trait in actor type {0}!".F(ai.Name));
 
-			if (InitialActorCount > Actors.Length)
-				throw new YamlException("InitialActorCount can't be larger than the actors defined! (Actor type = {0})".F(ai.Name));
+            if (InitialActorCount > Actors.Length)
+                throw new YamlException("InitialActorCount can't be larger than the actors defined! (Actor type = {0})".F(ai.Name));
 
-			if (InitialActorCount < -1)
-				throw new YamlException("InitialActorCount must be -1 or non-negative. Actor type = {0}".F(ai.Name));
-		}
+            if (InitialActorCount < -1)
+                throw new YamlException("InitialActorCount must be -1 or non-negative. Actor type = {0}".F(ai.Name));
+        }
 
-		public override object Create(ActorInitializer init) { return new BaseSpawnerMaster(init, this); }
-	}
+        public override object Create(ActorInitializer init) { return new BaseSpawnerMaster(init, this); }
+    }
 
-	public class BaseSpawnerMaster : ConditionalTrait<BaseSpawnerMasterInfo>, INotifyCreated, INotifyKilled, INotifyOwnerChanged
-	{
-		readonly Actor self;
-		protected BaseSpawnerSlaveEntry[] SlaveEntries;
+    public class BaseSpawnerMaster : ConditionalTrait<BaseSpawnerMasterInfo>, INotifyCreated, INotifyKilled, INotifyOwnerChanged
+    {
+        readonly Actor self;
+        protected BaseSpawnerSlaveEntry[] SlaveEntries;
 
-		IFacing facing;
-		ExitInfo[] exits;
+        IFacing facing;
+        ExitInfo[] exits;
 
-		public BaseSpawnerMaster(ActorInitializer init, BaseSpawnerMasterInfo info) : base(info)
-		{
-			self = init.Self;
+        public BaseSpawnerMaster(ActorInitializer init, BaseSpawnerMasterInfo info) : base(info)
+        {
+            self = init.Self;
 
-			// Initialize slave entries (doesn't instantiate the slaves yet)
-			SlaveEntries = CreateSlaveEntries(info);
+            // Initialize slave entries (doesn't instantiate the slaves yet)
+            SlaveEntries = CreateSlaveEntries(info);
 
-			for (var i = 0; i < info.Actors.Length; i++)
-			{
-				var entry = SlaveEntries[i];
-				entry.ActorName = info.Actors[i].ToLowerInvariant();
-			}
-		}
+            for (var i = 0; i < info.Actors.Length; i++)
+            {
+                var entry = SlaveEntries[i];
+                entry.ActorName = info.Actors[i].ToLowerInvariant();
+            }
+        }
 
-		public void AssignSlavesToMaster(BaseSpawnerSlaveEntry[] SlaveEntries)
-		{
-			this.SlaveEntries = SlaveEntries;
-		}
+        public void AssignSlavesToMaster(BaseSpawnerSlaveEntry[] SlaveEntries)
+        {
+            this.SlaveEntries = SlaveEntries;
+        }
 
-		public virtual BaseSpawnerSlaveEntry[] CreateSlaveEntries(BaseSpawnerMasterInfo info)
-		{
-			var slaveEntries = new BaseSpawnerSlaveEntry[info.Actors.Length];
+        public virtual BaseSpawnerSlaveEntry[] CreateSlaveEntries(BaseSpawnerMasterInfo info)
+        {
+            var slaveEntries = new BaseSpawnerSlaveEntry[info.Actors.Length];
 
-			for (int i = 0; i < slaveEntries.Length; i++)
-				slaveEntries[i] = new BaseSpawnerSlaveEntry();
+            for (int i = 0; i < slaveEntries.Length; i++)
+                slaveEntries[i] = new BaseSpawnerSlaveEntry();
 
-			return slaveEntries;
-		}
+            return slaveEntries;
+        }
 
-		protected override void Created(Actor self)
-		{
-			base.Created(self);
+        protected override void Created(Actor self)
+        {
+            base.Created(self);
 
-			facing = self.TraitOrDefault<IFacing>();
-			exits = self.Info.TraitInfos<ExitInfo>().ToArray();
+            facing = self.TraitOrDefault<IFacing>();
+            exits = self.Info.TraitInfos<ExitInfo>().ToArray();
 
-			// Spawn initial load.
-			int burst = Info.InitialActorCount == -1 ? Info.Actors.Length : Info.InitialActorCount;
-			for (int i = 0; i < burst; i++)
-				Replenish(self, SlaveEntries);
-		}
+            // Spawn initial load.
+            int burst = Info.InitialActorCount == -1 ? Info.Actors.Length : Info.InitialActorCount;
+            for (int i = 0; i < burst; i++)
+                Replenish(self, SlaveEntries);
+        }
 
-		/// <summary>
-		/// Replenish destoyed slaves or create new ones from nothing.
-		/// Follows policy defined by Info.OneShotSpawn.
-		/// </summary>
-		/// <returns>true when a new slave actor is created.</returns>
-		public virtual void Replenish(Actor self, BaseSpawnerSlaveEntry[] slaveEntries)
-		{
-			if (Info.SpawnAllAtOnce)
-			{
-				foreach (var se in slaveEntries)
-				{
-					if (!se.IsValid)
-					{
-						Replenish(self, se);
-					}
-				}
-			}
-			else
-			{
-				BaseSpawnerSlaveEntry entry = SelectEntryToSpawn(slaveEntries);
+        /// <summary>
+        /// Replenish destoyed slaves or create new ones from nothing.
+        /// Follows policy defined by Info.OneShotSpawn.
+        /// </summary>
+        /// <returns>true when a new slave actor is created.</returns>
+        public virtual void Replenish(Actor self, BaseSpawnerSlaveEntry[] slaveEntries)
+        {
+            if (Info.SpawnAllAtOnce)
+            {
+                foreach (var se in slaveEntries)
+                {
+                    if (!se.IsValid)
+                    {
+                        Replenish(self, se);
+                    }
+                }
+            }
+            else
+            {
+                BaseSpawnerSlaveEntry entry = SelectEntryToSpawn(slaveEntries);
 
-				// All are alive and well.
-				if (entry == null)
-					return;
+                // All are alive and well.
+                if (entry == null)
+                    return;
 
-				Replenish(self, entry);
-			}
-		}
+                Replenish(self, entry);
+            }
+        }
 
-		/// <summary>
-		/// Replenish one slave entry.
-		/// </summary>
-		/// <returns>true when a new slave actor is created.</returns>
-		public virtual void Replenish(Actor self, BaseSpawnerSlaveEntry entry)
-		{
-			if (entry.IsValid)
-				throw new InvalidOperationException("Replenish must not be run on a valid entry!");
+        /// <summary>
+        /// Replenish one slave entry.
+        /// </summary>
+        /// <returns>true when a new slave actor is created.</returns>
+        public virtual void Replenish(Actor self, BaseSpawnerSlaveEntry entry)
+        {
+            if (entry.IsValid)
+                throw new InvalidOperationException("Replenish must not be run on a valid entry!");
 
-			// Some members are missing. Create a new one.
-			var slave = self.World.CreateActor(false, entry.ActorName,
-				new TypeDictionary { new OwnerInit(self.Owner) });
+            // Some members are missing. Create a new one.
+            var slave = self.World.CreateActor(false, entry.ActorName,
+                new TypeDictionary { new OwnerInit(self.Owner) });
 
-			// Initialize slave entry
-			InitializeSlaveEntry(slave, entry);
-			entry.SpawnerSlave.LinkMaster(entry.Actor, self, this);
-		}
+            // Initialize slave entry
+            InitializeSlaveEntry(slave, entry);
+            entry.SpawnerSlave.LinkMaster(entry.Actor, self, this);
+        }
 
-		/// <summary>
-		/// Slave entry initializer function.
-		/// Override this function from derived classes to initialize their own specific stuff.
-		/// </summary>
-		public virtual void InitializeSlaveEntry(Actor slave, BaseSpawnerSlaveEntry entry)
-		{
-			entry.Actor = slave;
-			entry.SpawnerSlave = slave.Trait<BaseSpawnerSlave>();
-		}
+        /// <summary>
+        /// Slave entry initializer function.
+        /// Override this function from derived classes to initialize their own specific stuff.
+        /// </summary>
+        public virtual void InitializeSlaveEntry(Actor slave, BaseSpawnerSlaveEntry entry)
+        {
+            entry.Actor = slave;
+            entry.SpawnerSlave = slave.Trait<BaseSpawnerSlave>();
+        }
 
-		protected BaseSpawnerSlaveEntry SelectEntryToSpawn(BaseSpawnerSlaveEntry[] slaveEntries)
-		{
-			// If any thing is marked dead or null, that's a candidate.
-			var candidates = slaveEntries.Where(m => !m.IsValid);
-			if (!candidates.Any())
-				return null;
+        protected BaseSpawnerSlaveEntry SelectEntryToSpawn(BaseSpawnerSlaveEntry[] slaveEntries)
+        {
+            // If any thing is marked dead or null, that's a candidate.
+            var candidates = slaveEntries.Where(m => !m.IsValid);
+            if (!candidates.Any())
+                return null;
 
-			return candidates.Random(self.World.SharedRandom);
-		}
+            return candidates.Random(self.World.SharedRandom);
+        }
 
-		public virtual void Killed(Actor self, AttackInfo e)
-		{
-			// Notify slaves.
-			foreach (var se in SlaveEntries)
-				if (se.IsValid)
-					se.SpawnerSlave.OnMasterKilled(se.Actor, e.Attacker, Info.SlaveDisposalOnKill);
-		}
+        public virtual void Killed(Actor self, AttackInfo e)
+        {
+            // Notify slaves.
+            foreach (var se in SlaveEntries)
+                if (se.IsValid)
+                    se.SpawnerSlave.OnMasterKilled(se.Actor, e.Attacker, Info.SlaveDisposalOnKill);
+        }
 
-		public virtual void OnOwnerChanged(Actor self, Player oldOwner, Player newOwner)
-		{
-			// Owner thing is so difficult and confusing, I'm expecting bugs.
-			self.World.AddFrameEndTask(w =>
-			{
-				foreach (var se in SlaveEntries)
-					if (se.IsValid)
-						se.SpawnerSlave.OnMasterOwnerChanged(self, oldOwner, newOwner, Info.SlaveDisposalOnOwnerChange);
-			});
-		}
+        public virtual void OnOwnerChanged(Actor self, Player oldOwner, Player newOwner)
+        {
+            // Owner thing is so difficult and confusing, I'm expecting bugs.
+            self.World.AddFrameEndTask(w =>
+            {
+                foreach (var se in SlaveEntries)
+                    if (se.IsValid)
+                        se.SpawnerSlave.OnMasterOwnerChanged(self, oldOwner, newOwner, Info.SlaveDisposalOnOwnerChange);
+            });
+        }
 
-		public virtual void Disposing(Actor self)
-		{
-			// Just dispose them regardless of slave disposal options.
-			foreach (var se in SlaveEntries)
-				if (se.IsValid)
-					se.Actor.Dispose();
-		}
+        public virtual void Disposing(Actor self)
+        {
+            // Just dispose them regardless of slave disposal options.
+            foreach (var se in SlaveEntries)
+                if (se.IsValid)
+                    se.Actor.Dispose();
+        }
 
-		public virtual void SpawnIntoWorld(Actor master, Actor slave, WPos centerPosition)
-		{
-			var exit = ChooseExit(master);
-			SetSpawnedFacing(slave, master, exit);
+        public virtual void SpawnIntoWorld(Actor master, Actor slave, WPos centerPosition)
+        {
+            var exit = ChooseExit(master);
+            SetSpawnedFacing(slave, master, exit);
 
-			master.World.AddFrameEndTask(w =>
-			{
-				if (master.IsDead)
-					return;
+            master.World.AddFrameEndTask(w =>
+            {
+                if (master.IsDead)
+                    return;
 
-				var spawnOffset = exit == null ? WVec.Zero : exit.SpawnOffset;
-				slave.Trait<IPositionable>().SetCenterPosition(slave, centerPosition + spawnOffset);
+                var spawnOffset = exit == null ? WVec.Zero : exit.SpawnOffset;
+                slave.Trait<IPositionable>().SetCenterPosition(slave, centerPosition + spawnOffset);
 
-				var location = centerPosition + spawnOffset;
+                var location = centerPosition + spawnOffset;
 
-				w.Add(slave);
-			});
-		}
+                w.Add(slave);
+            });
+        }
 
-		// Production.cs use random to select an exit.
-		// Here, we choose one by round robin.
-		// Start from -1 so that +1 logic below will make it 0.
-		int exitRoundRobin = -1;
-		protected ExitInfo ChooseExit(Actor self)
-		{
-			if (exits.Length == 0)
-				return null;
+        // Production.cs use random to select an exit.
+        // Here, we choose one by round robin.
+        // Start from -1 so that +1 logic below will make it 0.
+        int exitRoundRobin = -1;
+        protected ExitInfo ChooseExit(Actor self)
+        {
+            if (exits.Length == 0)
+                return null;
 
-			exitRoundRobin = (exitRoundRobin + 1) % exits.Length;
-			return exits[exitRoundRobin];
-		}
+            exitRoundRobin = (exitRoundRobin + 1) % exits.Length;
+            return exits[exitRoundRobin];
+        }
 
-		protected void SetSpawnedFacing(Actor spawned, Actor spawner, ExitInfo exit)
-		{
-			int facingOffset = facing == null ? 0 : facing.Facing;
+        protected void SetSpawnedFacing(Actor spawned, Actor spawner, ExitInfo exit)
+        {
+            int facingOffset = facing == null ? 0 : facing.Facing;
 
-			var exitFacing = exit != null ? exit.Facing : 0;
+            var exitFacing = exit != null ? exit.Facing : 0;
 
-			var spawnFacing = spawned.TraitOrDefault<IFacing>();
-			if (spawnFacing != null)
-				spawnFacing.Facing = (facingOffset + exitFacing) % 256;
+            var spawnFacing = spawned.TraitOrDefault<IFacing>();
+            if (spawnFacing != null)
+                spawnFacing.Facing = (facingOffset + exitFacing) % 256;
 
-			foreach (var t in spawned.TraitsImplementing<Turreted>())
-				t.TurretFacing = (facingOffset + exitFacing) % 256;
-		}
+            foreach (var t in spawned.TraitsImplementing<Turreted>())
+                t.TurretFacing = (facingOffset + exitFacing) % 256;
+        }
 
-		public void StopSlaves()
-		{
-			foreach (var se in SlaveEntries)
-			{
-				if (!se.IsValid)
-					continue;
+        public void StopSlaves()
+        {
+            foreach (var se in SlaveEntries)
+            {
+                if (!se.IsValid)
+                    continue;
 
-				se.SpawnerSlave.Stop(se.Actor);
-			}
-		}
+                se.SpawnerSlave.Stop(se.Actor);
+            }
+        }
 
-		public virtual void OnSlaveKilled(Actor self, Actor slave) { }
-	}
+        public virtual void OnSlaveKilled(Actor self, Actor slave) { }
+    }
 }

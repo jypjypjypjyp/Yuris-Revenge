@@ -17,37 +17,37 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Orders
 {
-	public class ShootableBallisticMissileMoveOrderTargeter : IOrderTargeter
-	{
-		public string OrderID { get; protected set; }
-		public int OrderPriority { get; protected set; }
-		public bool TargetOverridesSelection(TargetModifiers modifiers)
-		{
-			return modifiers.HasModifier(TargetModifiers.ForceMove);
-		}
+    public class ShootableBallisticMissileMoveOrderTargeter : IOrderTargeter
+    {
+        public string OrderID { get; protected set; }
+        public int OrderPriority { get; protected set; }
+        public bool TargetOverridesSelection(TargetModifiers modifiers)
+        {
+            return modifiers.HasModifier(TargetModifiers.ForceMove);
+        }
 
-		public ShootableBallisticMissileMoveOrderTargeter(ShootableBallisticMissileInfo info)
-		{
-			OrderID = "Move";
-			OrderPriority = 4;
-		}
+        public ShootableBallisticMissileMoveOrderTargeter(ShootableBallisticMissileInfo info)
+        {
+            OrderID = "Move";
+            OrderPriority = 4;
+        }
 
-		public virtual bool CanTarget(Actor self, Target target, List<Actor> othersAtTarget, ref TargetModifiers modifiers, ref string cursor)
-		{
-			// BMs can always move
-			return true;
-		}
+        public virtual bool CanTarget(Actor self, Target target, List<Actor> othersAtTarget, ref TargetModifiers modifiers, ref string cursor)
+        {
+            // BMs can always move
+            return true;
+        }
 
-		public bool TargetOverridesSelection(Actor self, in Target target, List<Actor> actorsAt, CPos xy, TargetModifiers modifiers)
-		{
-			return true;
-		}
+        public bool TargetOverridesSelection(Actor self, in Target target, List<Actor> actorsAt, CPos xy, TargetModifiers modifiers)
+        {
+            return true;
+        }
 
-		public bool CanTarget(Actor self, in Target target, ref TargetModifiers modifiers, ref string cursor)
-		{
-			throw new System.NotImplementedException();
-		}
+        public bool CanTarget(Actor self, in Target target, ref TargetModifiers modifiers, ref string cursor)
+        {
+            throw new System.NotImplementedException();
+        }
 
-		public bool IsQueued { get; protected set; }
-	}
+        public bool IsQueued { get; protected set; }
+    }
 }

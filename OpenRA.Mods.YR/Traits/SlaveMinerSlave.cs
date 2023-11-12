@@ -30,8 +30,8 @@ namespace OpenRA.Mods.YR.Traits
 {
     public enum SlaveState
     {
-        Free, //We are free, we are free!!! Change owner to the killer
-        Idle, //Nothing happen
+        Free, // We are free, we are free!!! Change owner to the killer
+        Idle, // Nothing happen
     }
     public class SlaveMinerSlaveInfo : BaseSpawnerSlaveInfo, Requires<HarvesterInfo>
     {

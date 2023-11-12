@@ -13,27 +13,27 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.Common.Traits
 {
-	[RequireExplicitImplementation]
-	public interface IResourceLogicLayer
-	{
-		void UpdatePosition(CPos cell, string type, int density);
-	}
+    [RequireExplicitImplementation]
+    public interface IResourceLogicLayer
+    {
+        void UpdatePosition(CPos cell, string type, int density);
+    }
 
-	[RequireExplicitImplementation]
-	public interface IRefineryResourceDelivered
-	{
-		void ResourceDelivered(Actor self, int amount);
-	}
+    [RequireExplicitImplementation]
+    public interface IRefineryResourceDelivered
+    {
+        void ResourceDelivered(Actor self, int amount);
+    }
 
-	[RequireExplicitImplementation]
-	public interface IRemoveInfector
-	{
-		void RemoveInfector(Actor self, bool kill, AttackInfo e = null);
-	}
+    [RequireExplicitImplementation]
+    public interface IRemoveInfector
+    {
+        void RemoveInfector(Actor self, bool kill, AttackInfo e = null);
+    }
 
-	[RequireExplicitImplementation]
-	public interface IPointDefense
-	{
-		bool Destroy(WPos position, Player attacker, string type);
-	}
+    [RequireExplicitImplementation]
+    public interface IPointDefense
+    {
+        bool Destroy(WPos position, Player attacker, string type);
+    }
 }

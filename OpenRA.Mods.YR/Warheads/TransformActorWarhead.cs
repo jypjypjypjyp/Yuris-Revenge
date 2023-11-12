@@ -2,7 +2,7 @@
 /*
  * Written by Cook Green of YR Mod
  * Follows GPLv3 License as the OpenRA engine:
- * 
+ *
  * Copyright 2007-2018 The OpenRA Developers (see AUTHORS)
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ namespace OpenRA.Mods.YR.Warheads
         private Actor actor;
         private TypeDictionary typeDic;
         private string[] excludeActors;
-        protected override void DoImpact(Target target, WarheadArgs args)
+        public override void DoImpact(in Target target, WarheadArgs args)
         {
             var firedBy = args.SourceActor;
 

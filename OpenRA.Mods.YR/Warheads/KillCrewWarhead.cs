@@ -41,7 +41,7 @@ namespace OpenRA.Mods.YR.Warheads
             var victimActors = w.FindActorsInCircle(pos, new WDist(1));
             foreach (Actor victim in victimActors)
             {
-                 // This actor can be crew killed
+                // This actor can be crew killed
                 if (victim.TraitsImplementing<CrewKillable>().Any())
                 {
                     if (neutralPlayer != null)

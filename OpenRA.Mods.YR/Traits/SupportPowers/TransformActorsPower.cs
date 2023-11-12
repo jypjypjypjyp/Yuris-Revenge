@@ -20,8 +20,6 @@ using OpenRA.Traits;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.Traits.SupportPowers
 {
@@ -78,8 +76,7 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
                     var location = order.Target.CenterPosition;
 
                     PlayLaunchSounds();
-                    //Game.Sound.Play(SoundType.World, info.DeploySound, location);
-
+                    // Game.Sound.Play(SoundType.World, info.DeploySound, location);
                     var victimActors = w.FindActorsInCircle(location, WDist.FromCells(10));
                     if (victimActors != null)
                     {

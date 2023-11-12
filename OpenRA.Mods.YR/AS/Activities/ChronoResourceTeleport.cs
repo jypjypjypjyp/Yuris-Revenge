@@ -17,49 +17,49 @@ using OpenRA.Mods.Common.Traits;
 
 namespace OpenRA.Mods.AS.Activities
 {
-	public class ChronoResourceTeleport : Activity
-	{
-		readonly CPos destination;
-		readonly ChronoResourceDeliveryInfo info;
-		readonly CPos harvestedField;
+    public class ChronoResourceTeleport : Activity
+    {
+        readonly CPos destination;
+        readonly ChronoResourceDeliveryInfo info;
+        readonly CPos harvestedField;
 
-		public ChronoResourceTeleport(CPos destination, ChronoResourceDeliveryInfo info, CPos harvestedField)
-		{
-			this.destination = destination;
-			this.info = info;
-			this.harvestedField = harvestedField;
-		}
+        public ChronoResourceTeleport(CPos destination, ChronoResourceDeliveryInfo info, CPos harvestedField)
+        {
+            this.destination = destination;
+            this.info = info;
+            this.harvestedField = harvestedField;
+        }
 
-		public override bool Tick(Actor self)
-		{
-			var image = info.Image ?? self.Info.Name;
+        public override bool Tick(Actor self)
+        {
+            var image = info.Image ?? self.Info.Name;
 
-			var sourcepos = self.CenterPosition;
+            var sourcepos = self.CenterPosition;
 
-			if (info.WarpInSequence != null)
-				self.World.AddFrameEndTask(w => w.Add(new SpriteEffect(sourcepos, w, image, info.WarpInSequence, info.Palette)));
+            if (info.WarpInSequence != null)
+                self.World.AddFrameEndTask(w => w.Add(new SpriteEffect(sourcepos, w, image, info.WarpInSequence, info.Palette)));
 
-			if (info.WarpInSound != null && (info.AudibleThroughFog || !self.World.FogObscures(sourcepos)))
-				Game.Sound.Play(SoundType.World, info.WarpInSound, self.CenterPosition, info.SoundVolume);
+            if (info.WarpInSound != null && (info.AudibleThroughFog || !self.World.FogObscures(sourcepos)))
+                Game.Sound.Play(SoundType.World, info.WarpInSound, self.CenterPosition, info.SoundVolume);
 
-			if (info.ExposeInfectors)
-				foreach (var i in self.TraitsImplementing<IRemoveInfector>())
-					i.RemoveInfector(self, false);
+            if (info.ExposeInfectors)
+                foreach (var i in self.TraitsImplementing<IRemoveInfector>())
+                    i.RemoveInfector(self, false);
 
-			self.Trait<IPositionable>().SetPosition(self, destination);
-			self.Generation++;
+            self.Trait<IPositionable>().SetPosition(self, destination);
+            self.Generation++;
 
-			var destinationpos = self.CenterPosition;
+            var destinationpos = self.CenterPosition;
 
-			if (info.WarpOutSequence != null)
-				self.World.AddFrameEndTask(w => w.Add(new SpriteEffect(destinationpos, w, image, info.WarpOutSequence, info.Palette)));
+            if (info.WarpOutSequence != null)
+                self.World.AddFrameEndTask(w => w.Add(new SpriteEffect(destinationpos, w, image, info.WarpOutSequence, info.Palette)));
 
-			if (info.WarpOutSound != null && (info.AudibleThroughFog || !self.World.FogObscures(sourcepos)))
-				Game.Sound.Play(SoundType.World, info.WarpOutSound, self.CenterPosition, info.SoundVolume);
+            if (info.WarpOutSound != null && (info.AudibleThroughFog || !self.World.FogObscures(sourcepos)))
+                Game.Sound.Play(SoundType.World, info.WarpOutSound, self.CenterPosition, info.SoundVolume);
 
-			self.QueueActivity(new FindAndDeliverResources(self, harvestedField));
+            self.QueueActivity(new FindAndDeliverResources(self, harvestedField));
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
 }

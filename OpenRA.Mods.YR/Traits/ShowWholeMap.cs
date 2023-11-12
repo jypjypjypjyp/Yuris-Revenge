@@ -13,11 +13,7 @@
 #endregion
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.Traits
 {
@@ -67,7 +63,7 @@ namespace OpenRA.Mods.YR.Traits
         {
             if (powerMgr.PowerState == PowerState.Low)
             {
-                //low power
+                // low power
                 disableShround = false;
             }
             else
@@ -105,10 +101,10 @@ namespace OpenRA.Mods.YR.Traits
             var allActorsCanShowWholeMap = this.self.Owner.World.Actors.Where(o => o.TraitsImplementing<ShowWholeMap>().Count() > 0);
             if (allActorsCanShowWholeMap.Count() > 0)
             {
-                //We still have other actors that can show whole map, let's check power
+                // We still have other actors that can show whole map, let's check power
                 if (powerMgr.PowerState == PowerState.Low)
                 {
-                    //low power
+                    // low power
                     disableShround = false;
                 }
                 else

@@ -19,73 +19,73 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.AS.Traits.Render
 {
-	[Desc("Plays an idle overlay on the ground position under the actor (regardless of it's actual height).")]
-	public class WithIdleOverlayOnGroundInfo : WithIdleOverlayInfo
-	{
-		public override object Create(ActorInitializer init) { return new WithIdleOverlayOnGround(init.Self, this); }
+    [Desc("Plays an idle overlay on the ground position under the actor (regardless of it's actual height).")]
+    public class WithIdleOverlayOnGroundInfo : WithIdleOverlayInfo
+    {
+        public override object Create(ActorInitializer init) { return new WithIdleOverlayOnGround(init.Self, this); }
 
-		public new IEnumerable<IActorPreview> RenderPreviewSprites(ActorPreviewInitializer init, string image, int facings, PaletteReference p)
-		{
-			if (!EnabledByDefault)
-				yield break;
+        public new IEnumerable<IActorPreview> RenderPreviewSprites(ActorPreviewInitializer init, string image, int facings, PaletteReference p)
+        {
+            if (!EnabledByDefault)
+                yield break;
 
-			if (Palette != null)
-				p = init.WorldRenderer.Palette(Palette);
+            if (Palette != null)
+                p = init.WorldRenderer.Palette(Palette);
 
-			Func<WAngle> facing;
-			if (init.Contains<DynamicFacingInit>())
-				facing = init.GetValue<DynamicFacingInit, Func<WAngle>>();
-			else
-			{
-				var f = init.Contains<FacingInit>() ? init.GetValue<FacingInit, WAngle>() : WAngle.Zero;
-				facing = () => f;
-			}
+            Func<WAngle> facing;
+            if (init.Contains<DynamicFacingInit>())
+                facing = init.GetValue<DynamicFacingInit, Func<WAngle>>();
+            else
+            {
+                var f = init.Contains<FacingInit>() ? init.GetValue<FacingInit, WAngle>() : WAngle.Zero;
+                facing = () => f;
+            }
 
-			var anim = new Animation(init.World, image, facing);
-			anim.PlayRepeating(RenderSprites.NormalizeSequence(anim, init.GetDamageState(), Sequence));
+            var anim = new Animation(init.World, image, facing);
+            anim.PlayRepeating(RenderSprites.NormalizeSequence(anim, init.GetDamageState(), Sequence));
 
-			var body = init.Actor.TraitInfo<BodyOrientationInfo>();
-			Func<WRot> orientation = () => body.QuantizeOrientation(WRot.FromYaw(facing()), facings);
-			Func<WVec> offset = () => body.LocalToWorld(Offset.Rotate(orientation()));
-			Func<int> zOffset = () =>
-			{
-				var tmpOffset = offset();
-				return tmpOffset.Y + tmpOffset.Z + 1;
-			};
+            var body = init.Actor.TraitInfo<BodyOrientationInfo>();
+            Func<WRot> orientation = () => body.QuantizeOrientation(WRot.FromYaw(facing()), facings);
+            Func<WVec> offset = () => body.LocalToWorld(Offset.Rotate(orientation()));
+            Func<int> zOffset = () =>
+            {
+                var tmpOffset = offset();
+                return tmpOffset.Y + tmpOffset.Z + 1;
+            };
 
-			yield return new SpriteActorPreview(anim, offset, zOffset, p);
-		}
-	}
+            yield return new SpriteActorPreview(anim, offset, zOffset, p);
+        }
+    }
 
-	public class WithIdleOverlayOnGround : PausableConditionalTrait<WithIdleOverlayOnGroundInfo>, INotifyDamageStateChanged
-	{
-		readonly Animation overlay;
+    public class WithIdleOverlayOnGround : PausableConditionalTrait<WithIdleOverlayOnGroundInfo>, INotifyDamageStateChanged
+    {
+        readonly Animation overlay;
 
-		public WithIdleOverlayOnGround(Actor self, WithIdleOverlayOnGroundInfo info)
-			: base(info)
-		{
-			var rs = self.Trait<RenderSprites>();
-			var body = self.Trait<BodyOrientation>();
+        public WithIdleOverlayOnGround(Actor self, WithIdleOverlayOnGroundInfo info)
+            : base(info)
+        {
+            var rs = self.Trait<RenderSprites>();
+            var body = self.Trait<BodyOrientation>();
 
-			overlay = new Animation(self.World, rs.GetImage(self), () => IsTraitPaused);
-			if (info.StartSequence != null)
-				overlay.PlayThen(RenderSprites.NormalizeSequence(overlay, self.GetDamageState(), info.StartSequence),
-					() => overlay.PlayRepeating(RenderSprites.NormalizeSequence(overlay, self.GetDamageState(), info.Sequence)));
-			else
-				overlay.PlayRepeating(RenderSprites.NormalizeSequence(overlay, self.GetDamageState(), info.Sequence));
+            overlay = new Animation(self.World, rs.GetImage(self), () => IsTraitPaused);
+            if (info.StartSequence != null)
+                overlay.PlayThen(RenderSprites.NormalizeSequence(overlay, self.GetDamageState(), info.StartSequence),
+                    () => overlay.PlayRepeating(RenderSprites.NormalizeSequence(overlay, self.GetDamageState(), info.Sequence)));
+            else
+                overlay.PlayRepeating(RenderSprites.NormalizeSequence(overlay, self.GetDamageState(), info.Sequence));
 
-			var anim = new AnimationWithOffset(overlay,
-				() => body.LocalToWorld(info.Offset.Rotate(body.QuantizeOrientation(self.Orientation)))
-					- new WVec(WDist.Zero, WDist.Zero, self.World.Map.DistanceAboveTerrain(self.CenterPosition)),
-				() => IsTraitDisabled,
-				p => RenderUtils.ZOffsetFromCenter(self, p, 1));
+            var anim = new AnimationWithOffset(overlay,
+                () => body.LocalToWorld(info.Offset.Rotate(body.QuantizeOrientation(self.Orientation)))
+                    - new WVec(WDist.Zero, WDist.Zero, self.World.Map.DistanceAboveTerrain(self.CenterPosition)),
+                () => IsTraitDisabled,
+                p => RenderUtils.ZOffsetFromCenter(self, p, 1));
 
-			rs.Add(anim, info.Palette, info.IsPlayerPalette);
-		}
+            rs.Add(anim, info.Palette, info.IsPlayerPalette);
+        }
 
-		void INotifyDamageStateChanged.DamageStateChanged(Actor self, AttackInfo e)
-		{
-			overlay.ReplaceAnim(RenderSprites.NormalizeSequence(overlay, e.DamageState, overlay.CurrentSequence.Name));
-		}
-	}
+        void INotifyDamageStateChanged.DamageStateChanged(Actor self, AttackInfo e)
+        {
+            overlay.ReplaceAnim(RenderSprites.NormalizeSequence(overlay, e.DamageState, overlay.CurrentSequence.Name));
+        }
+    }
 }

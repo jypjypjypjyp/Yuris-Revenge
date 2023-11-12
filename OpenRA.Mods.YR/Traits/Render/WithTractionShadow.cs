@@ -22,52 +22,52 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Traits.Render
 {
-	[Desc("Clones the actor sprite with another palette below it.")]
-	public class WithTractionShadowInfo : ConditionalTraitInfo
-	{
-		[PaletteReference] public readonly string Palette = "shadow";
+    [Desc("Clones the actor sprite with another palette below it.")]
+    public class WithTractionShadowInfo : ConditionalTraitInfo
+    {
+        [PaletteReference] public readonly string Palette = "shadow";
 
-		[Desc("Shadow position offset relative to actor position (ground level).")]
-		public readonly WVec Offset = WVec.Zero;
+        [Desc("Shadow position offset relative to actor position (ground level).")]
+        public readonly WVec Offset = WVec.Zero;
 
-		[Desc("Shadow Z offset relative to actor sprite.")]
-		public readonly int ZOffset = -5;
+        [Desc("Shadow Z offset relative to actor sprite.")]
+        public readonly int ZOffset = -5;
 
-		public override object Create(ActorInitializer init) { return new WithTractingShadow(this); }
-	}
+        public override object Create(ActorInitializer init) { return new WithTractingShadow(this); }
+    }
 
-	public class WithTractingShadow : ConditionalTrait<WithTractionShadowInfo>, IRenderModifier
-	{
-		readonly WithTractionShadowInfo info;
+    public class WithTractingShadow : ConditionalTrait<WithTractionShadowInfo>, IRenderModifier
+    {
+        readonly WithTractionShadowInfo info;
 
-		public WithTractingShadow(WithTractionShadowInfo info)
-			: base(info)
-		{
-			this.info = info;
-		}
+        public WithTractingShadow(WithTractionShadowInfo info)
+            : base(info)
+        {
+            this.info = info;
+        }
 
-		public IEnumerable<IRenderable> ModifyRender(Actor self, WorldRenderer wr, IEnumerable<IRenderable> r)
-		{
-			if (IsTraitDisabled)
-				return r;
+        public IEnumerable<IRenderable> ModifyRender(Actor self, WorldRenderer wr, IEnumerable<IRenderable> r)
+        {
+            if (IsTraitDisabled)
+                return r;
 
-			if (self.IsDead || !self.IsInWorld)
-				return Enumerable.Empty<IRenderable>();
+            if (self.IsDead || !self.IsInWorld)
+                return Enumerable.Empty<IRenderable>();
 
-			// Contrails shouldn't cast shadows
-			var height = self.World.Map.DistanceAboveTerrain(self.CenterPosition).Length;
-			var shadowSprites = r.Where(s => !s.IsDecoration)
-				.Select(a => ((IPalettedRenderable)a).WithPalette(wr.Palette(info.Palette))
-					.OffsetBy(info.Offset - new WVec(0, 0, height))
-					.WithZOffset(a.ZOffset + (height + info.ZOffset))
-					.AsDecoration());
+            // Contrails shouldn't cast shadows
+            var height = self.World.Map.DistanceAboveTerrain(self.CenterPosition).Length;
+            var shadowSprites = r.Where(s => !s.IsDecoration)
+                .Select(a => ((IPalettedRenderable)a).WithPalette(wr.Palette(info.Palette))
+                    .OffsetBy(info.Offset - new WVec(0, 0, height))
+                    .WithZOffset(a.ZOffset + (height + info.ZOffset))
+                    .AsDecoration());
 
-			return shadowSprites.Concat(r);
-		}
+            return shadowSprites.Concat(r);
+        }
 
-		public IEnumerable<Primitives.Rectangle> ModifyScreenBounds(Actor self, WorldRenderer wr, IEnumerable<Primitives.Rectangle> r)
-		{
-			return r;
-		}
-	}
+        public IEnumerable<Primitives.Rectangle> ModifyScreenBounds(Actor self, WorldRenderer wr, IEnumerable<Primitives.Rectangle> r)
+        {
+            return r;
+        }
+    }
 }

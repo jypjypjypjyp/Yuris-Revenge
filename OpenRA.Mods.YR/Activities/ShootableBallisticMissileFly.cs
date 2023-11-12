@@ -19,70 +19,70 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.YR.Activities
 {
-	public class ShootableBallisticMissileFly : Activity
-	{
-		readonly ShootableBallisticMissile sbm;
-		readonly WPos initPos;
-		readonly WPos targetPos;
-		int length;
-		int ticks;
-		int facing;
+    public class ShootableBallisticMissileFly : Activity
+    {
+        readonly ShootableBallisticMissile sbm;
+        readonly WPos initPos;
+        readonly WPos targetPos;
+        int length;
+        int ticks;
+        int facing;
 
-		public ShootableBallisticMissileFly(Actor self, Target t, ShootableBallisticMissile sbm = null)
-		{
-			if (sbm == null)
-				this.sbm = self.Trait<ShootableBallisticMissile>();
-			else
-				this.sbm = sbm;
+        public ShootableBallisticMissileFly(Actor self, Target t, ShootableBallisticMissile sbm = null)
+        {
+            if (sbm == null)
+                this.sbm = self.Trait<ShootableBallisticMissile>();
+            else
+                this.sbm = sbm;
 
-			initPos = self.CenterPosition;
-			targetPos = t.CenterPosition; // fixed position == no homing
-			length = Math.Max((targetPos - initPos).Length / this.sbm.Info.Speed, 1);
-			facing = (targetPos - initPos).Yaw.Facing;
-		}
+            initPos = self.CenterPosition;
+            targetPos = t.CenterPosition; // fixed position == no homing
+            length = Math.Max((targetPos - initPos).Length / this.sbm.Info.Speed, 1);
+            facing = (targetPos - initPos).Yaw.Facing;
+        }
 
-		int GetEffectiveFacing()
-		{
-			var at = (float)ticks / (length - 1);
-			var attitude = sbm.Info.LaunchAngle.Tan() * (1 - 2 * at) / (4 * 1024);
+        int GetEffectiveFacing()
+        {
+            var at = (float)ticks / (length - 1);
+            var attitude = sbm.Info.LaunchAngle.Tan() * (1 - 2 * at) / (4 * 1024);
 
-			var u = (facing % 128) / 128f;
-			var scale = 512 * u * (1 - u);
+            var u = (facing % 128) / 128f;
+            var scale = 512 * u * (1 - u);
 
-			return (int)(facing < 128
-				? facing - scale * attitude
-				: facing + scale * attitude);
-		}
+            return (int)(facing < 128
+                ? facing - scale * attitude
+                : facing + scale * attitude);
+        }
 
-		public void FlyToward(Actor self, ShootableBallisticMissile sbm)
-		{
-			var pos = WPos.LerpQuadratic(initPos, targetPos, sbm.Info.LaunchAngle, ticks, length);
-			sbm.SetPosition(self, pos);
-			sbm.Facing = WAngle.FromFacing(GetEffectiveFacing());
-		}
+        public void FlyToward(Actor self, ShootableBallisticMissile sbm)
+        {
+            var pos = WPos.LerpQuadratic(initPos, targetPos, sbm.Info.LaunchAngle, ticks, length);
+            sbm.SetPosition(self, pos);
+            sbm.Facing = WAngle.FromFacing(GetEffectiveFacing());
+        }
 
-		public override bool Tick(Actor self)
-		{
-			var d = targetPos - self.CenterPosition;
+        public override bool Tick(Actor self)
+        {
+            var d = targetPos - self.CenterPosition;
 
-			// The next move would overshoot, so consider it close enough
-			var move = sbm.FlyStep(sbm.Facing.Facing);
+            // The next move would overshoot, so consider it close enough
+            var move = sbm.FlyStep(sbm.Facing.Facing);
 
-			// Destruct so that Explodes will be called
-			if (d.HorizontalLengthSquared < move.HorizontalLengthSquared)
-			{
-				Queue(new CallFunc(() => self.Kill(self)));
-				return true;
-			}
+            // Destruct so that Explodes will be called
+            if (d.HorizontalLengthSquared < move.HorizontalLengthSquared)
+            {
+                Queue(new CallFunc(() => self.Kill(self)));
+                return true;
+            }
 
-			FlyToward(self, sbm);
-			ticks++;
-			return false;
-		}
+            FlyToward(self, sbm);
+            ticks++;
+            return false;
+        }
 
-		public override IEnumerable<Target> GetTargets(Actor self)
-		{
-			yield return Target.FromPos(targetPos);
-		}
-	}
+        public override IEnumerable<Target> GetTargets(Actor self)
+        {
+            yield return Target.FromPos(targetPos);
+        }
+    }
 }

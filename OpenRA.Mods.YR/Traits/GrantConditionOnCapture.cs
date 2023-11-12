@@ -14,11 +14,7 @@
 using OpenRA.Mods.Common;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.Traits
 {
@@ -76,7 +72,7 @@ namespace OpenRA.Mods.YR.Traits
         {
             if (conditionToken == ConditionManager.InvalidConditionToken)
             {
-                //Grant condition to all actors belong to this faction
+                // Grant condition to all actors belong to this faction
                 World w = self.World;
                 var actorsBelongToThisFaction = w.Actors.Where(o => o.Owner == thisPlayer);
                 foreach (var actor in actorsBelongToThisFaction)
@@ -91,7 +87,7 @@ namespace OpenRA.Mods.YR.Traits
             if (conditionToken == ConditionManager.InvalidConditionToken)
                 return;
 
-            //Disable condition to all actors belong to old faction
+            // Disable condition to all actors belong to old faction
             World w = self.World;
             var actorsBelongToOldFaction = w.Actors.Where(o => o.Owner == oldPlayer);
             foreach (var actor in actorsBelongToOldFaction)
@@ -107,7 +103,7 @@ namespace OpenRA.Mods.YR.Traits
                 if (conditionToken == ConditionManager.InvalidConditionToken)
                     return;
 
-                //Disable condition to all actors belong to this faction when the actor is dead
+                // Disable condition to all actors belong to this faction when the actor is dead
                 World w = self.World;
                 var actors = w.Actors.Where(o => o.Owner == thisPlayer);
                 foreach (var actor in actors)

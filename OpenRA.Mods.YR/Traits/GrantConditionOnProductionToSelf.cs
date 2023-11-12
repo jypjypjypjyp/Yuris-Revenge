@@ -14,16 +14,13 @@
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenRA.Mods.YR.Traits
 {
-    //OpenRA also have a trait like this, but that trait will apply to the producted unit itself, 
-    //and this trait will apply to the productor itself
-    //When OpenRA support this feature, this trait will be removed
+    // OpenRA also have a trait like this, but that trait will apply to the producted unit itself, 
+    // and this trait will apply to the productor itself
+    // When OpenRA support this feature, this trait will be removed
     public class GrantConditionOnProductionToSelfInfo : ConditionalTraitInfo
     {
         [Desc("The condition will be granted when these units were produced")]
