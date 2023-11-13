@@ -83,7 +83,7 @@ namespace OpenRA.Mods.YR.Traits
 
         // This kind of missile will not turn anyway. Hard-coding here.
         [Sync]
-        public WAngle TurnSpeed { get { return 10; } }
+        public WAngle TurnSpeed { get { return WAngle.FromFacing(10); } }
 
         [Sync]
         public WRot Orientation { get; set; }
@@ -108,7 +108,7 @@ namespace OpenRA.Mods.YR.Traits
                 SetPosition(self, init.GetValue<CenterPositionInit, WPos>());
 
             // I need facing but initial facing doesn't matter, they are determined by the spawner's facing.
-            Facing = init.Contains<FacingInit>() ? init.GetValue<FacingInit, WAngle>() : 0;
+            Facing = init.Contains<FacingInit>() ? init.GetValue<FacingInit, WAngle>() : WAngle.FromFacing(0);
         }
 
         public void Created(Actor self)

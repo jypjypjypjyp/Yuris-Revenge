@@ -2,7 +2,7 @@
 /*
  * Modded by Cook Green of YR Mod.
  * Modded from SpawnActorPower.cs but change a lot
- * 
+ *
  * Copyright 2007-2018 The OpenRA Developers (see AUTHORS)
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
@@ -110,7 +110,7 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
                                     new CenterPositionInit(victimPos),
                                     new LocationInit(pos),
                                     new OwnerInit(self.Owner),
-                                    new FacingInit(128)
+                                    new FacingInit(WAngle.FromFacing(128))
                                 });
                                 victimActor.Kill(self);
                             }

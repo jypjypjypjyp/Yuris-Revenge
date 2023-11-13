@@ -2,9 +2,9 @@
 /*
  * CnP of FindResources.cs of OpenRA... erm... Not quite, anymore!
  * Modded by Boolbada of OP Mod
- * 
+ *
  * Modded by Cook Green of YR Mod
- * 
+ *
  * Copyright 2007-2017 The OpenRA Developers (see AUTHORS)
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
@@ -92,7 +92,7 @@ namespace OpenRA.Mods.YR.Activities
         public override bool Tick(Actor self)
         {
             /*
-             We just need to confirm one thing: when the nearest resource is finished, 
+             We just need to confirm one thing: when the nearest resource is finished,
              just find the next resource point and transform and move to that location
              */
 

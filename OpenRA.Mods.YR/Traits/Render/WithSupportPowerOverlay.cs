@@ -58,7 +58,7 @@ namespace OpenRA.Mods.YR.Traits.Render
             overlay = new Animation(self.World, rs.GetImage(self));
 
             var anim = new AnimationWithOffset(overlay,
-                () => body.LocalToWorld(WVec.Zero.Rotate(body.QuantizeOrientation(self, self.Orientation))),
+                () => body.LocalToWorld(WVec.Zero.Rotate(body.QuantizeOrientation(self.Orientation))),
                 () => !visible || !buildComplete);
 
             rs.Add(anim, info.Palette, info.IsPlayerPalette);

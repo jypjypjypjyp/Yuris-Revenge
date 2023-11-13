@@ -79,7 +79,6 @@ namespace OpenRA.Mods.YR.UtilityCommands
                     }
                 }
 
-                string lightFont = null;
                 string normalFont = null;
                 string boldFont = null;
                 if (!string.IsNullOrEmpty(customFontPath))

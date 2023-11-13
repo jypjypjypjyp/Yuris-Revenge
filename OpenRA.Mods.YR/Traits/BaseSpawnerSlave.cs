@@ -1,10 +1,10 @@
 ﻿#region Copyright & License Information
 /*
  * Modded by Cook Green of YR Mod
- * 
+ *
  * Modded by Boolbada of OP Mod.
  * Modded from cargo.cs but a lot changed.
- * 
+ *
  * Copyright 2007-2017 The OpenRA Developers (see AUTHORS)
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
@@ -44,7 +44,7 @@ namespace OpenRA.Mods.YR.Traits
         private readonly BaseSpawnerSlaveInfo info;
 
         public bool HasFreeWill = false;
-        private int masterDeadToken = this.InvalidConditionToken;
+        private int masterDeadToken = Actor.InvalidConditionToken;
         private BaseSpawnerMaster spawnerMaster = null;
 
         public Actor Master { get; private set; }
@@ -125,9 +125,9 @@ namespace OpenRA.Mods.YR.Traits
 
                 if (target.Actor == null)
                     ab.AttackTarget(target, AttackSource.Default, false, true, true); // force fire on the ground.
-                else if (target.Actor.Owner.Stances[self.Owner] == Stance.Ally)
+                else if (target.Actor.Owner.RelationshipWith(self.Owner) == PlayerRelationship.Ally)
                     ab.AttackTarget(target, AttackSource.Default, false, true, true); // force fire on ally.
-                else if (target.Actor.Owner.Stances[self.Owner] == Stance.Neutral)
+                else if (target.Actor.Owner.RelationshipWith(self.Owner) == PlayerRelationship.Neutral)
                     ab.AttackTarget(target, AttackSource.Default, false, true, true); // force fire on neutral.
                 else
                     /* Target deprives me of force fire information.
@@ -145,8 +145,8 @@ namespace OpenRA.Mods.YR.Traits
         public virtual void OnMasterKilled(Actor self, Actor attacker, SpawnerSlaveDisposal disposal)
         {
             // Grant MasterDead condition.
-            if (conditionManager != null && !string.IsNullOrEmpty(info.MasterDeadCondition))
-                masterDeadToken = conditionManager.GrantCondition(self, info.MasterDeadCondition);
+            if (self != null && !string.IsNullOrEmpty(info.MasterDeadCondition))
+                masterDeadToken = self.GrantCondition(info.MasterDeadCondition);
 
             switch (disposal)
             {

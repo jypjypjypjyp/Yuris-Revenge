@@ -2,7 +2,7 @@
 /*
  * Written by Cook Green of YR Mod
  * Follows GPLv3 License as the OpenRA engine:
- * 
+ *
  * Copyright 2007-2018 The OpenRA Developers (see AUTHORS)
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
@@ -85,7 +85,7 @@ namespace OpenRA.Mods.YR.Traits.Conditions
                     foreach (var actor in actors)
                     {
                         var external = actor.TraitsImplementing<ExternalCondition>()
-                            .FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(actor, self));
+                            .FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(self));
 
                         external?.GrantCondition(actor, self, info.EffectDuration);
                     }
@@ -93,7 +93,7 @@ namespace OpenRA.Mods.YR.Traits.Conditions
                     break;
                 case WeaponType.Single:
                     var thisVictimExternal = target.Actor.TraitsImplementing<ExternalCondition>()
-                            .FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(target.Actor, self));
+                            .FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(self));
 
                     thisVictimExternal?.GrantCondition(target.Actor, self, info.EffectDuration);
 
@@ -104,7 +104,7 @@ namespace OpenRA.Mods.YR.Traits.Conditions
                             foreach (var actor in victimActors)
                             {
                                 var victimExternal = actor.TraitsImplementing<ExternalCondition>()
-                                    .FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(actor, self));
+                                    .FirstOrDefault(t => t.Info.Condition == info.Condition && t.CanGrantCondition(self));
 
                                 victimExternal?.GrantCondition(actor, self, info.EffectDuration);
                             }

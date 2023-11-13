@@ -1,10 +1,10 @@
 #region Copyright & License Information
 /*
  * Modded by Cook Green of YR Mod
- * 
+ *
  * Written by Boolbada of OP Mod.
  * Follows GPLv3 License as the OpenRA engine:
- * 
+ *
  * Copyright 2007-2017 The OpenRA Developers (see AUTHORS)
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
@@ -266,16 +266,13 @@ namespace OpenRA.Mods.YR.Traits
 
         protected void SetSpawnedFacing(Actor spawned, Actor spawner, ExitInfo exit)
         {
-            int facingOffset = facing == null ? 0 : facing.Facing;
+            int facingOffset = facing == null ? 0 : facing.Facing.Facing;
 
-            var exitFacing = exit != null ? exit.Facing : 0;
+            var exitFacing = (exit != null ? exit.Facing?.Facing : 0) ?? 0;
 
             var spawnFacing = spawned.TraitOrDefault<IFacing>();
             if (spawnFacing != null)
-                spawnFacing.Facing = (facingOffset + exitFacing) % 256;
-
-            foreach (var t in spawned.TraitsImplementing<Turreted>())
-                t.TurretFacing = (facingOffset + exitFacing) % 256;
+                spawnFacing.Facing = WAngle.FromFacing((facingOffset + exitFacing) % 256);
         }
 
         public void StopSlaves()

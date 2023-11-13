@@ -1,10 +1,10 @@
 ﻿#region Copyright & License Information
 /*
  * Written by Boolbada of OP Mod.
- * 
+ *
  * Modded by Cook Green of YR Mod
  * Follows GPLv3 License as the OpenRA engine:
- * 
+ *
  * Copyright 2007-2018 The OpenRA Developers (see AUTHORS)
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
@@ -78,9 +78,9 @@ namespace OpenRA.Mods.YR.Traits
 
     public class Tractable : ConditionalTrait<TractableInfo>, INotifyCreated, ITick
     {
-        private int airborneToken = ConditionManager.InvalidConditionToken;
-        private int tractingToken = ConditionManager.InvalidConditionToken;
-        private int cruisingToken = ConditionManager.InvalidConditionToken;
+        private int airborneToken = Actor.InvalidConditionToken;
+        private int tractingToken = Actor.InvalidConditionToken;
+        private int cruisingToken = Actor.InvalidConditionToken;
         private int cruiseSpeedMultiplier = 1;
         private Actor tractor;
         private IMove tractorMove;
@@ -216,7 +216,7 @@ namespace OpenRA.Mods.YR.Traits
 
             this.tractor = tractor;
             tractorMove = tractor.TraitOrDefault<IMove>();
-            if (self != null && !string.IsNullOrEmpty(Info.TractingCondition) && tractingToken == ConditionManager.InvalidConditionToken)
+            if (self != null && !string.IsNullOrEmpty(Info.TractingCondition) && tractingToken == Actor.InvalidConditionToken)
                 tractingToken = self.GrantCondition(Info.TractingCondition);
         }
 
@@ -239,7 +239,7 @@ namespace OpenRA.Mods.YR.Traits
                 return;
 
             airborne = true;
-            if (self != null && !string.IsNullOrEmpty(Info.AirborneCondition) && airborneToken == ConditionManager.InvalidConditionToken)
+            if (self != null && !string.IsNullOrEmpty(Info.AirborneCondition) && airborneToken == Actor.InvalidConditionToken)
                 airborneToken = self.GrantCondition(Info.AirborneCondition);
         }
 
@@ -261,7 +261,7 @@ namespace OpenRA.Mods.YR.Traits
                 return;
 
             cruising = true;
-            if (self != null && !string.IsNullOrEmpty(Info.CruisingCondition) && cruisingToken == ConditionManager.InvalidConditionToken)
+            if (self != null && !string.IsNullOrEmpty(Info.CruisingCondition) && cruisingToken == Actor.InvalidConditionToken)
                 cruisingToken = self.GrantCondition(Info.CruisingCondition);
         }
 

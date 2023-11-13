@@ -2,7 +2,7 @@
 /*
  * Written by Cook Green of YR Mod
  * Follows GPLv3 License as the OpenRA engine:
- * 
+ *
  * Copyright 2007-2017 The OpenRA Developers (see AUTHORS)
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
@@ -180,9 +180,6 @@ namespace OpenRA.Mods.YR.Traits
                     var muzzleAnim = new Animation(self.World, paxRender[a.Actor].GetImage(a.Actor), () => muzzleFacing);
                     var sequence = a.Info.MuzzleSequence;
 
-                    if (a.Info.MuzzleSplitFacings > 0)
-                        sequence += Common.Util.QuantizeFacing(muzzleFacing, a.Info.MuzzleSplitFacings).ToString();
-
                     var muzzleFlash = new AnimationWithOffset(muzzleAnim,
                         () => PortOffset(self, port),
                         () => false,
@@ -203,7 +200,7 @@ namespace OpenRA.Mods.YR.Traits
 
             // Display muzzle flashes
             foreach (var m in muzzles)
-                foreach (var r in m.Render(self, wr, pal, 1f))
+                foreach (var r in m.Render(self, pal))
                     yield return r;
         }
 

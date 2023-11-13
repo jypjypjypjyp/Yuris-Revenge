@@ -2,7 +2,7 @@
 /*
  * Written by Cook Green of YR Mod
  * Follows GPLv3 License as the OpenRA engine:
- * 
+ *
  * Copyright 2007-2018 The OpenRA Developers (see AUTHORS)
  * This file is part of OpenRA, which is free software. It is made
  * available to you under the terms of the GNU General Public License
@@ -54,26 +54,26 @@ namespace OpenRA.Mods.YR.Traits
             WAngle angle = WAngle.FromDegrees(finalAngle);
             int cycle = 360 / finalAngle;
             plane = actor.Trait<Aircraft>();
-            originalFacing = plane.Facing;
+            originalFacing = plane.Facing.Facing;
             rotFacing = angle.Facing;
-            cycleFacing = plane.Facing + cycle * rotFacing;
+            cycleFacing = plane.Facing.Facing + cycle * rotFacing;
         }
 
         public void Tick(Actor self)
         {
             /*
              * TODO: rotate when is moving
-             * 
+             *
              * OpenRA don't have moving event to catch
              * and the flying activity seems to force aircraft not to rotate
              * maybe need a new trait?
              * maybe need engine update?
-             * 
+             *
              */
-            plane.Facing += rotFacing;
-            if (plane.Facing >= cycleFacing)
+            plane.Facing += WAngle.FromFacing(rotFacing);
+            if (plane.Facing.Facing >= cycleFacing)
             {
-                plane.Facing = originalFacing;
+                plane.Facing = WAngle.FromFacing(originalFacing);
             }
         }
     }
