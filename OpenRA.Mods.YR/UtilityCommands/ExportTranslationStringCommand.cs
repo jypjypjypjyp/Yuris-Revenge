@@ -1,6 +1,6 @@
-﻿using OpenRA.Mods.YR.Helper;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using OpenRA.Mods.YR.Helper;
 
 namespace OpenRA.Mods.YR.UtilityCommands
 {

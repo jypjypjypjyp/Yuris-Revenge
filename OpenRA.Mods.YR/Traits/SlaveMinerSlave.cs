@@ -61,6 +61,7 @@ namespace OpenRA.Mods.YR.Traits
         public override void LinkMaster(Actor self, Actor master, BaseSpawnerMaster spawnerMaster)
         {
             base.LinkMaster(self, master, spawnerMaster);
+
             // Link master for the harvester trait.
             try
             {

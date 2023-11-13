@@ -11,9 +11,9 @@
  * information, see COPYING.
  */
 #endregion
+using System.Linq;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
-using System.Linq;
 
 namespace OpenRA.Mods.YR.Traits.Conditions
 {

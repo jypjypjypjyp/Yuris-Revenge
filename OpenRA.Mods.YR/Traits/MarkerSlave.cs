@@ -11,11 +11,11 @@
  * information, see COPYING.
  */
 #endregion
+using System.Linq;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.YR.Activities;
 using OpenRA.Traits;
-using System.Linq;
 
 namespace OpenRA.Mods.YR.Traits
 {

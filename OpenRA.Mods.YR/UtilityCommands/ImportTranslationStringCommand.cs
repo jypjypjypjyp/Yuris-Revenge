@@ -16,6 +16,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
         public void Run(Utility utility, string[] args)
         {
             Console.WriteLine("Starting importing the translated strings");
+
             // Get translated strings from LOCALIZATIONNAME.yaml
             string customFontPath = null;
             if (args.Length == 4)
@@ -599,6 +600,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
             }
 
             DirectoryInfo[] dirs = dir.GetDirectories();
+
             // If the destination directory doesn't exist, create it.
             if (!Directory.Exists(destDirName))
             {

@@ -11,15 +11,15 @@
  * information, see COPYING.
  */
 #endregion
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using OpenRA.Mods.Common;
 using OpenRA.Mods.Common.Effects;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Traits.Render;
 using OpenRA.Primitives;
 using OpenRA.Traits;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace OpenRA.Mods.YR.Traits.SupportPowers
 {
@@ -78,6 +78,7 @@ namespace OpenRA.Mods.YR.Traits.SupportPowers
                     var location = order.Target.CenterPosition;
 
                     PlayLaunchSounds();
+
                     // Game.Sound.Play(SoundType.World, info.DeploySound, location);
                     var victimActors = w.FindActorsInCircle(location, WDist.FromCells(10));
                     if (victimActors != null)

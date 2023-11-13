@@ -25,7 +25,7 @@ e2:
 	Mobile:
 		Speed: 34
 	Passenger:
-		PipType: Green
+		CustomPipType: green
 	RevealsShroud:
 		Range: 5c0
 	AttackFrontal:
@@ -78,7 +78,7 @@ flakt:
 	Mobile:
 		Speed: 34
 	Passenger:
-		PipType: Green
+		CustomPipType: green
 	RevealsShroud:
 		Range: 5c0
 	AttackFrontal:
@@ -150,7 +150,7 @@ shk:
 	Armor:
 		Type: Plate
 	Passenger:
-		PipType: Red
+		CustomPipType: red
 	AttackFrontal:
 		Voice: Attack
 	Armament@primary:
@@ -216,7 +216,7 @@ terror:
 	Armor:
 		Type: Flak
 	Passenger:
-		PipType: Red
+		CustomPipType: red
 	Explodes:
 		Weapon: TerrorBomb
 		EmptyWeapon: TerrorBomb
@@ -265,7 +265,7 @@ deso:
 	Armor:
 		Type: Plate
 	Passenger:
-		PipType: Red
+		CustomPipType: red
 	Armament@primary:
 		Weapon: RadBeamWeapon
 		RequiresCondition: !rank-elite
@@ -323,7 +323,7 @@ ivan:
 	Armor:
 		Type: None
 	Passenger:
-		PipType: Red
+		CustomPipType: red
 	Explodes:
 		Weapon: IvanDeath
 		EmptyWeapon: IvanDeath
@@ -370,7 +370,7 @@ boris:
 	Mobile:
 		Speed: 75
 	Passenger:
-		PipType: Red
+		CustomPipType: red
 	RevealsShroud:
 		Range: 9c0
 	AttackFrontal:

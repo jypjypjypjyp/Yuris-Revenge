@@ -24,7 +24,7 @@ init:
 	Mobile:
 		Speed: 60
 	Passenger:
-		PipType: Green
+		CustomPipType: green
 	RevealsShroud:
 		Range: 5c0
 	AttackFrontal:
@@ -71,7 +71,7 @@ yengineer:
 		PlayerExperience: 25
 		Voice: Move
 	Passenger:
-		PipType: Blue
+		CustomPipType: blue
 	EngineerRepair:
 	RepairsBridges:
 		RepairNotification: BridgeRepaired
@@ -118,7 +118,7 @@ brute:
 	Mobile:
 		Speed: 90
 	Passenger:
-		PipType: Green
+		CustomPipType: green
 	RevealsShroud:
 		Range: 5c0
 	AttackFrontal:
@@ -168,7 +168,7 @@ virus:
 	Mobile:
 		Speed: 60
 	Passenger:
-		PipType: Green
+		CustomPipType: green
 	RevealsShroud:
 		Range: 5c0
 	AttackFrontal:
@@ -215,7 +215,7 @@ slav:
 	Mobile:
 		Speed: 45
 	Passenger:
-		PipType: Green
+		CustomPipType: green
 	RevealsShroud:
 		Range: 5c0
 	WithSpriteBody:
@@ -271,7 +271,7 @@ yuri:
 	Armor:
 		Type: None
 	Passenger:
-		PipType: Red
+		CustomPipType: red
 	PeriodicExplosion:
 		Weapon: PsiWave
 		LocalOffset: 0,0,128
@@ -355,7 +355,7 @@ yuripr:
 	Armor:
 		Type: None
 	Passenger:
-		PipType: Red
+		CustomPipType: red
 	PeriodicExplosion:
 		Weapon: PsiWave
 		LocalOffset: 0,0,128

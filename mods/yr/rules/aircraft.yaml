@@ -220,9 +220,6 @@ orca:
 		VoiceSet: HarrierVoice
 	AmmoPool:
 		Ammo: 1
-		PipCount: 1
-		PipType: Ammo
-		PipTypeEmpty: AmmoEmpty
 		AmmoCondition: ammo
 	AutoTarget:
 	RenderSprites:
@@ -449,9 +446,6 @@ bpln:
 		VoiceSet: MigVoice
 	AmmoPool:
 		Ammo: 1
-		PipCount: 1
-		PipType: Ammo
-		PipTypeEmpty: AmmoEmpty
 		AmmoCondition: ammo
 	AutoTarget:
 	RenderSprites:
