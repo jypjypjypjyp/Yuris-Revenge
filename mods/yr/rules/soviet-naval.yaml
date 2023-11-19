@@ -179,7 +179,7 @@ sqd:
 		Type: Light
 	Health:
 		HP: 200
-	SelfHealing:
+	ChangesHealth:
 	Mobile:
 		TurnSpeed: 6
 		Speed: 90

@@ -11,9 +11,9 @@ ModCredits:
 PackageFormats: Mix, AudioBag
 
 Packages:
-	~^Content/ra2
-	~^Content/yr
-	.
+	~^SupportDir|Content//ra2
+	~^SupportDir|Content//yr
+	^EngineDir
 	$yr: yr
 	./mods/common: common
 	~ra2.mix
@@ -257,6 +257,17 @@ Translations:
 	yr|languages/chinese.yaml
 	yr|languages/english.yaml
 
+Hotkeys:
+	common|hotkeys/game.yaml
+	common|hotkeys/observer.yaml
+	common|hotkeys/production-common.yaml
+	common|hotkeys/supportpowers.yaml
+	common|hotkeys/viewport.yaml
+	common|hotkeys/chat.yaml
+	common|hotkeys/editor.yaml
+	common|hotkeys/control-groups.yaml
+	yr|hotkeys.yaml
+
 LoadScreen: LogoStripeLoadScreen
 	Image: yr|uibits/loadscreen.png
 	Text: Carving wooden nickels..., Preparing paratroopers..., Welcoming you to Texas..., Optimizing helium mix..., Receiving thoughts..., Igniting boosters...
@@ -307,9 +318,13 @@ Fonts:
 Missions:
 	yr|missions.yaml
 
+DefaultOrderGenerator: UnitOrderGenerator
+
 SupportsMapsFrom: yr
 
 SoundFormats: Aud, Wav
+
+TerrainFormat: DefaultTerrain
 
 SpriteFormats: ShpTS, TmpTS, ShpTD, PngSheet
 
@@ -333,6 +348,12 @@ SpriteSequenceFormat: ExtendedTilesetSpecificSpriteSequence
 		SNOW: a
 
 ModelSequenceFormat: VoxelModelSequence
+
+AssetBrowser:
+	SpriteExtensions: .shp, .tem, .urb, .sno
+	ModelExtensions: .vxl
+	AudioExtensions: .aud, .wav
+	VideoExtensions: .vqa
 
 GameSpeeds:
 	DefaultSpeed: default
@@ -367,25 +388,21 @@ ModContent:
 	HeaderMessage: The original game content must be copied from an original game disc.
 	Packages:
 		base: Red Alert 2 Files
-			TestFiles: ^Content/ra2/ra2.mix, ^Content/ra2/language.mix
+			TestFiles: ^SupportDir|Content/ra2/ra2.mix, ^SupportDir|Content/ra2/language.mix
 			Sources: ra2, origin, tfd
 			Required: true
 		base-md: Yuri's Revenge Files
-			TestFiles: ^Content/yr/ra2md.mix, ^Content/yr/langmd.mix
+			TestFiles: ^SupportDir|Content/yr/ra2md.mix, ^SupportDir|Content/yr/langmd.mix
 			Sources: yr, origin, tfd, yr-german-disc
 			Required: true
 		music-md: Yuri's Revenge Music
-			TestFiles: ^Content/yr/thememd.mix
+			TestFiles: ^SupportDir|Content/yr/thememd.mix
 			Sources: yr, origin, tfd, yr-german-disc
 		movie-md: Yuri's Revenge Briefings
-			TestFiles: ^Content/yr/movmd03.mix
+			TestFiles: ^SupportDir|Content/yr/movmd03.mix
 			Sources: yr, origin, tfd, yr-german-disc
 		wdt: Red Alert 2 World Domination Tour
-			TestFiles: ^Content/ra2/wdt.mix
+			TestFiles: ^SupportDir|Content/ra2/wdt.mix
 			Sources: ra2, origin, tfd
 	Sources:
-		yr|installer/ra2.yaml
 		yr|installer/yr.yaml
-		yr|installer/origin.yaml
-		yr|installer/firstdecade.yaml
-		yr|installer/yr-german-disc.yaml

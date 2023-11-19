@@ -140,11 +140,11 @@ Player:
 		Id: unrestricted
 	GrantConditionOnPrerequisiteManager:
 	EnemyWatcher:
-	VeteranProductionIconOverlay:
+	ProductionIconOverlayManager:
 		Image: cameo-chevron
 		Sequence: idle
 		Palette: cameo-chevron
+		Type: Veterancy
 	PlayerExperience:
-	ConditionManager:
 	GameSaveViewportManager:
 	PlayerRadarTerrain:

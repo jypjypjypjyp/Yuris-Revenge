@@ -40,7 +40,7 @@ pcv:
 	Voiced:
 		VoiceSet: YuriMCVVoice
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	
 smin:
@@ -107,7 +107,7 @@ smin:
 	Voiced:
 		VoiceSet: SlaveMinerVoice
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	GrantConditionOnDeploy:
 		DeployedCondition: deploy
@@ -168,7 +168,7 @@ ltnk:
 	ProducibleWithLevel:
 		Prerequisites: warfactory.infiltrated
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	Bunkerable:
 	
@@ -279,7 +279,7 @@ ytnk:
 	ProducibleWithLevel:
 		Prerequisites: warfactory.infiltrated
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	Bunkerable:
 	
@@ -350,7 +350,7 @@ tele:
 		DefendCondition: stance-defend
 		HoldFireCondition: stance-holdfire
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	
 caos:
@@ -399,7 +399,7 @@ caos:
 	ProducibleWithLevel:
 		Prerequisites: warfactory.infiltrated
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	GrantExternalConditionWeapon@ChaoGas:
 		Condition: chaosgasability
@@ -463,11 +463,11 @@ mind:
 	ProducibleWithLevel:
 		Prerequisites: warfactory.infiltrated
 	HitShape:
-	SelfHealing:
-	SelfHealing@Overload:
+	ChangesHealth:
+	ChangesHealth@Overload:
 		PercentageStep: -5
 		RequiresCondition: mind-control-overload
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 
 
@@ -494,6 +494,7 @@ disk:
 		Bounds: 78, 43, 0, -15
 	Health:
 		HP: 600
+	-ChronoshiftableWithSpriteEffect:
 	Armor:
 		Type: Light
 	RevealsShroud:

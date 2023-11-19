@@ -205,7 +205,6 @@ nahand:
 		ProductionType: Infantry.Soviets
 	Power:
 		Amount: -10
-	ConditionManager:
 	InfiltrateForSupportPower:
 		Types: SpyInfiltrate
 		Proxy: barracks.infiltrated
@@ -713,18 +712,19 @@ nairon:
 	GrantExternalConditionPower@IRONCURTAIN:
 		Icon: invuln
 		ChargeInterval: 7500
-		Description: Iron Curtain
-		EndChargeSpeechNotification: IronCurtainReady
-		LongDesc: Makes a group of units invulnerable\nfor 20 seconds.
+		Name: Iron Curtain
+		Description: Makes a group of units invulnerable\nfor 20 seconds.
 		Duration: 500
-		# TODO: This are actually no speech notifications
+		# TODO: These are actually no speech notifications
 		EndChargeSound: siroread.wav
+		EndChargeSpeechNotification: IronCurtainReady
 		OnFireSound: siroon.wav
-		DisplayTimerStances: Ally, Neutral, Enemy
+		DisplayTimerRelationships: Ally, Neutral, Enemy
 		DisplayRadarPing: True
 		Condition: invulnerability
 		PauseOnCondition: lowpower
-		Range: 3
+		Dimensions: 3, 3
+		Footprint: xxx xxx xxx
 	SupportPowerChargeBar:
 	GrantConditionOnPowerState@LOWPOWER:
 		Condition: lowpower
@@ -784,7 +784,7 @@ namisl:
 		CameraRange: 10
 		PauseOnCondition: lowpower
 		SelectTargetSpeechNotification: SelectTarget
-	WithNukeLaunchAnimation:
+	WithSupportPowerActivationAnimation:
 
 nawall:
 	Inherits: ^Wall

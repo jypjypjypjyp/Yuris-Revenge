@@ -11,7 +11,7 @@ namespace OpenRA.Mods.YR.UtilityCommands
         [Desc("", "Display current openra content path")]
         public void Run(Utility utility, string[] args)
         {
-            Console.WriteLine("OpenRA Content Path: " + Platform.ResolvePath("^Content"));
+            Console.WriteLine("OpenRA Content Path: " + Platform.ResolvePath("^SupportDir|Content/"));
         }
     }
 }

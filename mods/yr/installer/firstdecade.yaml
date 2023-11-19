@@ -11,10 +11,10 @@ tfd: C&C The First Decade (English)
 				8: data8.cab
 				9: data9.cab
 			Extract:
-				^Content/ra2/theme.mix: Red Alert 2\RA2\theme.mix
-				^Content/ra2/ra2.mix: Red Alert 2\RA2\ra2.mix
-				^Content/ra2/language.mix: Red Alert 2\RA2\language.mix
-				^Content/yr/ra2md.mix: Yuri\RA2\ra2md.mix
-				^Content/yr/langmd.mix: Yuri\RA2\langmd.mix
-				^Content/yr/thememd.mix: Yuri\RA2\thememd.mix
-				^Content/yr/movmd03.mix: Yuri\RA2\movmd03.mix
+				^SupportDir|Content//ra2/theme.mix: Red Alert 2\RA2\theme.mix
+				^SupportDir|Content//ra2/ra2.mix: Red Alert 2\RA2\ra2.mix
+				^SupportDir|Content//ra2/language.mix: Red Alert 2\RA2\language.mix
+				^SupportDir|Content//yr/ra2md.mix: Yuri\RA2\ra2md.mix
+				^SupportDir|Content//yr/langmd.mix: Yuri\RA2\langmd.mix
+				^SupportDir|Content//yr/thememd.mix: Yuri\RA2\thememd.mix
+				^SupportDir|Content//yr/movmd03.mix: Yuri\RA2\movmd03.mix

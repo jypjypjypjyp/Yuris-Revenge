@@ -1081,21 +1081,22 @@ gacsph:
 		OrderName: Chronoshift
 		Icon: chrono
 		ChargeInterval: 7500
-		Description: Chronosphere
-		EndChargeSpeechNotification: ChronosphereReady
-		LongDesc: Teleports a group of units across\nthe map.
+		Name: Chronosphere
+		Description: Teleports a group of units across\nthe map.
 		# Those sounds don't work: OpenRA/OpenRA#10540
 		# They also want to be played successive
 		#SelectTargetSound: schrlo1.wav, schrlo2a.wav schrlo2b.wav, schrlo2c.wav, schrlo3.wav
 		EndChargeSound: schropen.wav
-		DisplayTimerStances: Ally, Neutral, Enemy
+		EndChargeSpeechNotification: ChronosphereReady
+		DisplayTimerRelationships: Ally, Neutral, Enemy
 		DisplayRadarPing: True
 		KillCargo: False
 		SelectionCursor: chronosphere
 		TargetCursor: chronosphere
 		TargetOverlayPalette: effect75alpha
 		PauseOnCondition: lowpower
-		Range: 3
+		Dimensions: 3, 3
+		Footprint: xxx xxx xxx
 
 atesla:
 	Inherits: ^SupportBuilding

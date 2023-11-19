@@ -18,7 +18,8 @@ viruscloud:
 	-Targetable@ground:
 	Health:
 		HP: 100
-	SelfHealing:
+	-ChronoshiftableWithSpriteEffect:
+	ChangesHealth:
 		Step: -1
 		Delay: 25
 		HealIfBelow: 200
@@ -46,6 +47,7 @@ shad:
 		Name: Night Hawk
 	Health:
 		HP: 175
+	-ChronoshiftableWithSpriteEffect:
 	Armor:
 		Type: Light
 	Armament:
@@ -138,6 +140,7 @@ zep:
 		CanSlide: True
 	Health:
 		HP: 2000
+	-ChronoshiftableWithSpriteEffect:
 	Armor:
 		Type: Light
 	RevealsShroud:
@@ -204,6 +207,7 @@ orca:
 		Bounds: 30,24
 	Health:
 		HP: 150
+	-ChronoshiftableWithSpriteEffect:
 	Armor:
 		Type: Light
 	RevealsShroud:
@@ -321,6 +325,7 @@ hornet:
 		Name: Hornet
 	Health:
 		HP: 75
+	-ChronoshiftableWithSpriteEffect:
 	Armor:
 		Type: Light
 	RevealsShroud:
@@ -364,6 +369,7 @@ asw:
 		Name: Osprey
 	Health:
 		HP: 75
+	-ChronoshiftableWithSpriteEffect:
 	Armor:
 		Type: Light
 	RevealsShroud:
@@ -426,6 +432,7 @@ bpln:
 		Bounds: 30,24
 	Health:
 		HP: 100
+	-ChronoshiftableWithSpriteEffect:
 	Armor:
 		Type: Light
 	RevealsShroud:
@@ -480,6 +487,7 @@ schp:
 		Name: Soviet Siege Chopper
 	Health:
 		HP: 300
+	-ChronoshiftableWithSpriteEffect:
 	Armor:
 		Type: Light
 	Armament@primary:
@@ -609,6 +617,7 @@ spyp:
 		Speed: 225
 	Health:
 		HP: 400
+	-ChronoshiftableWithSpriteEffect:
 	AttackBomber:
 		FacingTolerance: 20
 		Armaments: primary

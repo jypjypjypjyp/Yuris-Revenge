@@ -6,7 +6,6 @@
 	GivesExperience:
 		PlayerExperienceModifier: 1
 	ScriptTriggers:
-	ConditionManager:
 	Huntable:
 
 ^SpriteActor:
@@ -204,7 +203,7 @@
 	ReloadDelayMultiplier@ELITE:
 		RequiresCondition: rank-elite
 		Modifier: 75
-	SelfHealing@ELITE:
+	ChangesHealth@ELITE:
 		Step: 2
 		Delay: 100
 		HealIfBelow: 100
@@ -622,7 +621,6 @@
 	FrozenUnderFog:
 	-CombatDebugOverlay:
 	-DrawLineToTarget:
-	-ConditionManager:
 	Building:
 		Dimensions: 1,1
 		Footprint: x

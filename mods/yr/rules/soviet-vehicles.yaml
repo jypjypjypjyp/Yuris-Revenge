@@ -41,7 +41,7 @@ smcv:
 	Voiced:
 		VoiceSet: SovietMCVVoice
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 
 harv:
@@ -104,7 +104,7 @@ harv:
 	Voiced:
 		VoiceSet: WarMinerVoice
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	Targetable@RadiationImmunity:
 		TargetTypes: ImmuneToRadiation
@@ -150,7 +150,7 @@ dron:
 	Voiced:
 		VoiceSet: TerrorDroneVoice
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	Targetable@RadiationImmunity:
 		TargetTypes: ImmuneToRadiation
@@ -214,7 +214,7 @@ htk:
 	ProducibleWithLevel:
 		Prerequisites: warfactory.infiltrated
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	Bunkerable:
 	WithMuzzleOverlay:
@@ -273,7 +273,7 @@ htnk:
 	ProducibleWithLevel:
 		Prerequisites: warfactory.infiltrated
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	Bunkerable:
 	WithMuzzleOverlay:
@@ -335,7 +335,7 @@ apoc:
 	ProducibleWithLevel:
 		Prerequisites: warfactory.infiltrated
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	Bunkerable:
 
@@ -387,7 +387,7 @@ ttnk:
 	ProducibleWithLevel:
 		Prerequisites: warfactory.infiltrated
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	Bunkerable:
 
@@ -435,7 +435,7 @@ dtruck:
 	Voiced:
 		VoiceSet: DemolitionTruckVoice
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 
 v3:
@@ -485,7 +485,7 @@ v3:
 	ProducibleWithLevel:
 		Prerequisites: warfactory.infiltrated
 	HitShape:
-	SelfHealing@MACHSHOP:
+	ChangesHealth@MACHSHOP:
 		RequiresCondition: machshop
 	MissileSpawnerMaster:
 		Actors: v3rocket
